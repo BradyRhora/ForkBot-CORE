@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "EEQerWHqp4Oca8YVfX7zJ0Q9jBVvr5bGuebjkTx6xKNjcX5aFiBTvazyTfIvRjE5+t5f9aGyhwPno33fUO/4sA==",
+  "dgSpecHash": "giTQUS0YNqttzvlSkSCfNyMpB4U/YJpONYHWOYGHLk0jr/+T/qIhGg3I+soSQvxTZAwPv4XHk7x8kuL+yfoRxw==",
   "success": true,
   "projectFilePath": "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\ForkBot CORE.csproj",
   "expectedPackageFiles": [
@@ -12,7 +12,6 @@
     "C:\\Users\\brady\\.nuget\\packages\\discord.net.rpc\\1.0.2\\discord.net.rpc.1.0.2.nupkg.sha512",
     "C:\\Users\\brady\\.nuget\\packages\\discord.net.webhook\\3.7.2\\discord.net.webhook.3.7.2.nupkg.sha512",
     "C:\\Users\\brady\\.nuget\\packages\\discord.net.websocket\\3.7.2\\discord.net.websocket.3.7.2.nupkg.sha512",
-    "C:\\Users\\brady\\.nuget\\packages\\duckduckgo.net\\1.0.1\\duckduckgo.net.1.0.1.nupkg.sha512",
     "C:\\Users\\brady\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\brady\\.nuget\\packages\\htmlagilitypack\\1.11.43\\htmlagilitypack.1.11.43.nupkg.sha512",
     "C:\\Users\\brady\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
@@ -129,16 +128,6 @@
     "C:\\Users\\brady\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
   ],
   "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'DuckDuckGo.Net 1.0.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
-      "libraryId": "DuckDuckGo.Net",
-      "targetGraphs": [
-        "net6.0"
-      ]
-    },
     {
       "code": "NU1701",
       "level": "Warning",

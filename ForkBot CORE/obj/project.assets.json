@@ -110,17 +110,6 @@
           "lib/net6.0/Discord.Net.WebSocket.dll": {}
         }
       },
-      "DuckDuckGo.Net/1.0.1": {
-        "type": "package",
-        "compile": {
-          "lib/DuckDuckGo.dll": {},
-          "lib/Newtonsoft.Json.dll": {}
-        },
-        "runtime": {
-          "lib/DuckDuckGo.dll": {},
-          "lib/Newtonsoft.Json.dll": {}
-        }
-      },
       "EntityFramework/6.4.4": {
         "type": "package",
         "dependencies": {
@@ -2096,19 +2085,6 @@
         "lib/netstandard2.0/Discord.Net.WebSocket.xml",
         "lib/netstandard2.1/Discord.Net.WebSocket.dll",
         "lib/netstandard2.1/Discord.Net.WebSocket.xml"
-      ]
-    },
-    "DuckDuckGo.Net/1.0.1": {
-      "sha512": "4vTGnxnAz4p/uiWSkWkeuCnx6jDTc0yMjh8YkYDsGkwulALCZyTRXXcY/01Vrx6KG7RH7eRrtyYMeyjiOIAl6g==",
-      "type": "package",
-      "path": "duckduckgo.net/1.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "duckduckgo.net.1.0.1.nupkg.sha512",
-        "duckduckgo.net.nuspec",
-        "lib/DuckDuckGo.dll",
-        "lib/Newtonsoft.Json.dll"
       ]
     },
     "EntityFramework/6.4.4": {
@@ -6859,7 +6835,6 @@
       "Discord.Net.Rpc >= 1.0.2",
       "Discord.Net.WebSocket >= 3.7.2",
       "Discord.Net.Webhook >= 3.7.2",
-      "DuckDuckGo.Net >= 1.0.1",
       "EntityFramework >= 6.4.4",
       "HtmlAgilityPack >= 1.11.43",
       "Stub.System.Data.SQLite.Core.NetFramework >= 1.0.116",
@@ -6940,10 +6915,6 @@
             "target": "Package",
             "version": "[3.7.2, )"
           },
-          "DuckDuckGo.Net": {
-            "target": "Package",
-            "version": "[1.0.1, )"
-          },
           "EntityFramework": {
             "target": "Package",
             "version": "[6.4.4, )"
@@ -6994,16 +6965,6 @@
     }
   },
   "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'DuckDuckGo.Net 1.0.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
-      "libraryId": "DuckDuckGo.Net",
-      "targetGraphs": [
-        "net6.0"
-      ]
-    },
     {
       "code": "NU1701",
       "level": "Warning",

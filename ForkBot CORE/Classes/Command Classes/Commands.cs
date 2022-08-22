@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using DuckDuckGo.Net;
 using HtmlAgilityPack;
 using System.Drawing;
 using System.Net;
@@ -77,25 +76,6 @@ namespace ForkBot
             await msg.AddReactionAsync(Constants.Emotes.QUESTION);
             if (Context.User.Id == Constants.Users.BRADY) await msg.AddReactionAsync(Constants.Emotes.BRADY);
             Var.awaitingHelp.Add(msg);
-        }
-
-        [Command("whatis"), Alias(new string[] { "wi" }), Summary("Don't know what something is? Find out!")]
-        public async Task WhatIs([Remainder]string thing)
-        {
-            var results = new Search().Query(thing, "ForkBot");
-            QueryResult result = null;
-            if (results.Abstract == "" && results.RelatedTopics.Count > 0) result = results.RelatedTopics[0];
-
-            if (result != null)
-            {
-                JEmbed emb = new JEmbed();
-                emb.Title = thing;
-                emb.Description = result.Text;
-                emb.ImageUrl = result.Icon.Url;
-                await Context.Channel.SendMessageAsync("", embed: emb.Build());
-            }
-            else await Context.Channel.SendMessageAsync("No results found!");
-
         }
 
         HtmlWeb web = new HtmlWeb();
