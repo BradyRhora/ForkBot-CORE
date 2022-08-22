@@ -70,10 +70,6 @@
               "target": "Package",
               "version": "[3.7.2, )"
             },
-            "DuckDuckGo.Net": {
-              "target": "Package",
-              "version": "[1.0.1, )"
-            },
             "EntityFramework": {
               "target": "Package",
               "version": "[6.4.4, )"
