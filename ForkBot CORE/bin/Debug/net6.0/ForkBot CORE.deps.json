@@ -16,14 +16,11 @@
           "Discord.Net.Rpc": "1.0.2",
           "Discord.Net.WebSocket": "3.7.2",
           "Discord.Net.Webhook": "3.7.2",
-          "DuckDuckGo.Net": "1.0.1",
           "EntityFramework": "6.4.4",
           "HtmlAgilityPack": "1.11.43",
-          "Stub.System.Data.SQLite.Core.NetFramework": "1.0.116",
           "System.Data.SQLite": "1.0.116",
           "System.Data.SQLite.Core": "1.0.116",
-          "System.Data.SQLite.EF6": "1.0.116",
-          "System.Data.SQLite.Linq": "1.0.116"
+          "System.Data.SQLite.EF6": "1.0.116"
         },
         "runtime": {
           "ForkBot CORE.dll": {}
@@ -126,14 +123,6 @@
           "lib/net6.0/Discord.Net.WebSocket.dll": {
             "assemblyVersion": "3.7.2.0",
             "fileVersion": "3.7.2.0"
-          }
-        }
-      },
-      "DuckDuckGo.Net/1.0.1": {
-        "runtime": {
-          "lib/DuckDuckGo.dll": {
-            "assemblyVersion": "1.0.1.0",
-            "fileVersion": "1.0.1.0"
           }
         }
       },
@@ -329,7 +318,7 @@
           "runtimes/win-arm64/native/sni.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "4.6.25512.1"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -338,7 +327,7 @@
           "runtimes/win-x64/native/sni.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "4.6.25512.1"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -347,19 +336,17 @@
           "runtimes/win-x86/native/sni.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "4.6.25512.1"
-          }
-        }
-      },
-      "Stub.System.Data.SQLite.Core.NetFramework/1.0.116": {
-        "runtime": {
-          "lib/net46/System.Data.SQLite.dll": {
-            "assemblyVersion": "1.0.116.0",
-            "fileVersion": "1.0.116.0"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
       "Stub.System.Data.SQLite.Core.NetStandard/1.0.116": {
+        "runtime": {
+          "lib/netstandard2.1/System.Data.SQLite.dll": {
+            "assemblyVersion": "1.0.116.0",
+            "fileVersion": "1.0.116.0"
+          }
+        },
         "runtimeTargets": {
           "runtimes/linux-x64/native/SQLite.Interop.dll": {
             "rid": "linux-x64",
@@ -374,12 +361,12 @@
           "runtimes/win-x64/native/SQLite.Interop.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.0.116.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/SQLite.Interop.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.0.116.0"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -493,14 +480,6 @@
         },
         "runtime": {
           "lib/netstandard2.1/System.Data.SQLite.EF6.dll": {
-            "assemblyVersion": "1.0.116.0",
-            "fileVersion": "1.0.116.0"
-          }
-        }
-      },
-      "System.Data.SQLite.Linq/1.0.116": {
-        "runtime": {
-          "lib/net46/System.Data.SQLite.Linq.dll": {
             "assemblyVersion": "1.0.116.0",
             "fileVersion": "1.0.116.0"
           }
@@ -1313,13 +1292,6 @@
       "path": "discord.net.websocket/3.7.2",
       "hashPath": "discord.net.websocket.3.7.2.nupkg.sha512"
     },
-    "DuckDuckGo.Net/1.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-4vTGnxnAz4p/uiWSkWkeuCnx6jDTc0yMjh8YkYDsGkwulALCZyTRXXcY/01Vrx6KG7RH7eRrtyYMeyjiOIAl6g==",
-      "path": "duckduckgo.net/1.0.1",
-      "hashPath": "duckduckgo.net.1.0.1.nupkg.sha512"
-    },
     "EntityFramework/6.4.4": {
       "type": "package",
       "serviceable": true,
@@ -1544,13 +1516,6 @@
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
     },
-    "Stub.System.Data.SQLite.Core.NetFramework/1.0.116": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-wIGWCPYwxEXJZSkIzXePu06uiyhADuNdo9mYRjDlhIY/YvScadeSnflle2UqgFrhGnsX4pPAAe08zkl9kjIyRw==",
-      "path": "stub.system.data.sqlite.core.netframework/1.0.116",
-      "hashPath": "stub.system.data.sqlite.core.netframework.1.0.116.nupkg.sha512"
-    },
     "Stub.System.Data.SQLite.Core.NetStandard/1.0.116": {
       "type": "package",
       "serviceable": true,
@@ -1648,13 +1613,6 @@
       "sha512": "sha512-oWkl3W9ZKb4oiS4mFd363qK317t/l5KyM3dmj7BD+eW7Qji8Oid5L4Tn+OshQrgY7xNpG4Ga9NUZVXyF91qXAA==",
       "path": "system.data.sqlite.ef6/1.0.116",
       "hashPath": "system.data.sqlite.ef6.1.0.116.nupkg.sha512"
-    },
-    "System.Data.SQLite.Linq/1.0.116": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-chSy8+xdCkyMH47BvggLb4fZwkd+/ZqBG14WFbXoURgqfpS+8qVdc/0ASoZbsPjNBWSoEsEfKPqfMCY08MvEMg==",
-      "path": "system.data.sqlite.linq/1.0.116",
-      "hashPath": "system.data.sqlite.linq.1.0.116.nupkg.sha512"
     },
     "System.Diagnostics.Debug/4.3.0": {
       "type": "package",

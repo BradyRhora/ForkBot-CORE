@@ -29,7 +29,6 @@ namespace ForkBot
         {
             try
             {
-                File.WriteAllText("test.txt", "HAHAHHAHAHAAHW WWOOOOOOOWIEEEE!");
                 DiscordSocketConfig config = new DiscordSocketConfig() { MessageCacheSize = 1000 };
                 Console.WriteLine("Welcome. Initializing ForkBot CORE...");
                 client = new DiscordSocketClient(config);
