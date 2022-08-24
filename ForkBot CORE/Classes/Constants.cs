@@ -101,8 +101,8 @@ namespace ForkBot
         {
             public static double SELL_VAL = .45;
             public static string GNOME_VID = "https://tenor.com/view/gnome-your-chums-gnomed-gnome-gnoblin-gnelf-gif-12675740";
-            public static string DB_CONNECTION_STRING = @"data source=Files\ForkDB CORE.db";
-            public static string YORK_DB_CONNECTION_STRING = @"data source=Files\YorkDB.db";
+            public static string DB_CONNECTION_STRING = @"data source=Files/ForkDB CORE.db";
+            public static string YORK_DB_CONNECTION_STRING = @"data source=Files/YorkDB.db";
         }
     }
 }

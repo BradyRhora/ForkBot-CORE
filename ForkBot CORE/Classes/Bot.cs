@@ -29,9 +29,12 @@ namespace ForkBot
         {
             try
             {
-                DiscordSocketConfig config = new DiscordSocketConfig() { MessageCacheSize = 1000 };
+                File.WriteAllText("TEST2.txt","PLEASE FUCK PLEASE OH GOD PLEASE also take THIS!\n" + Path.GetDirectoryName(Constants.Values.DB_CONNECTION_STRING));
+                
+                DiscordSocketConfig config = new DiscordSocketConfig() { GatewayIntents = GatewayIntents.All,MessageCacheSize = 1000 };
                 Console.WriteLine("Welcome. Initializing ForkBot CORE...");
                 client = new DiscordSocketClient(config);
+                //client.Log += LogAsync;
                 Console.WriteLine("Client Initialized.");
                 commands = new CommandService();
                 Console.WriteLine("Command Service Initialized.");
@@ -40,20 +43,21 @@ namespace ForkBot
                 if (!Directory.Exists("Constants"))
                 {
                     Directory.CreateDirectory("Constants");
-                    Console.WriteLine("Created Constants folder in bin/Debug/");
+                    Console.WriteLine($"Created Constants folder in {Directory.GetCurrentDirectory()}");
                 }
                 if (!File.Exists("Constants/bottoken"))
                 {
                     File.WriteAllText("Constants/bottoken", "");
-                    Console.WriteLine("Created bottoken file in Constants folder, you will need to put the token in this file.");
+                    Console.WriteLine($"Created bottoken file in {Path.GetDirectoryName("Constants")}, you will need to put the token in this file.");
                 }
-                await client.LoginAsync(TokenType.Bot, File.ReadAllText("Constants/bottoken"));
                 
+                await client.LoginAsync(TokenType.Bot, File.ReadAllText("Constants/bottoken"));
                 Console.WriteLine("Successfully logged in!");
                 await client.StartAsync();
                 Var.DebugCode = rdm.Next(999, 9999) + 1;
                 Var.IDEnd = rdm.Next(10);
-                Console.WriteLine($"ForkBot successfully intialized with debug code [{Var.DebugCode}]");
+                Console.WriteLine(client.ConnectionState);
+                Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}]");
                 Var.startTime = Var.CurrentDate();
 
                 int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
@@ -70,9 +74,15 @@ namespace ForkBot
                 Console.WriteLine($"Error occured in {e.Source}");
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.InnerException);
+                Console.WriteLine(e.StackTrace);
                 Console.Read();
             }
         }
+        public async Task LogAsync(LogMessage msg)
+        {
+            Console.WriteLine($"[General/{msg.Severity}] {msg}");
+        }
+
         public async Task InstallCommands()
         {
             client.MessageReceived += HandleMessage;
