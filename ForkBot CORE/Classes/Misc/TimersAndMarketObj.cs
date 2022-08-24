@@ -128,7 +128,7 @@ namespace ForkBot
 
             if ((Var.CurrentDate().DayOfWeek == DayOfWeek.Friday || Var.CurrentDate().DayOfWeek == DayOfWeek.Wednesday) && DBFunctions.GetPropertyAsDateTime("Last_Bid").DayOfYear != Var.CurrentDate().DayOfYear)
             {
-                DBFunctions.SetProperty("Last_Bid",Functions.DateTimeToString(Var.CurrentDate()));
+                DBFunctions.SetProperty("Last_Bid",Var.CurrentDate());
 
                 var bidItems = new string[] { "key", "unicorn", "key2", "package", "santa", "gift", "calling" };
                 int amount = rdm.Next(10) + 3;

@@ -503,6 +503,9 @@ namespace ForkBot
 
         public static int GetUserTotalStats(IUser user)
         {
+            User u = new User(user.Id);
+            u.CheckStats();
+
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
@@ -515,7 +518,7 @@ namespace ForkBot
             }
         }
 
-        public static string GetProperty(string property)
+        public static object GetProperty(string property)
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
@@ -523,8 +526,7 @@ namespace ForkBot
                 var stm = $"SELECT {property} FROM PROPERTIES";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
-                    cmd.Parameters.AddWithValue("@prop", property);
-                    return (string)cmd.ExecuteScalar();
+                    return cmd.ExecuteScalar();
                 }
             }
         }
@@ -534,25 +536,25 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "SELECT @prop FROM PROPERTIES";
+                var stm = $"SELECT {property} FROM PROPERTIES";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
-                    cmd.Parameters.AddWithValue("@prop", property);
-                    var dt = Functions.StringToDateTime((string)cmd.ExecuteScalar());
-                    return dt;
+                    var val = cmd.ExecuteScalar();
+                    if (val is not System.DBNull)
+                        return (DateTime)val;
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public static void SetProperty(string property, string value)
+        public static void SetProperty(string property, object value)
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "UPDATE PROPERTIES SET @prop = @val;";
+                var stm = $"UPDATE PROPERTIES SET {property} = @val;";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
-                    cmd.Parameters.AddWithValue("@prop", property);
                     cmd.Parameters.AddWithValue("@val", value);
                     cmd.ExecuteNonQuery();
                 }
@@ -566,10 +568,9 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "UPDATE PROPERTIES SET @prop = @val;";
+                var stm = $"UPDATE PROPERTIES SET {property} = @val;";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
-                    cmd.Parameters.AddWithValue("@prop", property);
                     cmd.Parameters.AddWithValue("@val", curr+amount);
                     cmd.ExecuteNonQuery();
                 }

@@ -298,7 +298,6 @@ namespace ForkBot
                 con.Open();
 
                 var topUserStm = $"SELECT USER_ID, {stat} FROM USER_STATS ORDER BY {stat} DESC LIMIT 1";
-
                 ulong topUserID;
                 int topUserAmount;
                 using (var com = new SQLiteCommand(topUserStm, con))
@@ -311,8 +310,9 @@ namespace ForkBot
                     }
                 }
 
-                var stm = $"UPDATE USER_STATS SET {stat} = {stat}+@addition WHERE USER_ID = @userid";
+                CheckStats();
 
+                var stm = $"UPDATE USER_STATS SET {stat} = {stat}+@addition WHERE USER_ID = @userid";
                 using (var com = new SQLiteCommand(stm, con))
                 {
                     com.Parameters.AddWithValue("@addition", addition);
@@ -337,6 +337,31 @@ namespace ForkBot
                     DBFunctions.AddNews(headline, content);
                 }
             }
+        }
+
+        public void CheckStats(SQLiteConnection con = null)
+        {   
+            if (con == null) con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING);
+            using (con)
+            {
+                con.Open();
+                var userExistStm = $"SELECT * FROM USER_STATS WHERE USER_ID = @userid";
+                using (var com = new SQLiteCommand(userExistStm,con))
+                {
+                    com.Parameters.AddWithValue("@userid", ID);
+                    var ret = com.ExecuteScalar();
+                    if (ret == null)
+                    {
+                        var createUserStm = $"INSERT INTO USER_STATS(USER_ID) VALUES(@userid)";
+                        using (var com2 = new SQLiteCommand(createUserStm,con))
+                        {
+                            com2.Parameters.AddWithValue("@userid",ID);
+                            com2.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            con.Dispose();
         }
 
         //gets User class for IUser, makes one if there isn't already one.
