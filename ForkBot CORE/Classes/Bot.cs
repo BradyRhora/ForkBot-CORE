@@ -24,17 +24,15 @@ namespace ForkBot
         public static DiscordSocketClient client;
         public static CommandService commands;
         public static List<User> users = new List<User>();
-
+        private const bool LOG = false;
         public async Task Run()
         {
             try
-            {
-                File.WriteAllText("TEST2.txt","PLEASE FUCK PLEASE OH GOD PLEASE also take THIS!\n" + Path.GetDirectoryName(Constants.Values.DB_CONNECTION_STRING));
-                
+            {                
                 DiscordSocketConfig config = new DiscordSocketConfig() { GatewayIntents = GatewayIntents.All,MessageCacheSize = 1000 };
                 Console.WriteLine("Welcome. Initializing ForkBot CORE...");
                 client = new DiscordSocketClient(config);
-                //client.Log += LogAsync;
+                if (LOG) client.Log += LogAsync;
                 Console.WriteLine("Client Initialized.");
                 commands = new CommandService();
                 Console.WriteLine("Command Service Initialized.");
@@ -56,7 +54,6 @@ namespace ForkBot
                 await client.StartAsync();
                 Var.DebugCode = rdm.Next(999, 9999) + 1;
                 Var.IDEnd = rdm.Next(10);
-                Console.WriteLine(client.ConnectionState);
                 Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}]");
                 Var.startTime = Var.CurrentDate();
 

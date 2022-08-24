@@ -469,16 +469,16 @@ namespace ForkBot
                 x.Text = $"Ranked number `{coinPos}` for total coins.\n" +
                 $"`{coins}` coins total, having `{percent.ToString("0.00")}%` of the global economy of `{totalCoins}` coins";
             }));
-
+            
             emb.Fields.Add(new JEmbedField(x => {
                 x.Header = ":shopping_bags: Items :shopping_bags:";
                 x.Text = $"Their total inventory value (at current prices) is `{invValue}` coins.\n"+
-                $"`{itemCount}` items total, which is `{itemPercent.ToString("0.00")}%` of the total `{totalItems}` items that exist.";
+                $"`{itemCount}` items total, which is `{(Double.IsNaN(itemPercent) ? "None" : itemPercent.ToString("0.00") + '%')}` of the total `{totalItems}` items that exist.";
             }));
 
             emb.Fields.Add(new JEmbedField(x => {
                 x.Header = ":crown: Stats :crown:";
-                x.Text = $"Total stat count is `{statCount}`, which is `{statPercent.ToString("0.00")}%` of the global total of `{totalStats}`";
+                x.Text = $"Total stat count is `{statCount}`, which is `{(Double.IsNaN(statPercent) ? "None" : statPercent.ToString("0.00") + '%')}` of the global total of `{totalStats}`";
             }));
 
             await ReplyAsync("", embed:emb.Build());
@@ -1650,7 +1650,8 @@ namespace ForkBot
                 string text = "";
                 foreach (var stat in u.GetStats())
                 {
-                    text += stat.Key + ": " + stat.Value + "\n";
+                    if (stat.Value != 0)
+                        text += stat.Key + ": " + stat.Value + "\n";
                 }
                 x.Text = Convert.ToString(text);
             }));
@@ -1753,6 +1754,7 @@ namespace ForkBot
 
                     if (Var.presentClaims.Count() > record) DBFunctions.SetProperty("Record_Claims", Var.presentClaims.Count().ToString());
                     msg += $"\nThere have been {Var.presentClaims.Count()} claims! The record is {DBFunctions.GetProperty("Record_Claims")}.";
+                    
                     if (Var.presentClaims.Count() > 0)
                     {
                         msg += "\nLast claimed by:\n```\n";
