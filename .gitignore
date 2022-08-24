@@ -375,3 +375,4 @@ ASALocalRun/
 *.nvuser
 ForkBot/bin/Debug/Files/tags.txt
 /ForkBot/Classes/Objects/YorkAPI.rar
+*.editorconfig

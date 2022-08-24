@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/home/brady0423/forkbot-core/ForkBot CORE/ForkBot CORE.csproj": {}
+    "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\ForkBot CORE.csproj": {}
   },
   "projects": {
-    "/home/brady0423/forkbot-core/ForkBot CORE/ForkBot CORE.csproj": {
+    "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\ForkBot CORE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/brady0423/forkbot-core/ForkBot CORE/ForkBot CORE.csproj",
+        "projectUniqueName": "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\ForkBot CORE.csproj",
         "projectName": "ForkBot CORE",
-        "projectPath": "/home/brady0423/forkbot-core/ForkBot CORE/ForkBot CORE.csproj",
-        "packagesPath": "/root/.nuget/packages/",
-        "outputPath": "/home/brady0423/forkbot-core/ForkBot CORE/obj/",
+        "projectPath": "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\ForkBot CORE.csproj",
+        "packagesPath": "C:\\Users\\brady\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\brady\\source\\repos\\BradyRhora\\ForkBot CORE\\ForkBot CORE\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/root/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\brady\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -102,27 +104,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-              "version": "[6.0.8, 6.0.8]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-              "version": "[6.0.8, 6.0.8]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/177/sdk/6.0.400/RuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "linux-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
