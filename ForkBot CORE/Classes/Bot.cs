@@ -19,17 +19,17 @@ namespace ForkBot
     {
         static void Main(string[] args) => new Bot().Run().GetAwaiter().GetResult();
 
-        Random rdm = new Random();
+        Random rdm = new();
 
         public static DiscordSocketClient client;
         public static CommandService commands;
-        public static List<User> users = new List<User>();
+        public static List<User> users = new();
         private const bool LOG = false;
         public async Task Run()
         {
             try
             {                
-                DiscordSocketConfig config = new DiscordSocketConfig() { GatewayIntents = GatewayIntents.All,MessageCacheSize = 1000 };
+                DiscordSocketConfig config = new() { GatewayIntents = GatewayIntents.All,MessageCacheSize = 1000 };
                 Console.WriteLine("Welcome. Initializing ForkBot CORE...");
                 client = new DiscordSocketClient(config);
                 if (LOG) client.Log += LogAsync;
@@ -93,7 +93,7 @@ namespace ForkBot
         }
 
         DateTime lastDay = Var.CurrentDate();
-        List<ulong> newUsers = new List<ulong>();
+        List<ulong> newUsers = new();
 
 
         public async Task HandleMessage(SocketMessage messageParam)
@@ -140,7 +140,7 @@ namespace ForkBot
                 int presID;
                 do
                 {
-                    var presIndex = rdm.Next(presents.Count());
+                    var presIndex = rdm.Next(presents.Length);
                     presID = presents[presIndex];
                 } while (!DBFunctions.ItemIsPresentable(presID));
                 Var.present = DBFunctions.GetItemName(presID);
@@ -184,7 +184,7 @@ namespace ForkBot
                 {
                     if (word.Contains("discord"))
                     {
-                        string id = word.Split('/')[word.Split('/').Count() - 1];
+                        string id = word.Split('/')[word.Split('/').Length - 1];
                         IInvite inv = await client.GetInviteAsync(id);
                         if (inv.GuildId == Constants.Guilds.FORKU)
                         {
@@ -333,7 +333,7 @@ namespace ForkBot
             var id = (msg.Author as IGuildUser).Guild.Id;
             if ((id == Constants.Guilds.BASSIC || id == Constants.Guilds.YORK_UNIVERSITY) & msg.Author.Id != client.CurrentUser.Id && !Var.purging && msg.Content != ";bomb")
             {
-                JEmbed emb = new JEmbed();
+                JEmbed emb = new();
                 emb.Title = msg.Author.Username + "#" + msg.Author.Discriminator;
                 emb.Author.Name = "MESSAGE DELETED";
                 emb.ThumbnailUrl = msg.Author.GetAvatarUrl();
@@ -376,7 +376,7 @@ namespace ForkBot
 
             if ((msg.Author as IGuildUser).Guild.Id == Constants.Guilds.YORK_UNIVERSITY && msg.Author.Id != client.CurrentUser.Id && !Var.purging)
             {
-                JEmbed emb = new JEmbed();
+                JEmbed emb = new();
                 emb.Title = msg.Author.Username + "#" + msg.Author.Discriminator;
                 emb.Author.Name = "MESSAGE EDITED";
                 emb.ThumbnailUrl = msg.Author.GetAvatarUrl();
@@ -440,7 +440,7 @@ namespace ForkBot
 
                 if (tag != null)
                 {
-                    JEmbed emb = new JEmbed();
+                    JEmbed emb = new();
 
                     emb.Author.Name = "ForkBot Commands";
                     emb.ColorStripe = Constants.Colours.DEFAULT_COLOUR;

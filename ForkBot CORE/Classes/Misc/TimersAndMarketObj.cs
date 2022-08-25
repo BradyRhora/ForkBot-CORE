@@ -27,7 +27,7 @@ namespace ForkBot
         {
             var reminders = await Reminder.GetAllRemindersAsync();
 
-            for (int i = reminders.Count() - 1; i >= 0; i--)
+            for (int i = reminders.Length - 1; i >= 0; i--)
             {
                 
                 if (Var.CurrentDate() > reminders[i].RemindTime)
@@ -105,7 +105,7 @@ namespace ForkBot
 
             var bids = await Bid.GetAllBidsAsync();
 
-            for (int i = 0; i < bids.Count(); i++)
+            for (int i = 0; i < bids.Length; i++)
             {
                 var endDate = bids[i].EndDate;
                 var endTime = endDate - Var.CurrentDate();
@@ -133,7 +133,7 @@ namespace ForkBot
                 var bidItems = new string[] { "key", "unicorn", "key2", "package", "santa", "gift", "calling" };
                 int amount = rdm.Next(10) + 3;
                 
-                string item = bidItems[rdm.Next(bidItems.Count())];
+                string item = bidItems[rdm.Next(bidItems.Length)];
                 var itemID = DBFunctions.GetItemID(item);
 
                 var newBid = new Bid(itemID, amount);
@@ -232,7 +232,7 @@ namespace ForkBot
                 id = "";
                 for (int i = 0; i < 5; i++)
                 {
-                    id += key[rdm.Next(key.Count())];
+                    id += key[rdm.Next(key.Length)];
                 }
             } while (GetPostAsync(id) != null);
 
@@ -403,7 +403,7 @@ namespace ForkBot
                 id = "";
                 for (int i = 0; i < 5; i++)
                 {
-                    id += key[rdm.Next(key.Count())];
+                    id += key[rdm.Next(key.Length)];
                 }
             } while (GetBidAsync(id) != null);
 

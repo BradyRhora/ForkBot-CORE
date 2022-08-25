@@ -51,7 +51,7 @@ namespace ForkBot
                         iCount++;
                     }
                 }
-                if (iCount == c.Items.Count() && iCount == items.Count()) return c.Result;
+                if (iCount == c.Items.Length && iCount == items.Length) return c.Result;
                 else iCount = 0;
             }
             return null;

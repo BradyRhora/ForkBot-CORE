@@ -37,11 +37,11 @@ namespace ForkBot
         {
             List<int> added = new List<int>();
             List<Slot> slotReturn = new List<Slot>();
-            for (int i = 0; i < slotOptions.Count(); i++)
+            for (int i = 0; i < slotOptions.Length; i++)
             {
                 int index;
                 do 
-                    index = rdm.Next(slotOptions.Count());
+                    index = rdm.Next(slotOptions.Length);
                 while (added.Contains(index));
                 slotReturn.Add(slotOptions[index]);
                 added.Add(index);
@@ -66,7 +66,7 @@ namespace ForkBot
         public async Task<string> Spin()
         {
             var slot = Slots[0];
-            for (int i = 0; i < 3; i++) spins[i] = rdm.Next(Slots[i].Count());
+            for (int i = 0; i < 3; i++) spins[i] = rdm.Next(Slots[i].Length);
 
             int winnings = Convert.ToInt32(GetWinnings());
             DBFunctions.SetProperty("slot_jackpot", "0");
@@ -99,7 +99,7 @@ namespace ForkBot
 
         public double GetWinnings()
         {
-            for (int i = 0; i < slotOptions.Count(); i++)
+            for (int i = 0; i < slotOptions.Length; i++)
             {
                 if (SlotCount("gem") == 3)
                 {
@@ -124,12 +124,12 @@ namespace ForkBot
 
         int Prev(int index, int slotIndex)
         {
-            if (index - 1 < 0) return Slots[slotIndex].Count() - 1;
+            if (index - 1 < 0) return Slots[slotIndex].Length - 1;
             else return index - 1;
         }
         int Next(int index, int slotIndex)
         {
-            if (index + 1 > Slots[slotIndex].Count() - 1) return 0;
+            if (index + 1 > Slots[slotIndex].Length - 1) return 0;
             else return index + 1;
         }
 

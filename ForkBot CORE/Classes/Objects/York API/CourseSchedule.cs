@@ -39,10 +39,10 @@ namespace YorkU
                     
                     var professor = sessionDir;
 
-                    if (timedayInfo.Count() == 1 && timedayInfo[0] == "") break;
+                    if (timedayInfo.Length == 1 && timedayInfo[0] == "") break;
 
                     CourseDay cDay = new CourseDay(term, section, professor, CAT);
-                    for (int i = 0; i < timedayInfo.Count(); i++)
+                    for (int i = 0; i < timedayInfo.Length; i++)
                     {
                         string day = Convert.ToString(timedayInfo[i][0]);
                         string time = "";

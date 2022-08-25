@@ -21,15 +21,15 @@ namespace ForkBot
 {
     public class Commands : ModuleBase
     {
-        Random rdm = new Random();
-        readonly Exception NotBradyException = new Exception("This command can only be used by Brady.");
+        readonly Random rdm = new();
+        readonly Exception NotBradyException = new("This command can only be used by Brady.");
 
         #region Useful
 
         [Command("help"), Summary("Displays commands and descriptions.")]
         public async Task Help()
         {
-            JEmbed emb = new JEmbed();
+            JEmbed emb = new ();
             emb.Author.Name = "ForkBot Commands";
             emb.ThumbnailUrl = Context.User.AvatarId;
             if (Context.Guild != null) emb.ColorStripe = Functions.GetColor(Context.User);
@@ -85,8 +85,10 @@ namespace ForkBot
 
             if (cmd != null)
             {
-                JEmbed emb = new JEmbed();
-                emb.ThumbnailUrl = Context.User.AvatarId;
+                JEmbed emb = new()
+                {
+                    ThumbnailUrl = Context.User.AvatarId
+                };
                 if (Context.Guild != null) emb.ColorStripe = Functions.GetColor(Context.User);
                 else emb.ColorStripe = Constants.Colours.DEFAULT_COLOUR;
 
@@ -106,7 +108,7 @@ namespace ForkBot
         }
 
 
-        HtmlWeb web = new HtmlWeb();
+        HtmlWeb web = new();
         Dictionary<string,string> GetProfStats(string name, string[] inputStats)
         {
             string link = "https://www.ratemyprofessors.com/search.jsp?query=" + name.Replace(" ", "%20");
@@ -117,8 +119,8 @@ namespace ForkBot
             bool adding = false;
             string addingStr = "";
             int first = -1, second = -1;
-            Dictionary<string,string> stats = new Dictionary<string, string>();
-            for(int i = 0; i < str.Length - 6 && statNames.Count() > 0; i++)
+            Dictionary<string,string> stats = new ();
+            for(int i = 0; i < str.Length - 6 && statNames.Count > 0; i++)
             {
                 if (!adding)
                 {
@@ -158,10 +160,11 @@ namespace ForkBot
 
             string profName = stats["firstName"] + " " + stats["lastName"];
             string school = stats["name"];
-            JEmbed emb = new JEmbed();
-
-            emb.Title = profName + " - " + school;
-            emb.Description = "Department of " + stats["department"];
+            JEmbed emb = new()
+            {
+                Title = profName + " - " + school,
+                Description = "Department of " + stats["department"]
+            };
             emb.Fields.Add(new JEmbedField(x =>
             {
                 x.Header = "Rating:";
@@ -227,11 +230,13 @@ namespace ForkBot
                 course = new Course(code,term:term);
 
 
-                JEmbed emb = new JEmbed();
-                emb.Title = course.Title;
-                emb.TitleUrl = course.ScheduleLink;
-                emb.Description = course.Description;
-                emb.ColorStripe = Constants.Colours.YORK_RED;
+                JEmbed emb = new()
+                {
+                    Title = course.Title,
+                    TitleUrl = course.ScheduleLink,
+                    Description = course.Description,
+                    ColorStripe = Constants.Colours.YORK_RED
+                };
 
                 foreach (CourseDay day in course.GetSchedule().Days)
                 {
@@ -277,7 +282,7 @@ namespace ForkBot
             foreach (string course in courses)
             {
                 var data = course.Split('/');
-                if (data.Count() > 1)
+                if (data.Length > 1)
                     if (data[1].StartsWith(subject.ToUpper())) list += course + "\n";
             }
 
@@ -290,16 +295,16 @@ namespace ForkBot
             string[] msgs = Functions.SplitMessage(list);
 
 
-            if (page > msgs.Count()) page = msgs.Count() - 1;
+            if (page > msgs.Length) page = msgs.Length - 1;
 
-            JEmbed courseEmb = new JEmbed();
+            JEmbed courseEmb = new();
             courseEmb.Author.Name = $"{subject.ToUpper()} Course List";
             courseEmb.Author.IconUrl = Constants.Images.ForkBot;
             courseEmb.ColorStripe = Constants.Colours.YORK_RED;
 
             courseEmb.Description = msgs[page - 1];
 
-            courseEmb.Footer.Text = $"Page {page}/{msgs.Count()} (Use ';courselist {subject.ToUpper()} #' and replace the number with a page number!)";
+            courseEmb.Footer.Text = $"Page {page}/{msgs.Length} (Use ';courselist {subject.ToUpper()} #' and replace the number with a page number!)";
 
             await ReplyAsync("", embed: courseEmb.Build());
         }
@@ -323,19 +328,21 @@ namespace ForkBot
         public async Task Stats()
         {
             var guilds = Bot.client.Guilds;
-            int guildCount = guilds.Count();
+            int guildCount = guilds.Count;
             IGuildUser[] users = new IGuildUser[0];
             foreach (IGuild g in guilds)
             {
                 users = (await g.GetUsersAsync()).Union(users).ToArray();
             }
-            var userCount = users.Count();
+            var userCount = users.Length;
             var uptime = Var.CurrentDate() - Var.startTime;
 
-            JEmbed emb = new JEmbed();
-            emb.Title = "ForkBot Stats";
-            emb.Description = $"ForkBot is developed by Brady#0010 for use in the York University Discord server.\nIt has many uses, such as professor lookup, course lookup, and many fun commands with coins, items, and more!";
-            emb.ColorStripe = Constants.Colours.YORK_RED;
+            JEmbed emb = new()
+            {
+                Title = "ForkBot Stats",
+                Description = $"ForkBot is developed by Brady#0010 for use in the York University Discord server.\nIt has many uses, such as professor lookup, course lookup, and many fun commands with coins, items, and more!",
+                ColorStripe = Constants.Colours.YORK_RED
+            };
             emb.Fields.Add(new JEmbedField(x =>
             {
                 x.Header = "Users";
@@ -364,7 +371,7 @@ namespace ForkBot
             else if (parameters.Contains(" in "))
             {
                 var currentReminders = Reminder.GetUserReminders(Context.User);
-                if (currentReminders.Count() >= 5)
+                if (currentReminders.Length >= 5)
                 {
                     await ReplyAsync("You already have 5 reminders, which is the maximum.");
                 }
@@ -372,26 +379,26 @@ namespace ForkBot
                 {
                     string[] split = parameters.Split(new string[] { " in " }, StringSplitOptions.None);
                     string reminder = "";
-                    if (split.Count() == 2) reminder = split[0];
+                    if (split.Length == 2) reminder = split[0];
                     else
                     {
-                        for (int i = 0; i < split.Count() - 1; i++)
+                        for (int i = 0; i < split.Length - 1; i++)
                         {
                             reminder += split[i] + " in ";
                         }
-                        reminder = reminder.Substring(0, reminder.Length - 4);
+                        reminder = reminder.Substring(0,reminder.Length - 4);
                     }
 
                     reminder = reminder.Replace("//#//", "");
 
-                    string time = split[split.Count() - 1];
+                    string time = split[split.Length - 1];
                     string[] splitTimes = time.Split(new string[] { ", and ", " and ", ", " }, StringSplitOptions.None);
-                    TimeSpan remindTime = new TimeSpan(0, 0, 0);
+                    TimeSpan remindTime = new(0, 0, 0);
                     bool stop = false;
                     foreach (string t in splitTimes)
                     {
                         var timeData = t.Split(' ');
-                        if (timeData.Count() > 2)
+                        if (timeData.Length > 2)
                         {
                             stop = true;
                             break;
@@ -421,8 +428,8 @@ namespace ForkBot
                     else
                     {
                         DateTime remindAt = Var.CurrentDate() + remindTime;
-                        
-                        new Reminder(Context.User, reminder, remindAt);
+
+                        _ = new Reminder(Context.User, reminder, remindAt);
                         await ReplyAsync("Reminder added.");
                     }
                 }
@@ -434,10 +441,10 @@ namespace ForkBot
         public async Task ReminderList()
         {
             var currentReminders = Reminder.GetUserReminders(Context.User);
-            if (currentReminders.Count() > 0)
+            if (currentReminders.Length > 0)
             {
                 string msg = "Here are your current reminders:\n```";
-                for (int i = 0; i < currentReminders.Count(); i++)
+                for (int i = 0; i < currentReminders.Length; i++)
                 {
                     msg += $"[{i + 1}]" + $"{currentReminders[i].Text} - {currentReminders[i].RemindTime.ToShortDateString()} {currentReminders[i].RemindTime.ToShortTimeString()}\n";
                 }
@@ -451,7 +458,7 @@ namespace ForkBot
         {
             var reminders = Reminder.GetUserReminders(Context.User);
             int idCount = 0;
-            for (int i = 0; i < reminders.Count(); i++)
+            for (int i = 0; i < reminders.Length; i++)
             {
                 idCount++;
                 if (idCount == reminderID)
@@ -488,9 +495,11 @@ namespace ForkBot
             double totalStats = DBFunctions.GetTotalStats();
             double statPercent = (statCount / totalStats) * 100;
 
-            JEmbed emb = new JEmbed();
-            emb.Title = $"{await u.GetName(Context.Guild)}'s Status in Forkbot Society";
-            emb.ColorStripe = Functions.GetColor(user);
+            JEmbed emb = new()
+            {
+                Title = $"{await u.GetName(Context.Guild)}'s Status in Forkbot Society",
+                ColorStripe = Functions.GetColor(user)
+            };
 
             emb.Fields.Add(new JEmbedField(x => {
                 x.Header = ":moneybag: Coins :moneybag:";
@@ -596,8 +605,8 @@ namespace ForkBot
             var u = User.Get(Context.User);
             string msg = "";
             var itemList = DBFunctions.GetItemNameList();
-            if (items.Count() == 1 && items[0] == "all") await ReplyAsync("Are you sure you want to sell **all** of your items? Use `;sell allforreal` if so.");
-            else if (items.Count() == 1 && items[0] == "allforreal")
+            if (items.Length == 1 && items[0] == "all") await ReplyAsync("Are you sure you want to sell **all** of your items? Use `;sell allforreal` if so.");
+            else if (items.Length == 1 && items[0] == "allforreal")
             {
                 int coinGain = 0;
                 foreach (var item in u.GetItemList())
@@ -684,7 +693,7 @@ namespace ForkBot
                         {
                             string item = param;
                             int amount = 1;
-                            if (item.Contains("*"))
+                            if (item.Contains('*'))
                             {
                                 var stuff = item.Split('*');
                                 amount = Convert.ToInt32(stuff[1]);
@@ -782,8 +791,8 @@ namespace ForkBot
                 return;
             }
             var u = User.Get(Context.User);
-            DateTime day = new DateTime();
-            DateTime currentDay = new DateTime();
+            DateTime day = new();
+            DateTime currentDay = new();
             if (Var.currentShop != null)
             {
                 day = Var.currentShop.Date();
@@ -794,7 +803,7 @@ namespace ForkBot
                 Var.currentShop = new Shop();
             }
 
-            List<string> itemNames = new List<string>();
+            List<string> itemNames = new();
             foreach (int item in Var.currentShop.items) itemNames.Add(DBFunctions.GetItemName(item));
             var newsCount = DBFunctions.GetRelevantNewsCount();
 
@@ -862,8 +871,8 @@ namespace ForkBot
             if (u.GetData<bool>("has_bm") != true) return;
             else
             {
-                DateTime day = new DateTime();
-                DateTime currentDay = new DateTime();
+                DateTime day = new();
+                DateTime currentDay = new();
                 if (Var.blackmarketShop != null)
                 {
                     day = Var.blackmarketShop.Date();
@@ -874,7 +883,7 @@ namespace ForkBot
                     Var.blackmarketShop = new Shop(true);
                 }
 
-                List<string> itemNames = new List<string>();
+                List<string> itemNames = new();
                 foreach (int item in Var.blackmarketShop.items) itemNames.Add(DBFunctions.GetItemName(item));
 
                 if (command == null)
@@ -916,10 +925,10 @@ namespace ForkBot
         {
             var user = User.Get(Context.User);
             bool sort = false, lowest = false, itemParam = false;
-            if (command.Count() == 0 || command[0] == "view")
+            if (command.Length == 0 || command[0] == "view")
             {
                 int page = 1;
-                if (command.Count() > 0 && command[0] == "view")
+                if (command.Length > 0 && command[0] == "view")
                 {
                     if (!int.TryParse(command[1], out page))
                     {
@@ -936,7 +945,7 @@ namespace ForkBot
                         else itemParam = true;
                     }
 
-                    if (command.Count() >= 3) int.TryParse(command[command.Count() - 1], out page);
+                    if (command.Length >= 3) int.TryParse(command[command.Length - 1], out page);
                 }
 
 
@@ -965,10 +974,12 @@ namespace ForkBot
 
                 const int ITEMS_PER_PAGE = 10;
 
-                JEmbed emb = new JEmbed();
-                emb.Title = "Free Market";
-                emb.Description = "To buy an item, use ;fm buy [ID]! For more help and examples, use ;fm help.";
-                double pageCount = Math.Ceiling((double)posts.Count() / ITEMS_PER_PAGE);
+                JEmbed emb = new()
+                {
+                    Title = "Free Market",
+                    Description = "To buy an item, use ;fm buy [ID]! For more help and examples, use ;fm help."
+                };
+                double pageCount = Math.Ceiling((double)posts.Length / ITEMS_PER_PAGE);
                 emb.Footer.Text = $"Page {page}/{pageCount}";
                 emb.ColorStripe = Constants.Colours.YORK_RED;
 
@@ -977,15 +988,15 @@ namespace ForkBot
                 int itemStart = ITEMS_PER_PAGE * page;
                 int itemEnd = itemStart + ITEMS_PER_PAGE;
 
-                if (itemStart > posts.Count())
+                if (itemStart > posts.Length)
                 {
                     await ReplyAsync("Invalid page number.");
                     return;
                 }
 
-                if (itemEnd > posts.Count()) itemEnd = posts.Count();
+                if (itemEnd > posts.Length) itemEnd = posts.Length;
 
-                if (posts.Count() == 0)
+                if (posts.Length == 0)
                 {
                     emb.Fields.Add(new JEmbedField(x =>
                     {
@@ -1047,7 +1058,7 @@ namespace ForkBot
                 string[] itemData = command[1].Split('*');
 
                 int amount;
-                if (itemData.Count() == 1) amount = 1;
+                if (itemData.Length == 1) amount = 1;
                 else int.TryParse(itemData[1], out amount);
 
                 if (amount < 1)
@@ -1070,7 +1081,7 @@ namespace ForkBot
                     return;
                 }
 
-                if ((await MarketPost.GetPostsByUser(Context.User.Id)).Count() >= 10)
+                if ((await MarketPost.GetPostsByUser(Context.User.Id)).Length >= 10)
                 {
                     await ReplyAsync(":x: You've reached the maximum of 10 Free Market postings.");
                     return;
@@ -1129,7 +1140,7 @@ namespace ForkBot
             {
                 var items = File.ReadAllLines("Files/FreeMarket.txt");
                 var id = command[1].ToUpper();
-                for (int i = 0; i < items.Count(); i++)
+                for (int i = 0; i < items.Length; i++)
                 {
                     string[] sData = items[i].Split('|');
                     string sellerID = sData[1];
@@ -1170,10 +1181,12 @@ namespace ForkBot
                 await ReplyAsync($"Item '{item}' does not exist.");
             else
             {
-                JEmbed emb = new JEmbed();
-                emb.Title = DBFunctions.GetItemEmote(item) + " " + DBFunctions.GetItemName(itemID);
-                emb.Description = DBFunctions.GetItemDescription(itemID);
-                emb.ColorStripe = Constants.Colours.YORK_RED;
+                JEmbed emb = new()
+                {
+                    Title = DBFunctions.GetItemEmote(item) + " " + DBFunctions.GetItemName(itemID),
+                    Description = DBFunctions.GetItemDescription(itemID),
+                    ColorStripe = Constants.Colours.YORK_RED
+                };
                 if (!DBFunctions.ItemIsShoppable(itemID)) emb.Description += $"\n\n:moneybag: Cannot be purchased. Find through presents or combining!\nSell: {Convert.ToInt32(DBFunctions.GetItemPrice(itemID) * Constants.Values.SELL_VAL)} coins.";
                 else emb.Description += $"\n\n:moneybag: Buy: {DBFunctions.GetItemPrice(itemID)} coins.\nSell: {Convert.ToInt32(DBFunctions.GetItemPrice(itemID) * Constants.Values.SELL_VAL)} coins.";
                 emb.Footer.Text = $"There are currently {DBFunctions.GetTotalItemCount(item)} in circulation.";
@@ -1250,20 +1263,22 @@ namespace ForkBot
             }
 
             var bids = await ForkBot.Bid.GetAllBidsAsync();
-            if (commands.Count() == 0) commands = new string[] { "" };
+            if (commands.Length == 0) commands = new string[] { "" };
 
             var notifyUserIDs = DBFunctions.GetUserIDsWhere("Notify_Bid", "1");
 
             switch (commands[0])
             {
                 case "":
-                    JEmbed emb = new JEmbed();
-                    emb.Title = "Auctions";
-                    emb.ColorStripe = Constants.Colours.YORK_RED;
+                    JEmbed emb = new()
+                    {
+                        Title = "Auctions",
+                        ColorStripe = Constants.Colours.YORK_RED
+                    };
                     emb.Footer.Text = "To bid, use `;bid [ID] [Amount]`";
                     if (!notifyUserIDs.Contains(Context.User.Id)) emb.Footer.Text += " \n Want to be notified when there's a new auction? Use `;bid opt-in`!";
 
-                    if (bids.Count() == 0) emb.Description = "There are currently no auctions going on.";
+                    if (bids.Length == 0) emb.Description = "There are currently no auctions going on.";
                     foreach (var bid in bids)
                     {
                         var id = bid.ID;
@@ -1418,7 +1433,7 @@ namespace ForkBot
             else if (tag == "delete" && Context.User.Id == Constants.Users.BRADY)
             {
                 var tags = File.ReadAllLines("Files/tags.txt").ToList();
-                for (int i = 0; i < tags.Count(); i++)
+                for (int i = 0; i < tags.Count; i++)
                 {
                     if (tags[i].Split('|')[0] == content) { tags.Remove(tags[i]); break; }
                 }
@@ -1476,7 +1491,7 @@ namespace ForkBot
             if (!Var.hangman)
             {
                 var wordList = File.ReadAllLines("Files/wordlist.txt");
-                Var.hmWord = wordList[(rdm.Next(wordList.Count()))].ToLower();
+                Var.hmWord = wordList[(rdm.Next(wordList.Length))].ToLower();
                 Var.hangman = true;
                 Var.hmCount = 0;
                 Var.hmErrors = 0;
@@ -1496,11 +1511,11 @@ namespace ForkBot
             if (Var.hangman)
             {
                 guess = guess.ToLower();
-                if (guess != "" && Var.guessedChars.Contains(guess[0]) && guess.Count() == 1) await Context.Channel.SendMessageAsync("You've already guessed " + Char.ToUpper(guess[0]));
+                if (guess != "" && Var.guessedChars.Contains(guess[0]) && guess.Length == 1) await Context.Channel.SendMessageAsync("You've already guessed " + Char.ToUpper(guess[0]));
                 else
                 {
-                    if (guess.Count() == 1 && !Var.guessedChars.Contains(guess[0])) Var.guessedChars.Add(guess[0]);
-                    if (guess != "" && ((!Var.hmWord.Contains(guess[0]) && guess.Count() == 1) || (Var.hmWord != guess && guess.Count() > 1))) Var.hmErrors++;
+                    if (guess.Length == 1 && !Var.guessedChars.Contains(guess[0])) Var.guessedChars.Add(guess[0]);
+                    if (guess != "" && ((!Var.hmWord.Contains(guess[0]) && guess.Length == 1) || (Var.hmWord != guess && guess.Length > 1))) Var.hmErrors++;
 
 
                     string[] hang = {
@@ -1514,7 +1529,7 @@ namespace ForkBot
                         "_____|_____      " };   //7
 
 
-                    for (int i = 0; i < Var.hmWord.Count(); i++)
+                    for (int i = 0; i < Var.hmWord.Length; i++)
                     {
                         if (Var.guessedChars.Contains(Var.hmWord[i])) hang[6] += Char.ToUpper(Convert.ToChar(Var.hmWord[i])) + " ";
                         else hang[6] += "_ ";
@@ -1560,7 +1575,7 @@ namespace ForkBot
                         }
                     }
 
-                    if (!hang[6].Contains("_") || Var.hmWord == guess) //win
+                    if (!hang[6].Contains('_') || Var.hmWord == guess) //win
                     {
                         Var.hangman = false;
                         foreach (char c in Var.hmWord)
@@ -1578,7 +1593,7 @@ namespace ForkBot
                     }
 
                     hang[6] = "     |          ";
-                    for (int i = 0; i < Var.hmWord.Count(); i++)
+                    for (int i = 0; i < Var.hmWord.Length; i++)
                     {
                         if (Var.guessedChars.Contains(Var.hmWord[i])) hang[6] += Char.ToUpper(Convert.ToChar(Var.hmWord[i])) + " ";
                         else hang[6] += "_ ";
@@ -1615,7 +1630,7 @@ namespace ForkBot
         {
             var u = User.Get(user);
 
-            var emb = new JEmbed();
+            JEmbed emb = new();
             emb.Author.Name = user.Username;
             emb.Author.IconUrl = user.GetAvatarUrl();
 
@@ -1630,7 +1645,7 @@ namespace ForkBot
 
 
             var gUser = (user as IGuildUser);
-            if (gUser != null && gUser.RoleIds.Count() > 1)
+            if (gUser != null && gUser.RoleIds.Count > 1)
             {
                 emb.Fields.Add(new JEmbedField(x =>
                 {
@@ -1650,13 +1665,13 @@ namespace ForkBot
 
             var items = u.GetItemList();
 
-            List<string> fields = new List<string>();
+            List<string> fields = new();
             string txt = "";
             foreach (KeyValuePair<int, int> item in items)
             {
                 string itemListing = $"{DBFunctions.GetItemEmote(item.Key)} {DBFunctions.GetItemName(item.Key)} ";
                 if (item.Value > 1) itemListing += $"x{item.Value} ";
-                if (txt.Count() + itemListing.Count() > 1024)
+                if (txt.Length + itemListing.Length > 1024)
                 {
                     fields.Add(txt);
                     txt = itemListing;
@@ -1715,7 +1730,7 @@ namespace ForkBot
                 bool hasPouch = user.GetData<bool>("Active_Pouch");
                 if (Var.presentCount > 0 && (!Var.presentClaims.Any(x => x.Id == Context.User.Id) || hasPouch))
                 {
-                    if (Var.presentClaims.Count() <= 0)
+                    if (Var.presentClaims.Count <= 0)
                     {
                         Var.presentWait = new TimeSpan(rdm.Next(4), rdm.Next(60), rdm.Next(60));
                         Var.presentTime = Var.CurrentDate();
@@ -1726,8 +1741,7 @@ namespace ForkBot
 
 
                     Var.presentCount--;
-                    var gUser = Context.User as IGuildUser;
-                    if (gUser != null)
+                    if (Context.User is IGuildUser gUser)
                         Var.presentClaims.Add(gUser);
                     else
                         Var.presentClaims.Add(Context.User);
@@ -1755,7 +1769,7 @@ namespace ForkBot
                         else
                         {
                             int lossCount = rdm.Next(5) + 3;
-                            if (lossCount > user.GetItemList().Count()) lossCount = user.GetItemList().Count();
+                            if (lossCount > user.GetItemList().Count) lossCount = user.GetItemList().Count;
                             if (lossCount == 0)
                             {
                                 await ReplyAsync($":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} [{Var.presentRigger.Username}] and you lost... Nothing??\n:boom::boom::boom::boom:");
@@ -1765,7 +1779,7 @@ namespace ForkBot
                                 string msg = $":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} and you lost:\n```";
                                 for (int i = 0; i < lossCount; i++)
                                 {
-                                    int itemID = user.GetItemList().ElementAt(rdm.Next(user.GetItemList().Count())).Key;
+                                    int itemID = user.GetItemList().ElementAt(rdm.Next(user.GetItemList().Count)).Key;
                                     var item = DBFunctions.GetItemName(itemID);
                                     user.RemoveItem(itemID);
                                     msg += item + "\n";
@@ -1785,10 +1799,10 @@ namespace ForkBot
                     var claims = DBFunctions.GetProperty("Record_Claims");
                     int record = Convert.ToInt32(claims);
 
-                    if (Var.presentClaims.Count() > record) DBFunctions.SetProperty("Record_Claims", Var.presentClaims.Count().ToString());
-                    msg += $"\nThere have been {Var.presentClaims.Count()} claims! The record is {DBFunctions.GetProperty("Record_Claims")}.";
+                    if (Var.presentClaims.Count > record) DBFunctions.SetProperty("Record_Claims", Var.presentClaims.Count.ToString());
+                    msg += $"\nThere have been {Var.presentClaims.Count} claims! The record is {DBFunctions.GetProperty("Record_Claims")}.";
                     
-                    if (Var.presentClaims.Count() > 0)
+                    if (Var.presentClaims.Count > 0)
                     {
                         msg += "\nLast claimed by:\n```\n";
                         foreach (IUser u in Var.presentClaims)
@@ -1849,8 +1863,10 @@ namespace ForkBot
                 //string title = "";
                 string emote = "";
 
-                JEmbed emb = new JEmbed();
-                emb.ColorStripe = Constants.Colours.DEFAULT_COLOUR;
+                JEmbed emb = new()
+                {
+                    ColorStripe = Constants.Colours.DEFAULT_COLOUR
+                };
 
                 string order = "DESC";
                 if (stat.Split(' ')[0].ToLower() == "bottom")
@@ -1950,11 +1966,13 @@ namespace ForkBot
                     Var.todaysLotto = $"{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}";
                 }
 
-                JEmbed emb = new JEmbed();
-                emb.Title = "Happy Lucky Lottery";
-                emb.Description = "It's the Happy Lucky Lottery!\nMatch any of todays digits with your number to win prizes!\n\n" +
-                                  "Todays number: " + Var.todaysLotto;
-                emb.ColorStripe = Functions.GetColor(Context.User);
+                JEmbed emb = new()
+                {
+                    Title = "Happy Lucky Lottery",
+                    Description = "It's the Happy Lucky Lottery!\nMatch any of todays digits with your number to win prizes!\n\n" +
+                                  "Todays number: " + Var.todaysLotto,
+                    ColorStripe = Functions.GetColor(Context.User)
+                };
 
                 string uNum = u.GetData<string>("lotto_num");
                 string uNum2 = u.GetData<string>("bm_lotto_num");
@@ -2005,15 +2023,15 @@ namespace ForkBot
                                         break;
                                     case 2:
                                         string[] level2Items = { "gift", "key", "moneybag", "ticket", "gift" };
-                                        string item = level2Items[rdm.Next(level2Items.Count())];
+                                        string item = level2Items[rdm.Next(level2Items.Length)];
                                         x.Text += $"You got 2500 coins and a(n) {item} {DBFunctions.GetItemEmote(item)}!";
                                         await u.GiveCoinsAsync(2500);
                                         u.GiveItem(item);
                                         break;
                                     case 3:
                                         string[] level3Items = { "key", "key", "calling", "gun", "unicorn", "moneybag", "moneybag" };
-                                        var item01 = level3Items[rdm.Next(level3Items.Count())];
-                                        var item02 = level3Items[rdm.Next(level3Items.Count())];
+                                        var item01 = level3Items[rdm.Next(level3Items.Length)];
+                                        var item02 = level3Items[rdm.Next(level3Items.Length)];
                                         x.Text += $"You got 5000 coins and: {item01} {DBFunctions.GetItemEmote(item01)}, {item02} {DBFunctions.GetItemEmote(item02)}";
                                         await u.GiveCoinsAsync(5000);
                                         u.GiveItem(item01);
@@ -2021,10 +2039,10 @@ namespace ForkBot
                                         break;
                                     case 4:
                                         string[] level4Items = { "key2", "gun", "unicorn", "moneybag", "moneybag", "gem", "unicorn" };
-                                        var item1 = level4Items[rdm.Next(level4Items.Count())];
-                                        var item2 = level4Items[rdm.Next(level4Items.Count())];
-                                        var item3 = level4Items[rdm.Next(level4Items.Count())];
-                                        var item4 = level4Items[rdm.Next(level4Items.Count())];
+                                        var item1 = level4Items[rdm.Next(level4Items.Length)];
+                                        var item2 = level4Items[rdm.Next(level4Items.Length)];
+                                        var item3 = level4Items[rdm.Next(level4Items.Length)];
+                                        var item4 = level4Items[rdm.Next(level4Items.Length)];
                                         x.Text += $"You got 10000 coins and: {item1} {DBFunctions.GetItemEmote(item1)}, {item2} {DBFunctions.GetItemEmote(item2)}, {item3} {DBFunctions.GetItemEmote(item3)}, {item4} {DBFunctions.GetItemEmote(item4)}";
                                         await u.GiveCoinsAsync(10000);
                                         u.GiveItem(item1);
@@ -2084,10 +2102,10 @@ namespace ForkBot
                 "Did you know that you can sell ALL of your items using ;sell all? Be careful! You will lose EVERYTHING!",
                 "Check professor ratings using the ;prof command!"
                 };
-            if (tipNumber == -1) tipNumber = rdm.Next(tips.Count());
+            if (tipNumber == -1) tipNumber = rdm.Next(tips.Length);
             else tipNumber--;
 
-            if (tipNumber < 0 || tipNumber > tips.Count()) await ReplyAsync($"Invalid tip number! Make sure number is above 0 and less than {tips.Count() + 1}");
+            if (tipNumber < 0 || tipNumber > tips.Length) await ReplyAsync($"Invalid tip number! Make sure number is above 0 and less than {tips.Length + 1}");
             await ReplyAsync($":robot::speech_balloon: " + tips[tipNumber]);
         }
 
@@ -2208,7 +2226,7 @@ namespace ForkBot
         {
             string rText = ".";
             if (reason != null) rText = $" for: \"{reason}\".";
-            InfoEmbed banEmb = new InfoEmbed("USER BAN", $"User: {u} has been banned{rText}.", Constants.Images.Ban);
+            InfoEmbed banEmb = new("USER BAN", $"User: {u} has been banned{rText}.", Constants.Images.Ban);
             await Context.Guild.AddBanAsync(u, reason: reason);
             await Context.Channel.SendMessageAsync("", embed: banEmb.Build());
         }
@@ -2218,7 +2236,7 @@ namespace ForkBot
         {
             string rText = ".";
             if (reason != null) rText = $" for: \"{reason}\".";
-            InfoEmbed kickEmb = new InfoEmbed("USER KICK", $"User: {u} has been kicked{rText}", Constants.Images.Kick);
+            InfoEmbed kickEmb = new("USER KICK", $"User: {u} has been kicked{rText}", Constants.Images.Kick);
             await (u as IGuildUser).KickAsync(reason);
             await Context.Channel.SendMessageAsync("", embed: kickEmb.Build());
         }
@@ -2230,7 +2248,7 @@ namespace ForkBot
             var messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
             await (Context.Channel as ITextChannel).DeleteMessagesAsync(messages);
 
-            InfoEmbed ie = new InfoEmbed("PURGE", $"{amount} messages deleted by {Context.User.Username}.");
+            InfoEmbed ie = new("PURGE", $"{amount} messages deleted by {Context.User.Username}.");
             Var.purgeMessage = await Context.Channel.SendMessageAsync("", embed: ie.Build());
             Timers.unpurge = new Timer(new TimerCallback(Timers.UnPurge), null, 5000, Timeout.Infinite);
         }
@@ -2337,7 +2355,7 @@ namespace ForkBot
                     {
                         bool removed = false;
                         List<string> reminders = File.ReadAllLines("Files/reminders.txt").ToList();
-                        for (int i = 0; i < reminders.Count(); i++)
+                        for (int i = 0; i < reminders.Count; i++)
                         {
                             if (reminders[i].ToLower().StartsWith(reminder.Trim().Replace("-", "").Trim().ToLower()))
                             {
@@ -2465,7 +2483,7 @@ namespace ForkBot
                 return;
             }
 
-            if (commands.Split(' ').Count() > 4)
+            if (commands.Split(' ').Length > 4)
             {
                 await ReplyAsync("Over max parameter count. Are you sure all parameters are correct and you are not using the same one multiple times?");
                 return;
@@ -2475,7 +2493,7 @@ namespace ForkBot
 
             commands = commands.Replace("time>", "time>:").Replace("time<", "time<:").ToLower();
 
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            Dictionary<string, string> parameters = new ();
             parameters.Add("department", subject);
             foreach (string command in commands.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
@@ -2503,10 +2521,12 @@ namespace ForkBot
             }
 
 
-            JEmbed emb = new JEmbed();
-            emb.Title = $"Filtered course list: [{subject} {commands}]";
-            emb.Description = text;
-            emb.ColorStripe = Constants.Colours.YORK_RED;
+            JEmbed emb = new()
+            {
+                Title = $"Filtered course list: [{subject} {commands}]",
+                Description = text,
+                ColorStripe = Constants.Colours.YORK_RED
+            };
             emb.Author.IconUrl = Constants.Images.ForkBot;
             emb.Footer.Text = "Remember, this list may not be accurate as courses may no longer be running or new courses may be added that are not on the list.";
             await ReplyAsync("", embed: emb.Build());

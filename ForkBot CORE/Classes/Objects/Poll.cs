@@ -25,8 +25,8 @@ namespace ForkBot
             this.options = options;
             pollChannel = channel;
             startTime = Var.CurrentDate();
-            votes = new int[options.Count()];
-            for(int i = 0; i < votes.Count(); i++) votes[i] = 0;
+            votes = new int[options.Length];
+            for(int i = 0; i < votes.Length; i++) votes[i] = 0;
             endTimer = new Timer(new TimerCallback(End), null, 1000 * 60 * minutes, Timeout.Infinite);
         }
 

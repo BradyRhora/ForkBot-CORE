@@ -177,7 +177,7 @@ namespace ForkBot
             int presRDM;
             do
             {
-                presRDM = rdm.Next(presents.Count());
+                presRDM = rdm.Next(presents.Length);
             }
             while (!DBFunctions.ItemIsPresentable(presents[presRDM]));
 
@@ -194,7 +194,7 @@ namespace ForkBot
                 string sMessage = "You got...\n";
                 for (int i = 0; i < 5; i++)
                 {
-                    var sPresentID = presents[rdm.Next(presents.Count())];
+                    var sPresentID = presents[rdm.Next(presents.Length)];
                     if (!DBFunctions.ItemIsPresentable(sPresentID))
                     {
                         i--;
@@ -224,7 +224,7 @@ namespace ForkBot
         {
             if (Check(Context, "8ball", false)) return;
             string[] answers = { "Yes", "No", "Unlikely", "Chances good", "Likely", "Lol no", "If you believe", "Ask Brady" };
-            await Context.Channel.SendMessageAsync(":8ball: " + answers[rdm.Next(answers.Count())]);
+            await Context.Channel.SendMessageAsync(":8ball: " + answers[rdm.Next(answers.Length)]);
 
         }
 
@@ -259,7 +259,7 @@ namespace ForkBot
                 else
                 {
                     var items = u2.GetItemList();
-                    if (items.Count() == 0)
+                    if (items.Count == 0)
                     {
                         await Context.Channel.SendMessageAsync($"You try to steal an item from {user.Username}... but they have nothing!" +
                                                                $" You drop your gun and run before the police arrive. {user.Mention} picks up the gun!");
@@ -268,7 +268,7 @@ namespace ForkBot
                     }
                     else
                     {
-                        var itemID = items.ElementAt(rdm.Next(items.Count())).Key;
+                        var itemID = items.ElementAt(rdm.Next(items.Count)).Key;
                         var item = DBFunctions.GetItemName(itemID);
                         u1.GiveItem(item);
                         u2.RemoveItem(item);
@@ -337,7 +337,7 @@ namespace ForkBot
                         presents = list.ToArray();
                         for (int i = 0; i < 10; i++)
                         {
-                            var sPresentID = presents[rdm.Next(presents.Count())];
+                            var sPresentID = presents[rdm.Next(presents.Length)];
                             if (!DBFunctions.ItemIsPresentable(sPresentID))
                             {
                                 i--;
@@ -547,7 +547,7 @@ namespace ForkBot
                     else
                     {
                         var items = u2.GetItemList();
-                        if (items.Count() == 0)
+                        if (items.Count == 0)
                         {
                             await Context.Channel.SendMessageAsync($"You try to steal an item from {user.Username}... but they have nothing!" +
                                                                    $" You drop your knife and run before the police arrive. {user.Mention} picks up the knife!");
@@ -555,7 +555,7 @@ namespace ForkBot
                         }
                         else
                         {
-                            var itemID = items.ElementAt(rdm.Next(items.Count())).Key;
+                            var itemID = items.ElementAt(rdm.Next(items.Count)).Key;
                             var item = DBFunctions.GetItemName(itemID);
                             u1.GiveItem(item);
                             u2.RemoveItem(item);
@@ -591,7 +591,7 @@ namespace ForkBot
             var presents = DBFunctions.GetItemIDList();
             for (int i = 0; i < 5; i++)
             {
-                var sPresentID = presents[rdm.Next(presents.Count())];
+                var sPresentID = presents[rdm.Next(presents.Length)];
                 if (!DBFunctions.ItemIsPresentable(sPresentID))
                 {
                     i--;
@@ -646,13 +646,13 @@ namespace ForkBot
                 else
                 {
                     var items = u2.GetItemList();
-                    if (items.Count() == 0)
+                    if (items.Count == 0)
                     {
                         await Context.Channel.SendMessageAsync($"You try to burn one of {user.Username}'s items... but they have nothing!");
                     }
                     else
                     {
-                        var itemID = items.ElementAt(rdm.Next(items.Count())).Key;
+                        var itemID = items.ElementAt(rdm.Next(items.Count)).Key;
                         var item = DBFunctions.GetItemName(itemID);
                         u2.RemoveItem(item);
                         await Context.Channel.SendMessageAsync($":mag: {user.Mention}! {Context.User.Mention} has burnt your {item}!");
@@ -688,8 +688,10 @@ namespace ForkBot
                     await user.GiveCoinsAsync(-bet);
                     SlotMachine sm = new SlotMachine(Context.User, bet);
                     var result = sm.Spin();
-                    JEmbed emb = new JEmbed();
-                    emb.Description = sm.Generate() + "\n" + result;
+                    JEmbed emb = new JEmbed
+                    {
+                        Description = sm.Generate() + "\n" + result
+                    };
                     emb.Footer.Text = $"You have: {user.GetCoins()} coins.";
                     emb.ColorStripe = Functions.GetColor(Context.User);
                     var msg = await Context.Channel.SendMessageAsync("", embed: emb.Build());
@@ -729,7 +731,7 @@ namespace ForkBot
 
                 int[] items = new int[5];
 
-                for (int i = 0; i < items.Count(); i++) items[i] = rdm.Next(lootboxItems.Count());
+                for (int i = 0; i < items.Length; i++) items[i] = rdm.Next(lootboxItems.Length);
 
                 string msg = "Your lootbox bursts open!\n:sparkles: ";
                 foreach (int i in items)
@@ -757,7 +759,7 @@ namespace ForkBot
 
                 int[] items = new int[10];
 
-                for (int i = 0; i < items.Count(); i++) items[i] = rdm.Next(lootboxItems.Count());
+                for (int i = 0; i < items.Length; i++) items[i] = rdm.Next(lootboxItems.Length);
 
                 string msg = "Your lootbox bursts open!\n:sparkles: ";
                 foreach (int i in items)
@@ -964,7 +966,7 @@ namespace ForkBot
                     var items = DBFunctions.GetItemIDList();
                     for (int i = 0; i < 4; i++)
                     {
-                        var itemI = rdm.Next(items.Count());
+                        var itemI = rdm.Next(items.Length);
                         if (!DBFunctions.ItemIsPresentable(items[itemI]))
                         {
                             i--;
@@ -1061,7 +1063,7 @@ namespace ForkBot
                     if (chance < 45)
                     {
                         coinLoss = rdm.Next(300);
-                        int itemLossID = user.GetItemList()[rdm.Next(user.GetItemList().Count())];
+                        int itemLossID = user.GetItemList()[rdm.Next(user.GetItemList().Count)];
                         user.RemoveItem(itemLossID);
                         await ReplyAsync($"The tiger looks towards you, and it looks *pissed*. It lunges at you!\nYou lost {coinLoss} coins and your {DBFunctions.GetItemName(itemLossID)}!");
                     }
@@ -1115,10 +1117,12 @@ namespace ForkBot
         public async Task Newspaper()
         {
             if (Check(Context, "newspaper")) return;
-            JEmbed emb = new JEmbed();
-            emb.Title = "THE DAILY FORK";
-            emb.Description = "Serving the people the news they need to hear, on an easy to ingest plate!";
-            emb.ColorStripe = new Color(254, 254, 254);
+            JEmbed emb = new JEmbed
+            {
+                Title = "THE DAILY FORK",
+                Description = "Serving the people the news they need to hear, on an easy to ingest plate!",
+                ColorStripe = new Color(254, 254, 254)
+            };
 
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
@@ -1160,12 +1164,12 @@ namespace ForkBot
                 var items = u2.GetItemList();
                 List<int> itemsToRemove = new List<int>();
                 int itemCount = 0;
-                if (items.Count() >= 5) itemCount = rdm.Next(3, 6);
-                else itemCount = items.Count();
+                if (items.Count >= 5) itemCount = rdm.Next(3, 6);
+                else itemCount = items.Count;
 
                 for (int i = 0; i < itemCount; i++)
                 {
-                    var removal = items.ElementAt(rdm.Next(items.Count()));
+                    var removal = items.ElementAt(rdm.Next(items.Count));
                     if (itemsToRemove.Contains(removal.Key))
                     {
                         i--;

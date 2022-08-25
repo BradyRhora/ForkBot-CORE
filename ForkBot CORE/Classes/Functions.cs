@@ -22,7 +22,7 @@ namespace ForkBot
             var user = User as IGuildUser;
             if (user != null)
             {
-                if (user.RoleIds.ToArray().Count() > 1)
+                if (user.RoleIds.ToArray().Length > 1)
                 {
                     var role = user.Guild.GetRole(user.RoleIds.ElementAtOrDefault(1));
                     return role.Color;
