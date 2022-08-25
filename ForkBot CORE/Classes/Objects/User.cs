@@ -89,7 +89,7 @@ namespace ForkBot
             }
         }
 
-        public T? GetData<T>(string data)
+        public T GetData<T>(string data)
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {

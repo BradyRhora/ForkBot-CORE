@@ -62,7 +62,7 @@ namespace ForkBot
             {
                 emb.Fields.Add(new JEmbedField(x =>
                 {
-                    x.Text = "<:brady:465359176575614980>";
+                    x.Text = Constants.Emotes.BRADY.ToString();
                     x.Header = "BRADY COMMANDS";
                     x.Inline = true;
                 }));
@@ -77,6 +77,34 @@ namespace ForkBot
             if (Context.User.Id == Constants.Users.BRADY) await msg.AddReactionAsync(Constants.Emotes.BRADY);
             Var.awaitingHelp.Add(msg);
         }
+
+        [Command("help"), Summary("Displays information about a specific command.")]
+        public async Task Help(string command)
+        {
+            var cmd = Bot.commands.Commands.Where(x => x.Name.ToLower() == command.ToLower()).FirstOrDefault();
+
+            if (cmd != null)
+            {
+                JEmbed emb = new JEmbed();
+                emb.ThumbnailUrl = Context.User.AvatarId;
+                if (Context.Guild != null) emb.ColorStripe = Functions.GetColor(Context.User);
+                else emb.ColorStripe = Constants.Colours.DEFAULT_COLOUR;
+
+                string comTitle = ";" + cmd.Name;
+
+                foreach (string alias in cmd.Aliases) if (alias != cmd.Name) comTitle += " (;" + alias + ") ";
+                foreach (ParameterInfo parameter in cmd.Parameters) comTitle += " [" + parameter.Name + "]";
+
+                emb.Author.Name = comTitle;
+
+                emb.Description = Regex.Replace(cmd.Summary,"(\\[[A-Z]*\\])","");
+
+                var msg = await Context.Channel.SendMessageAsync("", embed: emb.Build());
+            }
+            else await ReplyAsync($"Command ;{command} not found.");
+
+        }
+
 
         HtmlWeb web = new HtmlWeb();
         Dictionary<string,string> GetProfStats(string name, string[] inputStats)
@@ -746,7 +774,7 @@ namespace ForkBot
         }
 
         [Command("shop"), Summary("[FUN] Open the shop and buy stuff! New items each day."), Alias("buy")]
-        public async Task Shop([Remainder] string command = null)
+        public async Task Shop([Remainder] string item_name = null)
         {
             if (await Functions.isDM(Context.Message))
             {
@@ -776,15 +804,15 @@ namespace ForkBot
             }
 
 
-            if (command == null)
+            if (item_name == null)
             {
                 var emb = Var.currentShop.Build();
                 emb.Footer.Text = $"You have: {u.GetCoins()} coins.\nTo buy an item, use `;shop [item]`.";
                 await Context.Channel.SendMessageAsync("", embed: emb.Build());
             }
-            else if (itemNames.Select(x => x.ToLower()).Contains(command.ToLower()))
+            else if (itemNames.Select(x => x.ToLower()).Contains(item_name.ToLower()))
             {
-                if (newsCount > 0 && command.ToLower() == "newspaper")
+                if (newsCount > 0 && item_name.ToLower() == "newspaper")
                 {
                     string name = "newspaper";
                     int price = DBFunctions.GetItemPrice(name);
@@ -804,7 +832,7 @@ namespace ForkBot
                 foreach (int item in Var.currentShop.items)
                 {
                     var itemName = DBFunctions.GetItemName(item);
-                    if (itemName.ToLower() == command.ToLower())
+                    if (itemName.ToLower() == item_name.ToLower())
                     {
                         string name = itemName;
                         int price = DBFunctions.GetItemPrice(item);
@@ -1461,6 +1489,7 @@ namespace ForkBot
             }
         }
 
+        //this code is terrible
         [Command("hangman"), Alias(new string[] { "hm" })]
         public async Task HangMan(string guess)
         {
@@ -1475,14 +1504,14 @@ namespace ForkBot
 
 
                     string[] hang = {
-            "       ______   " ,    //0
-            "      /      \\  " ,   //1
-            "     |          " ,    //2
-            "     |          " ,    //3
-            "     |          " ,    //4
-            "     |          " ,    //5
-            "     |          " ,    //6
-            "_____|_____     " };   //7
+                        ".      ______    " ,    //0
+                        "      /      \\  " ,    //1
+                        "     |           " ,    //2
+                        "     |           " ,    //3
+                        "     |           " ,    //4
+                        "     |           " ,    //5
+                        "     |           " ,    //6
+                        "_____|_____      " };   //7
 
 
                     for (int i = 0; i < Var.hmWord.Count(); i++)
@@ -1539,7 +1568,11 @@ namespace ForkBot
                             Var.guessedChars.Add(c);
                         }
                         var u = User.Get(Context.User);
-                        int coinReward = rdm.Next(40) + 10;
+                        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+                        int vowelCount = Var.hmWord.Where(x=> vowels.Contains(x)).Count();
+                        int constCount = Var.hmWord.Length - vowelCount;
+                        int coinReward = (vowelCount * 5) + (constCount * 10) - (Var.hmErrors * 3) + rdm.Next(15);
+                        
                         await u.GiveCoinsAsync(coinReward);
                         await Context.Channel.SendMessageAsync($"You did it! You got {coinReward} coins.");
                     }
@@ -1558,7 +1591,7 @@ namespace ForkBot
                     }
 
                     string msg = "```\n";
-                    foreach (String s in hang) msg += s + "\n";
+                    foreach (string s in hang) msg += s + "\n";
                     msg += "```";
                     if (Var.hangman)
                     {
@@ -1853,7 +1886,8 @@ namespace ForkBot
                 }
                 else if (stat == "stat" || stat == "stats") //all stats
                 {
-                    stm = $"SELECT USER_ID, HYGIENE+FASHION+HAPPINESS+FITNESS+FULLNESS+HEALTHINESS+SOBRIETY FROM USER_STATS ORDER BY HYGIENE+FASHION+HAPPINESS+FITNESS+FULLNESS+HEALTHINESS+SOBRIETY {order} LIMIT 10";
+                    var stats = string.Join('+',DBFunctions.GetAllStats());
+                    stm = $"SELECT USER_ID, {stats} FROM USER_STATS ORDER BY {stats} {order} LIMIT 10";
                     emb.Title = "Top 5 Total Stats";
                     emote = "👑";
                 }
@@ -2028,8 +2062,9 @@ namespace ForkBot
                 if (u.GetCoins() >= cost)
                 {
                     await u.GiveCoinsAsync(-cost);
-                    u.SetData("lotto_num", $"{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}");
-                    await ReplyAsync($"You have successfully purchased a Happy Lucky Lottery Ticket for {cost} coins!");
+                    string lottonum = $"{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}{rdm.Next(10)}";
+                    u.SetData("lotto_num", lottonum);
+                    await ReplyAsync($"You have successfully purchased a Happy Lucky Lottery Ticket for {cost} coins! Your number is: " + lottonum);
                 }
                 else
                 {

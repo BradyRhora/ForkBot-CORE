@@ -253,7 +253,7 @@ namespace ForkBot
                     while (amount > u2.GetCoins());
                     await u1.GiveCoinsAsync(amount);
                     await u2.GiveCoinsAsync(-amount);
-                    await Context.Channel.SendMessageAsync($":gun: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has stolen {amount} coins from you!");
+                    await Context.Channel.SendMessageAsync($":gun: {user.Mention}! {Context.User.Mention} has stolen {amount} coins from you!");
                     
                 }
                 else
@@ -262,7 +262,7 @@ namespace ForkBot
                     if (items.Count() == 0)
                     {
                         await Context.Channel.SendMessageAsync($"You try to steal an item from {user.Username}... but they have nothing!" +
-                                                               $" You drop your gun and run before the police arrive. {(user as IGuildUser).Mention} picks up the gun!");
+                                                               $" You drop your gun and run before the police arrive. {user.Mention} picks up the gun!");
                         u2.GiveItem("gun");
                         
                     }
@@ -272,7 +272,7 @@ namespace ForkBot
                         var item = DBFunctions.GetItemName(itemID);
                         u1.GiveItem(item);
                         u2.RemoveItem(item);
-                        await Context.Channel.SendMessageAsync($":gun: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has stolen your {item} from you!");
+                        await Context.Channel.SendMessageAsync($":gun: {user.Mention}! {Context.User.Mention} has stolen your {item} from you!");
                         
                     }
                 }
@@ -541,7 +541,7 @@ namespace ForkBot
                         while (amount > u2.GetCoins());
                         await u1.GiveCoinsAsync(amount);
                         await u2.GiveCoinsAsync(-amount);
-                        await Context.Channel.SendMessageAsync($":knife: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has stolen {amount} coins from you!");
+                        await Context.Channel.SendMessageAsync($":knife: {user.Mention}! {Context.User.Mention} has stolen {amount} coins from you!");
                         
                     }
                     else
@@ -550,7 +550,7 @@ namespace ForkBot
                         if (items.Count() == 0)
                         {
                             await Context.Channel.SendMessageAsync($"You try to steal an item from {user.Username}... but they have nothing!" +
-                                                                   $" You drop your knife and run before the police arrive. {(user as IGuildUser).Mention} picks up the knife!");
+                                                                   $" You drop your knife and run before the police arrive. {user.Mention} picks up the knife!");
                             u2.GiveItem("knife");
                         }
                         else
@@ -559,7 +559,7 @@ namespace ForkBot
                             var item = DBFunctions.GetItemName(itemID);
                             u1.GiveItem(item);
                             u2.RemoveItem(item);
-                            await Context.Channel.SendMessageAsync($":knife: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has stolen your {item} from you!");
+                            await Context.Channel.SendMessageAsync($":knife: {user.Mention}! {Context.User.Mention} has stolen your {item} from you!");
                             
                         }
                     }
@@ -641,7 +641,7 @@ namespace ForkBot
                     do amount = rdm.Next(500);
                     while (amount > u2.GetCoins());
                     await u2.GiveCoinsAsync(-amount);
-                    await Context.Channel.SendMessageAsync($":mag: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has burned {amount} of your coins!");
+                    await Context.Channel.SendMessageAsync($":mag: {user.Mention}! {Context.User.Mention} has burned {amount} of your coins!");
                 }
                 else
                 {
@@ -655,7 +655,7 @@ namespace ForkBot
                         var itemID = items.ElementAt(rdm.Next(items.Count())).Key;
                         var item = DBFunctions.GetItemName(itemID);
                         u2.RemoveItem(item);
-                        await Context.Channel.SendMessageAsync($":mag: {(user as IGuildUser).Mention}! {(Context.User as IGuildUser).Mention} has burnt your {item}!");
+                        await Context.Channel.SendMessageAsync($":mag: {user.Mention}! {Context.User.Mention} has burnt your {item}!");
                     }
                 }
             }

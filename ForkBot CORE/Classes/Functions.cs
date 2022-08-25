@@ -56,7 +56,7 @@ namespace ForkBot
 
         /*static WebClient web = new WebClient();
         
-        string[] stats = { "hygiene", "fashion", "happiness", "fitness", "fullness", "healthiness", "sobriety" };
+        string[] stats = DBFunctions.GetAllStats();
         public static KeyValuePair<ulong,int>[] GetTopList(string stat = "")
         {
             var bottom = false;

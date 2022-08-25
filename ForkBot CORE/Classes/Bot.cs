@@ -457,20 +457,20 @@ namespace ForkBot
                                 cTag = c.Summary.Substring(0, index);
                             }
                             else cTag = "[OTHER]";
-                        }
 
-
-                        if (cTag != null && cTag == tag)
-                        {
-                            emb.Fields.Add(new JEmbedField(x =>
+                            if (cTag != null && cTag == tag)
                             {
-                                string header = c.Name;
-                                foreach (String alias in c.Aliases) if (alias != c.Name) header += " (;" + alias + ") ";
-                                foreach (Discord.Commands.ParameterInfo parameter in c.Parameters) header += " [" + parameter.Name + "]";
-                                x.Header = header;
-                                x.Text = c.Summary.Replace(tag + " ", "");
-                            }));
+                                emb.Fields.Add(new JEmbedField(x =>
+                                {
+                                    string header = ';' + c.Name;
+                                    foreach (string alias in c.Aliases) if (alias != c.Name) header += " (;" + alias + ") ";
+                                    foreach (Discord.Commands.ParameterInfo parameter in c.Parameters) header += " [" + parameter.Name + "]";
+                                    x.Header = header;
+                                    x.Text = c.Summary.Replace(tag + " ", "");
+                                }));
+                            }
                         }
+                        
                     }
                     await message.ModifyAsync(x => x.Embed = emb.Build());
                     await message.RemoveAllReactionsAsync();

@@ -334,8 +334,9 @@ namespace ForkBot
             }
         }
 
-        public static bool StatExists(string stat)
+        public static string[] GetAllStats()
         {
+            List<string> stats = new List<string>();
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
@@ -345,13 +346,21 @@ namespace ForkBot
                     using (var reader = com.ExecuteReader())
                     {
                         while (reader.Read())
-                            if (reader.GetString(1).ToLower() == stat.ToLower()) return true;
-                        
-                        return false;
+                        {
+                            var stat = reader.GetString(1);
+                            if (stat != "USER_ID") stats.Add(stat.ToLower());
+                        }
+
                     }
-                    
+
                 }
+                return stats.ToArray();
             }
+        }
+
+        public static bool StatExists(string stat)
+        {
+            return GetAllStats().Contains(stat.ToLower());
         }
 
         public static void AddNews(string headline, string content)
@@ -493,7 +502,7 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "SELECT sum(HYGIENE + FASHION + HAPPINESS + FITNESS + FULLNESS + HEALTHINESS + SOBRIETY) FROM USER_STATS";
+                var stm = $"SELECT sum({string.Join('+',DBFunctions.GetAllStats())}) FROM USER_STATS";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
                     return Convert.ToInt32(cmd.ExecuteScalar());
@@ -509,7 +518,7 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "SELECT HYGIENE + FASHION + HAPPINESS + FITNESS + FULLNESS + HEALTHINESS + SOBRIETY FROM USER_STATS WHERE USER_ID = @id";
+                var stm = $"SELECT {string.Join('+',DBFunctions.GetAllStats())} FROM USER_STATS WHERE USER_ID = @id";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
                     cmd.Parameters.AddWithValue("@id", user.Id);
