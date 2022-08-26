@@ -63,13 +63,13 @@ namespace ForkBot
             new Slot("gem",0)
         };
 
-        public async Task<string> Spin()
+        public async Task<string> SpinAsync()
         {
             var slot = Slots[0];
             for (int i = 0; i < 3; i++) spins[i] = rdm.Next(Slots[i].Length);
 
             int winnings = Convert.ToInt32(GetWinnings());
-            DBFunctions.SetProperty("slot_jackpot", "0");
+            DBFunctions.AddToProperty("slot_jackpot", -winnings);
             await User.Get(GetGambler()).GiveCoinsAsync(winnings);
 
             string winMSG = ":poop: YOU LOSE";

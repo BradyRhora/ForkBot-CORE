@@ -687,7 +687,7 @@ namespace ForkBot
                     DBFunctions.AddToProperty("Slot_Jackpot", bet);
                     await user.GiveCoinsAsync(-bet);
                     SlotMachine sm = new SlotMachine(Context.User, bet);
-                    var result = sm.Spin();
+                    var result = await sm.SpinAsync();
                     JEmbed emb = new JEmbed
                     {
                         Description = sm.Generate() + "\n" + result
