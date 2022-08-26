@@ -610,7 +610,7 @@ namespace ForkBot
         public async Task Watch()
         {
             if (Check(Context, "watch", false)) return;
-            await Context.Channel.SendMessageAsync(":watch: `" + (DateTime.UtcNow - new TimeSpan(4, 0, 0)).ToLocalTime() + "`");
+            await Context.Channel.SendMessageAsync(":watch: `" + (Var.CurrentDate()).ToLocalTime() + "`");
         }
 
         [Command("mag"), Alias("burn", "magnifyingglass", "magnifying_glass")]
@@ -1048,35 +1048,43 @@ namespace ForkBot
         }
 
         [Command("bow_and_arrow"), Alias("bowandarrow", "bow")]
-        public async Task Bow_And_Arrow(string target)
+        public async Task Bow_And_Arrow(string target = null)
         {
             if (Check(Context, "bow_and_arrow", false)) return;
+
+            if (target == null)
+            {
+                await ReplyAsync("You think you could aim this bow and shoot at something...");
+                return;
+            }
+
             var user = User.Get(Context.User);
             if (!user.HasItem(DBFunctions.GetItemID(target))) target = "null";
+
+            int coins = 0;
             switch (target)
             {
                 case "tiger":
                     int chance = rdm.Next(100);
                     user.RemoveItem("tiger");
                     user.RemoveItem("bow_and_arrow");
-                    int coinLoss = 0, coinGain = 0;
                     if (chance < 45)
                     {
-                        coinLoss = rdm.Next(300);
+                        coins = -rdm.Next(300);
                         int itemLossID = user.GetItemList()[rdm.Next(user.GetItemList().Count)];
                         user.RemoveItem(itemLossID);
-                        await ReplyAsync($"The tiger looks towards you, and it looks *pissed*. It lunges at you!\nYou lost {coinLoss} coins and your {DBFunctions.GetItemName(itemLossID)}!");
+                        await ReplyAsync($"The tiger looks towards you, and it looks *pissed*. It lunges at you!\nYou lost {coins} coins and your {DBFunctions.GetItemName(itemLossID)}!");
                     }
                     else
                     {
-                        coinGain = rdm.Next(100) + 100;
-                        await ReplyAsync($"The tiger falls to the ground, and you take some nice pictures! You're also able to sell its pelt for {coinGain} coins.");
+                        coins = rdm.Next(400) + 200;
+                        await ReplyAsync($"The tiger falls to the ground, and you take some nice pictures! You're also able to sell its pelt for {coins} coins.");
                     }
 
-                    await user.GiveCoinsAsync(coinGain - coinLoss);
+                    await user.GiveCoinsAsync(coins);
                     break;
                 case "man":
-                    int coins = rdm.Next(50, 200);
+                    coins = rdm.Next(50, 200) + 50;
                     await user.GiveCoinsAsync(coins);
                     user.RemoveItem("bow_and_arrow");
                     user.RemoveItem("man");
@@ -1088,6 +1096,11 @@ namespace ForkBot
                     user.RemoveItem("bow_and_arrow");
                     user.GiveItem("ring");
                     await ReplyAsync("The arrow pierces through her frail body and she collapses to the ground.\nOh, that's a nice ring!\nYou got a ring! :ring:");
+                    break;
+                case "apple":
+                    user.RemoveItem("apple");
+                    user.RemoveItem("bow_and_arrow");
+
                     break;
                 case "null":
                     await ReplyAsync("You don't have one of those.");
