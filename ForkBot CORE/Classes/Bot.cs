@@ -24,7 +24,7 @@ namespace ForkBot
         public static DiscordSocketClient client;
         public static CommandService commands;
         public static List<User> users = new();
-        private const bool LOG = false;
+        private const bool LOG = true;
         public async Task Run()
         {
             try
