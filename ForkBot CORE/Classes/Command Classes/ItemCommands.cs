@@ -1100,7 +1100,8 @@ namespace ForkBot
                 case "apple":
                     user.RemoveItem("apple");
                     user.RemoveItem("bow_and_arrow");
-
+                    int aim = rdm.Next(100);
+                    if (aim < 10) Console.WriteLine("END MEEEEE");
                     break;
                 case "null":
                     await ReplyAsync("You don't have one of those.");

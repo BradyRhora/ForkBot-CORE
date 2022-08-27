@@ -147,7 +147,7 @@ namespace ForkBot
                 Var.rPresent = Var.present;
                 var presentName = Var.present;
                 var pMessage = DBFunctions.GetItemDescription(presID);
-                var msg = $"{message.Author.Username}! You got...\nA {Func.ToTitleCase(presentName.Replace('_', ' '))}! {DBFunctions.GetItemEmote(presID)} {pMessage}";
+                var msg = $"{message.Author.Username}! You got...\n{Functions.GetPrefix(presentName)} {Func.ToTitleCase(presentName.Replace('_', ' '))}! {DBFunctions.GetItemEmote(presID)} {pMessage}";
                 user.GiveItem(Var.present);
 
                 if (Var.replaceable)

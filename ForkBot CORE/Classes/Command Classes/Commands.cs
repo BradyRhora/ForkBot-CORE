@@ -832,7 +832,7 @@ namespace ForkBot
                         await u.GiveCoinsAsync(-price);
                         u.GiveItem(name);
                         DBFunctions.AddToProperty("slot_jackpot", price);
-                        await Context.Channel.SendMessageAsync($":shopping_cart: You have successfully purchased a(n) {name} {DBFunctions.GetItemEmote(name)} for {price} coins!");
+                        await Context.Channel.SendMessageAsync($":shopping_cart: You have successfully purchased {Functions.GetPrefix(name).ToLower()} {name} {DBFunctions.GetItemEmote(name)} for {price} coins!");
                     }
                     else await Context.Channel.SendMessageAsync("Either you cannot afford this item or it is not in stock.");
                     return;

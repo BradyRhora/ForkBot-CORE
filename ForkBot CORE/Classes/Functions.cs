@@ -41,6 +41,15 @@ namespace ForkBot
                 return user.Username;
             return user.Nickname;
         }
+
+        char[] vowels = {'a','e','i','o','u'};
+        public static string GetPrefix(string word)
+        {
+            if (vowels.Contains(word[0]))
+                return "An";
+            else
+                return "A";
+        }
         
         public static ItemTrade? GetTrade(IUser user)
         {
