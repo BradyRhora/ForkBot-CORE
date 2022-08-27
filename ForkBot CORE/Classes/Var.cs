@@ -84,28 +84,6 @@ namespace ForkBot
         public static DateTime VoidDate = DateTime.Now;
         public static int IDEnd;
 
-        public static List<MaxwellRequest> maxwellRequests = new List<MaxwellRequest>();
 
-    }
-
-    public class MaxwellRequest
-    {
-        public IUser User { get; }
-        public IUserMessage Message { get; }
-        public bool isDM { get; }
-        public int MaxwellID { get; }
-        public string Request { get; }
-        public int ID { get; }
-
-        static Random rdm = new Random();
-        public MaxwellRequest(IUser user, IUserMessage message, int maxwell, string request, bool dm = false)
-        {
-            ID = rdm.Next(1000,10000);
-            User = user;
-            Message = message;
-            isDM = dm;
-            MaxwellID = maxwell;
-            Request = request;
-        }
     }
 }
