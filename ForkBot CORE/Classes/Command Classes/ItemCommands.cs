@@ -1368,7 +1368,7 @@ namespace ForkBot
         else if (param == "") await ReplyAsync("The ring waits for a catalyst.");
         else await ReplyAsync("This item seems to have no effect.");
     }
-    */
+    
         [Command("maxwell"), Alias("weedswell","venomswell","superwell","santawell","ragewell","mariowell","goldswell","batswell","monkaswell","hollowswell", "neonwell", "cursedwell")]
         public async Task Maxwell([Remainder] string wish = "")
         {
@@ -1387,12 +1387,10 @@ namespace ForkBot
                 string chan = "";
                 if (isdm) chan = "DM's";
                 else chan = Context.Channel.Name;
-                var msg = await ReplyAsync("One moment...");
-                var req = new MaxwellRequest(Context.User, msg, DBFunctions.GetItemID(maxwell), wish, isdm);
                 Var.maxwellRequests.Add(req);
                 await brady.SendMessageAsync($"{Context.User.Mention} asks their {maxwell} {DBFunctions.GetItemEmote(maxwell)} in {chan} with an ID of {req.ID}...\n```\n{wish}\n```");
             }
-        }
+        }*/
 
         [Command("controller"), Alias("videogame","game", "video_game")]
         public async Task Controller()
