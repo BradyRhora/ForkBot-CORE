@@ -1877,33 +1877,33 @@ namespace ForkBot
 
                 if (stat == "coin" || stat == "coins")
                 {
-                    stm = $"SELECT USER_ID, COINS FROM USERS WHERE COINS <> 0 ORDER BY COINS {order}";
+                    stm = $"SELECT USER_ID, COINS FROM USERS WHERE COINS <> 0 AND USER_ID != {Constants.Users.FORKBOT} ORDER BY COINS {order}";
                     emb.Title = "Top 5 Richest Users";
                     emote = "💰";
                 }
                 else if (DBFunctions.GetItemID(stat) != -1)
                 {
                     var id = DBFunctions.GetItemID(stat);
-                    stm = $"SELECT USER_ID, COUNT FROM USER_ITEMS WHERE ITEM_ID = {id} ORDER BY COUNT {order}";
+                    stm = $"SELECT USER_ID, COUNT FROM USER_ITEMS WHERE ITEM_ID = {id} AND USER_ID != {Constants.Users.FORKBOT} ORDER BY COUNT {order}";
                     emb.Title = $"Top 5 Most {DBFunctions.GetItemName(id)}s";
                     emote = DBFunctions.GetItemEmote(id);
                 }
                 else if (stat == "item" || stat == "items")
                 {
-                    stm = $"SELECT USER_ID, SUM(count) FROM USER_ITEMS GROUP BY USER_ID ORDER BY SUM(COUNT) {order} LIMIT 5";
+                    stm = $"SELECT USER_ID, SUM(count) FROM USER_ITEMS WHERE USER_ID != {Constants.Users.FORKBOT} GROUP BY USER_ID ORDER BY SUM(COUNT) {order} LIMIT 5";
                     emb.Title = "Top 5 Most Materialistic Users";
-                    emote = "🛍️";
+                    emote = "🛍";
                 }
                 else if (DBFunctions.StatExists(stat)) //specific stat
                 {
-                    stm = $"SELECT USER_ID, {stat} FROM USER_STATS ORDER BY {stat} {order} LIMIT 10";
+                    stm = $"SELECT USER_ID, {stat} FROM USER_STATS WHERE USER_ID != {Constants.Users.FORKBOT} ORDER BY {stat} {order} LIMIT 10";
                     emb.Title = $"Top 5 {stat.ToTitleCase()}";
                     emote = "📈";
                 }
                 else if (stat == "stat" || stat == "stats") //all stats
                 {
                     var stats = string.Join('+',DBFunctions.GetAllStats());
-                    stm = $"SELECT USER_ID, {stats} FROM USER_STATS ORDER BY {stats} {order} LIMIT 10";
+                    stm = $"SELECT USER_ID, {stats} FROM USER_STATS WHERE USER_ID != {Constants.Users.FORKBOT} ORDER BY {stats} {order} LIMIT 10";
                     emb.Title = "Top 5 Total Stats";
                     emote = "👑";
                 }
