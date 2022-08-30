@@ -1947,7 +1947,7 @@ namespace ForkBot
 
         }
 
-        [Command("lottery"), Summary("[FUN] The Happy Lucky Lottery! Buy a lotto card and check daily to see if your numbers match!")]
+        [Command("lottery"), Alias("lotto"), Summary("[FUN] The Happy Lucky Lottery! Buy a lotto card and check daily to see if your numbers match!")]
         public async Task Lottery(string command = "")
         {
             if (await Functions.isDM(Context.Message))

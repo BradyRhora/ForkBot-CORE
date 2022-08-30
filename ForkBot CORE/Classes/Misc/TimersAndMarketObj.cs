@@ -22,9 +22,19 @@ namespace ForkBot
             unpurge.Dispose();
         }
 
-        public static Timer RemindTimer;
-        public static async void Remind(object state)
+        public static Timer MinuteTimer;
+
+        static DateTime lastDay = Var.CurrentDate();
+        public static async void MinuteUpdate(object state)
         {
+            //Daily Updates (rebirth)
+            if (lastDay.DayOfYear < Var.CurrentDate().DayOfYear)
+            {
+                //status update
+                int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
+                await Bot.client.SetGameAsync(strikeCount + " days since REBIRTH", type: ActivityType.Watching);
+            }
+
             var reminders = await Reminder.GetAllRemindersAsync();
 
             for (int i = reminders.Length - 1; i >= 0; i--)
@@ -37,11 +47,7 @@ namespace ForkBot
                     reminders[i].Delete();
                 }
             }
-        }
-
-        public static Timer BidTimer;
-        public static async void BidAndMarketTimerCallBack(object state)
-        {
+        
             var posts = await MarketPost.GetAllPostsAsync();
             List<MarketPost> expired = new List<MarketPost>();
             List<MarketPost> expiringSoon = new List<MarketPost>();

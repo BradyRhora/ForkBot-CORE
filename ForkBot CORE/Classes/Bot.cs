@@ -59,8 +59,7 @@ namespace ForkBot
 
                 int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
                 await client.SetGameAsync(strikeCount + " days since REBIRTH", type: ActivityType.Watching);
-                Timers.RemindTimer = new Timer(Timers.Remind, null, 1000 * 30, 1000 * 60);
-                Timers.BidTimer = new Timer(Timers.BidAndMarketTimerCallBack, null, 1000 * 30, 1000 * 60);
+                Timers.MinuteTimer = new Timer(Timers.MinuteUpdate, null, 1000 * 30, 1000 * 60);
                 await Task.Delay(-1);
             }
             catch (Exception e)
@@ -83,57 +82,40 @@ namespace ForkBot
         public async Task InstallCommands()
         {
             client.MessageReceived += HandleMessage;
-            //client.UserJoined += HandleJoin;
-            //client.UserLeft += HandleLeave;
-            //client.MessageDeleted += HandleDelete;
             client.ReactionAdded += HandleReact;
-            //client.MessageUpdated += HandleEdit;
-            //client.UserVoiceStateUpdated += HandleVoiceUpdate;
             await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services: null);
         }
 
-        DateTime lastDay = Var.CurrentDate();
-        List<ulong> newUsers = new();
-
+       
+    List<ulong> newUsers = new();
 
         public async Task HandleMessage(SocketMessage messageParam)
         {
             SocketUserMessage message = messageParam as SocketUserMessage;
+
             if (message == null) return;
-            bool isDM = await Functions.isDM(message as IMessage);
-            if (isDM && !message.Content.StartsWith(";"))
+            else if (message.Author.Id == client.CurrentUser.Id) return; //doesn't allow the bot to respond to itself
+            else if (!Var.DebugMode && message.Channel.Id == Constants.Channels.DEBUG) return; //hides debug channel messages if not in debug mode
+            else if (Var.DebugMode && message.Author.Id != Constants.Users.BRADY && Var.DebugUsers.Where(x => x.Id == message.Author.Id).Count() <= 0) return; //only allows brady or allowed users to use commands if in debug mode
+            else if (Var.blockedUsers.Where(x => x.Id == message.Author.Id).Count() > 0) return; //prevents "blocked" users from using the bot
+
+            bool isDM = await Functions.isDM(message);
+            if (isDM)
             {
-                Console.WriteLine(message.Author.Username + " says:\n" + message.Content);
+                if (!message.Content.StartsWith(";"))   
+                    Console.WriteLine(message.Author.Username + " says:\n" + message.Content);
+                else if (Var.LockDM) { 
+                    Console.WriteLine(message.Author.Username + " [" + message.Author.Id + "] attempted to use a command in DM's:\n'" + message.Content + "'");
+                    return;
+                }
             }
-            if (isDM && Var.LockDM) { Console.WriteLine(message.Author.Username + " [" + message.Author.Id + "] attempted to use a command in DM's:\n'"+message.Content+"'"); return; }
             if (message == null) return;
-            if (message.Author.Id == client.CurrentUser.Id) return; //doesn't allow the bot to respond to itself
-            if (Var.DebugMode && message.Author.Id != Constants.Users.BRADY && Var.DebugUsers.Where(x => x.Id == message.Author.Id).Count() <= 0) return;
             
-            if (!Var.DebugMode && message.Channel.Id == Constants.Channels.DEBUG) return;
             var user = User.Get(message.Author);
 
-            #region Pre-Command Functions
-
-            //Daily Updates (rebirth)
-            if (lastDay.DayOfYear < Var.CurrentDate().DayOfYear)
-            {
-                //status update
-                int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
-                await client.SetGameAsync(strikeCount + " days since REBIRTH", type: ActivityType.Watching);
-            }
-
-            //checks if message contains any blocked words ## DISABLED ##
-            /*if (!isDM && (message.Channel as IGuildChannel).Guild.Id == Constants.Guilds.YORK_UNIVERSITY && Functions.Filter(message.Content))
-            {
-                await message.DeleteAsync();
-                return;
-            }*/
-
-            if (Var.blockedUsers.Where(x=>x.Id == message.Author.Id).Count() > 0) return; //prevents "blocked" users from using the bot
-
             //present stuff
-            if (Var.presentWaiting && message.Content == Convert.ToString(Var.presentNum))
+            string presentNum = Convert.ToString(Var.presentNum);
+            if (Var.presentWaiting && message.Content == presentNum)
             {
                 Var.presentWaiting = false;
                 var presents = DBFunctions.GetItemIDList();
@@ -158,7 +140,7 @@ namespace ForkBot
                 }
                 await message.Channel.SendMessageAsync(msg);
             }
-            else if (Var.replaceable && Var.replacing && message.Content == Convert.ToString(Var.presentNum) && message.Author == Var.presentReplacer)
+            else if (Var.replaceable && Var.replacing && message.Content == presentNum && message.Author == Var.presentReplacer)
             {
                 if (user.HasItem(Var.present))
                 {
@@ -176,79 +158,16 @@ namespace ForkBot
                 }
             }
 
-            //detects invites for unwanted servers (in yorku server) and deletes them
-            if (!isDM && (message.Channel as IGuildChannel).Guild.Id == Constants.Guilds.YORK_UNIVERSITY && message.Content.ToLower().Contains("discord.gg") || message.Content.ToLower().Contains("discordapp.com/invite"))
-            {
-                var words = message.Content.Split(' ');
-                foreach (string word in words)
-                {
-                    if (word.Contains("discord"))
-                    {
-                        string id = word.Split('/')[word.Split('/').Length - 1];
-                        IInvite inv = await client.GetInviteAsync(id);
-                        if (inv.GuildId == Constants.Guilds.FORKU)
-                        {
-                            await messageParam.DeleteAsync();
-                        }
-                        return;
-                    }
-                }
-            }
 
-            //April fools covid edition
-            /*if (DateTime.Now.Month == 4 && (message.Channel as IGuildChannel).Guild.Id == Constants.Guilds.YORK_UNIVERSITY)
-            {
-                var guildUser = message.Author as IGuildUser;
-                var infected = guildUser.RoleIds.Contains(Constants.Roles.INFECTED);
-
-                if (infected)
-                {
-
-                    var msgs = message.Channel.GetCachedMessages(20).ToArray();
-                    bool next = false;
-                    IGuildUser lastUser = null;
-                    for (int i = 0; i < msgs.Count(); i++)
-                    {
-                        if (next)
-                        {
-                            lastUser = msgs[i].Author as IGuildUser;
-                            break;
-                        }
-                        else if (msgs[i].Id == message.Id)
-                            next = true;
-                    }
-
-                    if (guildUser.Id != lastUser.Id)
-                    {
-                        var luInfected = lastUser.RoleIds.Contains(Constants.Roles.INFECTED);
-                        if (infected && !luInfected)
-                        {
-                            await lastUser.AddRoleAsync(guildUser.Guild.GetRole(Constants.Roles.INFECTED));
-                            Console.WriteLine("Infected " + lastUser.Username);
-                        }
-                        //else if (!infected && luInfected)
-                        //{
-                        //    await guildUser.AddRoleAsync(guildUser.Guild.GetRole(Constants.Roles.INFECTED));
-                        //    Console.WriteLine("Infected " + guildUser.Username);
-                        //}
-                    }
-                }
-            }*/
-
-            //Doesnt allow bot usage in "blocked" channels
-            //ulong[] blockedChannels = { Constants.Channels.GENERAL_SLOW, Constants.Channels.GENERAL_TRUSTED, Constants.Channels.NEWS_DEBATE, Constants.Channels.LIFESTYLE };
-            //if (!isDM && (message.Channel as IGuildChannel).Guild.Id == Constants.Guilds.YORK_UNIVERSITY && (blockedChannels.Contains(message.Channel.Id)) && !(message.Author as IGuildUser).RoleIds.Contains(Constants.Roles.MOD) && !(message.Author as IGuildUser).RoleIds.Contains(Constants.Roles.BOOSTER)) return;
-            #endregion
-
-            int argPos = 0;
             //detect and execute commands
+            int argPos = 0;
             if (message.HasCharPrefix(';', ref argPos))
             {
                 // new user prevention
                 var userCreationDate = message.Author.CreatedAt;
                 var existenceTime = DateTime.UtcNow.Subtract(userCreationDate.DateTime);
-                var week = new TimeSpan(7, 0, 0, 0);
-                if (existenceTime < week && !message.Content.Contains("verify"))
+                var fewDays = new TimeSpan(3, 0, 0, 0);
+                if (existenceTime < fewDays && !message.Content.Contains("verify"))
                 {
                     if (!newUsers.Contains(message.Author.Id))
                     {
@@ -280,143 +199,24 @@ namespace ForkBot
                 }
                 else
                 {
-                    //give user a chance at a lootbox
-                    bool inLM = false;
-                    //go through users last command time
-                    foreach (var u in Var.lastMessage)
-                    {
-                        //ensure user is in dictionary
-                        if (u.Key == context.User.Id) { inLM = true; break; }
-                    }
-                    if (inLM == false) Var.lastMessage.Add(context.User.Id, Var.CurrentDate() - new TimeSpan(1, 0, 1));
                     //if chance of lootbox
-                    if (Var.lastMessage[context.User.Id] <= Var.CurrentDate() - new TimeSpan(1, 0, 0))
+                    if (user.GetData<DateTime>("LastLootboxAttempt") <= Var.CurrentDate() - new TimeSpan(1, 0, 0))
                     {
                         //10% chance at lootbox
                         if (rdm.Next(100) + 1 < 10)
                         {
-                            await context.Channel.SendMessageAsync(":package: `A lootbox appears in your inventory! (package)`");
-                            User.Get(context.User).GiveItem("package");
+                            await context.Channel.SendMessageAsync(":package: `A lootbox appears in your inventory!`");
+                            user.GiveItem("package");
+
+                            //set last message time to now
+                            user.SetData("LastLootboxAttempt", Var.CurrentDate());
                         }
                     }
-                    //set last message time to now
-                    Var.lastMessage[context.User.Id] = Var.CurrentDate();
                 }
             }
             else return;
 
         }
-        /*
-        public async Task HandleJoin(SocketGuildUser user)
-        {
-            if (Var.DebugMode) return;
-            if (Var.LockDown && user.Guild.Id == Constants.Guilds.YORK_UNIVERSITY)
-            {
-                await user.KickAsync();
-                await (user.Guild.GetChannel(Constants.Channels.REPORTED) as ITextChannel).SendMessageAsync($"LOCKDOWN:\n```Auto kicked: {user.Username}#{user.DiscriminatorValue}\n```");
-            }
-            else
-            {
-                await (user.Guild.GetChannel(Constants.Channels.LANDING) as IMessageChannel).SendMessageAsync($"{user.Mention}! Welcome to {user.Guild.Name}! To gain access to all channels, check #landing-rules for more information. Enjoy!");
-                await (user.Guild.GetChannel(Constants.Channels.GENERAL_SLOW) as IMessageChannel).SendMessageAsync($"{user.Mention}! Welcome to {user.Guild.Name}!");
-            }
-        }
-        public async Task HandleLeave(SocketGuild guild, SocketUser user)
-        {
-            if (Var.DebugMode) return;
-            if (!Var.LockDown && guild.Id == Constants.Guilds.YORK_UNIVERSITY) await (guild.GetChannel(Constants.Channels.GENERAL_SLOW) as IMessageChannel).SendMessageAsync($"{user.Username} has left the server.");
-        }
-        public async Task HandleDelete(Cacheable<IMessage, ulong> cache, Cacheable<IMessageChannel,ulong> channel)
-        {
-            var msg = cache.Value;
-            if (msg == null) return;
-            var id = (msg.Author as IGuildUser).Guild.Id;
-            if ((id == Constants.Guilds.BASSIC || id == Constants.Guilds.YORK_UNIVERSITY) & msg.Author.Id != client.CurrentUser.Id && !Var.purging && msg.Content != ";bomb")
-            {
-                JEmbed emb = new();
-                emb.Title = msg.Author.Username + "#" + msg.Author.Discriminator;
-                emb.Author.Name = "MESSAGE DELETED";
-                emb.ThumbnailUrl = msg.Author.GetAvatarUrl();
-                emb.Description = msg.Content;
-
-                string attachURL = null;
-                if (msg.Attachments.Count > 0) attachURL = msg.Attachments.FirstOrDefault().ProxyUrl;
-                if (attachURL != null) emb.ImageUrl = attachURL;
-
-                emb.Fields.Add(new JEmbedField(x =>
-                {
-                    x.Header = "Location";
-                    x.Text = msg.Channel + " in " + (msg.Channel as IGuildChannel).Guild;
-                    x.Inline = true;
-                }));
-
-                emb.ColorStripe = Constants.Colours.YORK_RED;
-                var datetime = DateTime.UtcNow - new TimeSpan(5, 0, 0);
-                emb.Footer.Text = datetime.ToLongDateString() + " " + datetime.ToLongTimeString() + " | " +
-                    msg.Author.Username + "#" + msg.Author.Discriminator + " ID: " + msg.Author.Id;
-
-                ulong msgChan = 0;
-
-                if (id == Constants.Guilds.YORK_UNIVERSITY) msgChan = Constants.Channels.DELETED_MESSAGES;
-                else msgChan = Constants.Channels.ASS_DELETED_MESSAGES;
-
-                var chan = client.GetChannel(msgChan) as IMessageChannel;
-                await chan.SendMessageAsync("", embed: emb.Build());
-            }
-        }
-        public async Task HandleEdit(Cacheable<IMessage, ulong> cache, SocketMessage msg, ISocketMessageChannel channel)
-        {
-            if (msg == null || cache.Value == null) return;
-            if (msg.Content == cache.Value.Content) return;
-            if ((msg.Channel as IGuildChannel).Guild.Id == Constants.Guilds.YORK_UNIVERSITY)
-            {
-                await msg.DeleteAsync();
-                return;
-            }
-
-            if ((msg.Author as IGuildUser).Guild.Id == Constants.Guilds.YORK_UNIVERSITY && msg.Author.Id != client.CurrentUser.Id && !Var.purging)
-            {
-                JEmbed emb = new();
-                emb.Title = msg.Author.Username + "#" + msg.Author.Discriminator;
-                emb.Author.Name = "MESSAGE EDITED";
-                emb.ThumbnailUrl = msg.Author.GetAvatarUrl();
-
-                emb.Fields.Add(new JEmbedField(x =>
-                {
-                    x.Header = "ORIGINAL:";
-                    x.Text = cache.Value.Content;
-                    x.Inline = true;
-                }));
-
-                emb.Fields.Add(new JEmbedField(x =>
-                {
-                    x.Header = "EDITED:";
-                    x.Text = msg.Content;
-                    x.Inline = true;
-                }));
-
-                string attachURL = null;
-                if (msg.Attachments.Count > 0) attachURL = msg.Attachments.FirstOrDefault().ProxyUrl;
-                if (attachURL != null) emb.ImageUrl = attachURL;
-
-                emb.Fields.Add(new JEmbedField(x =>
-                {
-                    x.Header = "Location";
-                    x.Text = msg.Channel + " in " + (msg.Channel as IGuildChannel).Guild;
-                    x.Inline = false;
-                }));
-
-                emb.ColorStripe = Constants.Colours.TWITTER_BLUE;
-                var datetime = DateTime.UtcNow - new TimeSpan(5, 0, 0);
-                emb.Footer.Text = datetime.ToLongDateString() + " " + datetime.ToLongTimeString() + " | " +
-                    msg.Author.Username + "#" + msg.Author.Discriminator + " ID: " + msg.Author.Id;
-
-
-                var chan = client.GetChannel(Constants.Channels.DELETED_MESSAGES) as IMessageChannel;
-                await chan.SendMessageAsync("", embed: emb.Build());
-            }
-        }
-        */
         public async Task HandleReact(Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction react)
         {
             if (cache.Value == null) return;
@@ -488,17 +288,6 @@ namespace ForkBot
                 }
             }
         }
-        
-        /*public async Task HandleVoiceUpdate(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
-        {
-            var gUser = user as IGuildUser;
-            if (gUser.GuildId == Constants.Guilds.YORK_UNIVERSITY)
-            {
-                if (newState.VoiceChannel != null) await gUser.AddRoleAsync(gUser.Guild.GetRole(Constants.Roles.TTS));
-                else await gUser.RemoveRoleAsync(gUser.Guild.GetRole(Constants.Roles.TTS));
-            }
-        }*/
-        
     }
 }
 

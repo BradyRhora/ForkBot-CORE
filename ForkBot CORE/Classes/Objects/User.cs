@@ -375,9 +375,5 @@ namespace ForkBot
             return new User(userID);
         }
 
-        /*public string[] GetStats()
-        {
-            return File.ReadAllLines($@"Users\{ID}.user").Where(x => x.StartsWith("stat.")).ToArray();
-        }*/
     }
 }
