@@ -321,7 +321,7 @@ namespace ForkBot
         [Command("updates"), Summary("See the most recent update log.")]
         public async Task Updates()
         {
-            await Context.Channel.SendMessageAsync("```\nFORKBOT BETA CHANGELOG 3.1 - The Database Update!\n-The time has finally come! All users and items have been fully converted to an sql database!\n-free market and bids now also use sql databases, which mesns we're fully using sql now! no more silly text files!\n-fixed fm post bug and bid outbid bug\n-some moderation updates\n-you can now see your status in society with the new `;status` command!```");
+		await Context.Channel.SendMessageAsync("```\nFORKBOT CORE 1.0 - Ladies and Gentlemen, he's back.\n- Migrated from .NET Framework to .NET CORE 6.0 for Ubuntu Server compatibility\n- Fixed many bugs relating to migration\n- Reset user database (stats, items, etc.) for a fresh start and to make it more welcoming for new users.\nMore to come!```");
         }
 
         [Command("stats"), Summary("See stats regarding Forkbot."), Alias("uptime")]
@@ -1444,7 +1444,11 @@ namespace ForkBot
                 string[] tags = File.ReadAllLines("Files/tags.txt");
                 foreach (string line in tags)
                 {
-                    if (line.Split('|')[0] == tag) { exists = true; break; }
+                    if (line.Split('|')[0] == tag) { 
+			    exists = true; 
+			    await ReplyAsync(line.Split('|')[1]); //temp solution, will not send remainder of tags that use |
+			    break;
+		    }
                 }
 
                 if (!exists)
@@ -2344,7 +2348,7 @@ namespace ForkBot
 
         #region Brady Commands
 
-        [Command("todo"), Summary("[BRADY] View, add, and remove reminders.")]
+        [Command("todo"), Summary("[BRADY] View/add reminders or remove them by prefixing with '-'.")]
         public async Task Todo([Remainder] string reminder = "")
         {
             if (reminder != "")

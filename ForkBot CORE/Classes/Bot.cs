@@ -203,15 +203,14 @@ namespace ForkBot
                     if (user.GetData<DateTime>("LastLootboxAttempt") <= Var.CurrentDate() - new TimeSpan(1, 0, 0))
                     {
                         //10% chance at lootbox
-                        if (rdm.Next(100) + 1 < 10)
+                        if ((rdm.Next(100) + 1) < 10)
                         {
                             await context.Channel.SendMessageAsync(":package: `A lootbox appears in your inventory!`");
                             user.GiveItem("package");
-
-                            //set last message time to now
-                            user.SetData("LastLootboxAttempt", Var.CurrentDate());
                         }
+			user.SetData("LastLootboxAttempt", Var.CurrentDate()); // set last msg time
                     }
+
                 }
             }
             else return;

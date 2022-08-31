@@ -58,7 +58,7 @@ namespace ForkBot
         public static DateTime lottoDay = new DateTime(0);
 
         //gets DateTime in Eastern Standard Time
-        public static DateTime CurrentDate() { return DateTime.UtcNow /*- new TimeSpan(6, 0, 0)*/; }
+        public static DateTime CurrentDate() { return DateTime.Now /*- new TimeSpan(6, 0, 0)*/; }
         public static string CurrentDateFormatted() { return $"On {CurrentDate().ToString("dddd, MMMM dd")} at {CurrentDate().ToString("h:mm tt")}"; }
 
         public static List<ChannelStats> channelStats = new List<ChannelStats>();

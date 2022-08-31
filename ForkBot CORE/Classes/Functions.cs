@@ -42,7 +42,7 @@ namespace ForkBot
             return user.Nickname;
         }
 
-        char[] vowels = {'a','e','i','o','u'};
+        public static char[] vowels = {'a','e','i','o','u'};
         public static string GetPrefix(string word)
         {
             if (vowels.Contains(word[0]))
