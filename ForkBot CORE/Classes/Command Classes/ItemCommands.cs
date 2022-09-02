@@ -858,10 +858,18 @@ namespace ForkBot
         public async Task Candy()
         {
             if (Check(Context, "candy")) return;
-            await Context.Channel.SendMessageAsync(":candy: Don't forget to check for razors!\n**Fullness+10 Happiness+15**");
-            await User.Get(Context.User).AddStatAsync("fullness", 10);
-            await User.Get(Context.User).AddStatAsync("happiness", 15);
-        }
+            if (rdm.Next(100) < 3) 
+	    {
+		await ReplyAsync("YEEOWCH! You bite straight into a razor! Why would someone put that there?!\n**Happiness-100**");
+		await User.Get(Context.User).AddStatAsync("happiness",-100);
+	    }
+	    else 
+	    {
+	    	await Context.Channel.SendMessageAsync(":candy: Don't forget to check for razors!\n**Fullness+10 Happiness+15**");
+            	await User.Get(Context.User).AddStatAsync("fullness", 10);
+            	await User.Get(Context.User).AddStatAsync("happiness", 15);
+	    }
+	}
 
         [Command("gnome")]
         public async Task Gnome()
