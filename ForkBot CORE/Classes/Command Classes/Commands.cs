@@ -1444,11 +1444,11 @@ namespace ForkBot
                 string[] tags = File.ReadAllLines("Files/tags.txt");
                 foreach (string line in tags)
                 {
-                    if (line.Split('|')[0] == tag) { 
-			    exists = true; 
-			    await ReplyAsync(line.Split('|')[1]); //temp solution, will not send remainder of tags that use |
-			    break;
-		    }
+                    if (line.Split('|')[0] == tag) 
+                    { 
+			            exists = true;
+			            break;
+		            }
                 }
 
                 if (!exists)
