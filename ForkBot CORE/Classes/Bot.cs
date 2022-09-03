@@ -191,8 +191,12 @@ namespace ForkBot
                     }
                     else
                     {
-                        if (user.HasItem(message.Content.Replace(";", "")))
+                        if (user.HasItem(message.Content.Trim(';')))
                         {
+                            var tip = DBFunctions.GetItemTip(message.Content.Trim(';'));
+                            if (tip != null)
+                            await message.Channel.SendMessageAsync(tip);
+                            else
                             await message.Channel.SendMessageAsync("Nothing happens... *Use `;suggest [suggestion]` if you have an idea for this item!*");
                         }
                     }

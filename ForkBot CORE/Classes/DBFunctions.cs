@@ -130,7 +130,22 @@ namespace ForkBot
             }
         }
 
-        public static int[] GetItemIDList(bool shoppable = false, bool includeBM = true)
+        public static string GetItemTip(int itemID)
+        {
+            using (var con = new SQLiteConnection(Constants.Values.DB_CONNETION_STRING))
+            {
+                con.Open();
+                var getItemTip = "SELECT Item_Tip FROM ITEMS WHERE ID = @id";
+                using (var com = new SQLiteCommand(getItemTip,con))
+                {
+                    com.Parameters.AddWithValue("@id",itemID);
+                    string value = com.ExecuteScalar();
+                    return value;
+                }
+            }
+        }
+	
+	public static int[] GetItemIDList(bool shoppable = false, bool includeBM = true)
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
