@@ -330,11 +330,13 @@ namespace ForkBot
                 {
                     var name1 = (await Bot.client.GetUserAsync(topUserID)).Username;
                     var name2 = (await Bot.client.GetUserAsync(newtopUserID)).Username;
-                    var headline = $"{name2} TAKES {name1}'S PLACE AS THE KING OF {stat.ToUpper()}!";
-                    var content = $"Outstandingly, {name2} has taken over as the new leader of {stat}! They smashed the current record of {topUserAmount} with ease " +
-                        $"on {Var.CurrentDate().ToString("dddd, MMMM dd")} at {Var.CurrentDate().ToString("h:mm tt")}. If you were looking to be the person with the most {stat}," +
-                        $" then {name2} is your new rival!";
-                    DBFunctions.AddNews(headline, content);
+                    var headline = $"{name2.ToUpper()} TAKES {name1.ToUpper()}'S PLACE AS THE KING OF {stat.ToUpper()}!";
+                    string date = Var.CurrentDate().ToString("dddd, MMMM dd");
+		    string time = Var.CurrentDate().ToString("h:mm tt");
+		    string[] contents = {
+			    $"Outstandingly, {name2} has taken over as the new leader of {stat}! They smashed the current record of {topUserAmount} with ease on {date} at {time}. If you were looking to be the person with the most {stat}, then {name2} is your new rival!",
+			    $"In an amazing display of {stat}, {name2} wowed onlookers when they surpassed {name1}'s record of {topUserAmount}. On {date} at precisely {time}, {name2} gained {addition} {stat} to take over the crown. Congratulations {name2}! And {name1}, if you're reading this... It might be time to improve your {stat} game!"};
+                    DBFunctions.AddNews(headline, contents[new Random().Next(contents.Count())]);
                 }
             }
         }
