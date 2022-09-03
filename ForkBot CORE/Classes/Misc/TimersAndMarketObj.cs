@@ -193,7 +193,7 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = "INSERT INTO FREE_MARKET VALUES(@id, @userid, @itemid, @amount, @price, @date)";
+                var stm = "INSERT INTO FREE_MARKET VALUES(@id, @userid, @itemid, @amount, @price, @date, 0)";
                 using (var com = new SQLiteCommand(stm, con))
                 {
                     com.Parameters.AddWithValue("@id", ID);
@@ -240,7 +240,7 @@ namespace ForkBot
                 {
                     id += key[rdm.Next(key.Length)];
                 }
-            } while (GetPostAsync(id) != null);
+            } while (GetPostAsync(id) == null);
 
             return id;
         }

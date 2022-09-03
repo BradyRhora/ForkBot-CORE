@@ -1027,7 +1027,7 @@ namespace ForkBot
                     emb.Fields.Add(new JEmbedField(x =>
                     {
                         x.Header = $"{DBFunctions.GetItemEmote(itemName)} ({amount}) {itemName}{plural} - id: {id}";
-                        x.Text = $"<:blank:528431788616318977>:moneybag: {price} Coins\n<:blank:528431788616318977>";
+                        x.Text = $"{Constants.Emotes.BLANK}:moneybag: {price} Coins\n{Constants.Emotes.BLANK}";
                         x.Inline = false;
                     }));
                 }
@@ -1075,7 +1075,8 @@ namespace ForkBot
                     return;
                 }
 
-                if (!user.HasItem(item, amount))
+                var itemID = DBFunctions.GetItemID(item);
+                if (!user.HasItem(itemID, amount))
                 {
                     await ReplyAsync(":x: You either do not have the item, or enough of the item in your inventory. :x:");
                     return;
@@ -1090,7 +1091,6 @@ namespace ForkBot
                 string plural = "";
                 if (price > 1) plural = "s";
 
-                var itemID = DBFunctions.GetItemID(item);
                 MarketPost mp = new MarketPost(Context.User, itemID, amount, price, Var.CurrentDate());
 
                 for (int i = 0; i < amount; i++) user.RemoveItem(item);
@@ -1138,31 +1138,26 @@ namespace ForkBot
             }
             else if (command[0] == "cancel")
             {
-                var items = File.ReadAllLines("Files/FreeMarket.txt");
                 var id = command[1].ToUpper();
-                for (int i = 0; i < items.Length; i++)
-                {
-                    string[] sData = items[i].Split('|');
-                    string sellerID = sData[1];
-                    if (items[i].Split('|')[0] == id)
-                    {
-                        string itemName = sData[2];
-                        int amount = Convert.ToInt32(sData[3]);
+                var item = await MarketPost.GetPostAsync(id);
 
-                        if (sellerID == $"{Context.User.Id}")
+                if (item == null) await ReplyAsync("Post with ID " + id + " not found.");
+                else
+                {
+                    ulong sellerID = item.User.Id;
+                    if (item.ID == id)
+                    {
+                        if (sellerID == Context.User.Id)
                         {
-                            int fee = (int)(Convert.ToInt32(sData[4]) * .25);
+                            int fee = (int)(item.Price * Constants.Values.MARKET_CANCELLATION_FEE);
                             if (user.GetCoins() >= fee)
                             {
                                 await user.GiveCoinsAsync(-fee);
-                                items[i] = "";
-                                for (int o = 0; o < amount; o++) user.GiveItem(itemName);
-                                File.WriteAllLines("Files/FreeMarket.txt", items.Where(x => x != ""));
-                                await ReplyAsync($"You have successfully canceled your posting of {amount} {itemName}(s). They have returned to your inventory and you have been charged the cancellation fee of {fee} coins.");
+                                for (int o = 0; o < item.Amount; o++) user.GiveItem(item.Item_ID);
+                                MarketPost.DeletePost(item.ID);
+                                await ReplyAsync($"You have successfully canceled your posting of {item.Amount} {DBFunctions.GetItemName(item.Item_ID)}(s). They have returned to your inventory and you have been charged the cancellation fee of {fee} coins.");
                             }
                             else await ReplyAsync($"You cannot afford the cancellation fee of {fee} coins and have not cancelled this posting.");
-
-                            break;
                         }
                         else
                         {

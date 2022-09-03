@@ -191,9 +191,10 @@ namespace ForkBot
                     }
                     else
                     {
-                        if (user.HasItem(message.Content.Trim(';')))
+                        int itemID = DBFunctions.GetItemID(message.Content.Trim(';'));
+                        if (itemID != -1 && user.HasItem(itemID))
                         {
-                            var tip = DBFunctions.GetItemTip(message.Content.Trim(';'));
+                            var tip = DBFunctions.GetItemTip(itemID);
                             if (tip != null)
                             await message.Channel.SendMessageAsync(tip);
                             else

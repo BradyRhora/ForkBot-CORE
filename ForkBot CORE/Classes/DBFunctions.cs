@@ -132,14 +132,14 @@ namespace ForkBot
 
         public static string GetItemTip(int itemID)
         {
-            using (var con = new SQLiteConnection(Constants.Values.DB_CONNETION_STRING))
+            using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
                 var getItemTip = "SELECT Item_Tip FROM ITEMS WHERE ID = @id";
                 using (var com = new SQLiteCommand(getItemTip,con))
                 {
                     com.Parameters.AddWithValue("@id",itemID);
-                    string value = com.ExecuteScalar();
+                    string value = (string)com.ExecuteScalar();
                     return value;
                 }
             }
