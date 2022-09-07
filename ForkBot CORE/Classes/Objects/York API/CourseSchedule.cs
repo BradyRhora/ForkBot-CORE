@@ -29,8 +29,8 @@ namespace YorkU
                     var sessionDir = child.SelectSingleNode($"td/table/tr[2]").InnerText.Replace("Please click here to see availability.", "").Replace("&nbsp;", " ").Trim().Replace("   ", ", ");
                     var schedule = child.SelectSingleNode($"td/table/tr[3]/td/table/tr[2]");
                     var type = schedule.ChildNodes[0].InnerText;
-                    var timedayInfo = schedule.ChildNodes[1].InnerText.Replace("&nbsp;", "").Trim().Replace("     ", "|").Replace(" ", "").Replace("(Glendoncampus)", "").Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries);
-
+                    var info = schedule.ChildNodes[1].FirstChild;
+                    
                     var TermAndSec = termSec.Split(new char[]{' '},StringSplitOptions.RemoveEmptyEntries);
                     var CAT = schedule.ChildNodes[2].InnerText;
 
@@ -39,9 +39,26 @@ namespace YorkU
                     
                     var professor = sessionDir;
 
-                    if (timedayInfo.Length == 1 && timedayInfo[0] == "") break;
+                    //if (timedayInfo.Length == 1 && timedayInfo[0] == "") break;
 
                     CourseDay cDay = new CourseDay(term, section, professor, CAT);
+
+                    foreach (var node in info.ChildNodes)
+                    {
+                        string day = node.ChildNodes[0].InnerText;
+                        string time = node.ChildNodes[1].InnerText;
+                        string duration = node.ChildNodes[2].InnerText;
+
+                        string location = node.ChildNodes[3].InnerText.Replace("&nbsp;", " ").Trim();
+                        string campus = node.ChildNodes[4].InnerText;
+
+                        Dictionary<string, string> DayConversion = new Dictionary<string, string>() { { "M", "Monday" }, { "T", "Tuesday" }, { "W", "Wednesday" }, { "R", "Thursday" }, { "F", "Friday" } };
+                        cDay.AddDayTime(DayConversion[day], time);
+                    }
+
+
+
+                    /*
                     for (int i = 0; i < timedayInfo.Length; i++)
                     {
                         string day = Convert.ToString(timedayInfo[i][0]);
@@ -50,7 +67,11 @@ namespace YorkU
                         {
                             for (int o = 2; o < timedayInfo[i].Length; o++)
                             {
-                                if (timedayInfo[i][o - 2] == ':') time = timedayInfo[i].Substring(1, o);
+                                if (timedayInfo[i][o - 2] == ':')
+                                {
+                                    time = timedayInfo[i].Substring(1, o);
+                                    break;
+                                }
                             }
 
 
@@ -58,7 +79,7 @@ namespace YorkU
                             cDay.AddDayTime(DayConversion[day], time);
                         }
                         else cDay.AddDayTime("", "");
-                    }
+                    }*/
 
                     Days.Add(cDay);
                 }

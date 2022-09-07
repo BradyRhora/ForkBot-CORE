@@ -260,10 +260,11 @@ namespace ForkBot
 
                 await Context.Channel.SendMessageAsync("", embed: emb.Build());
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message + "\n" + e.StackTrace);
                 if (course != null && course.CourseNotFound) await ReplyAsync($"The specified course was not found. If you know this course exists, try `;course {code} force`. This may be very slow, so only do it once. It will then be added to the courselist and should work normally.");
-                else await ReplyAsync($"There was an error loading the course page. (Probably not available this term: **{term.ToUpper()}**)\nTry appending a different term to the end of the command (e.g. `;course {code} fw`)");
+                else await ReplyAsync($"There was an error loading the course page. (Possibly not available this term: **{term.ToUpper()}**)\nTry appending a different term to the end of the command (e.g. `;course {code} fw`)");
             }
 
         }
