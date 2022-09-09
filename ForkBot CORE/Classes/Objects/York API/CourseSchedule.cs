@@ -47,10 +47,10 @@ namespace YorkU
                     {
                         string day = node.ChildNodes[0].InnerText;
                         string time = node.ChildNodes[1].InnerText;
-                        string duration = node.ChildNodes[2].InnerText;
+                        //string duration = node.ChildNodes[2].InnerText;
 
-                        string location = node.ChildNodes[3].InnerText.Replace("&nbsp;", " ").Trim();
-                        string campus = node.ChildNodes[4].InnerText;
+                        //string location = node.ChildNodes[3].InnerText.Replace("&nbsp;", " ").Trim();
+                        //string campus = node.ChildNodes[4].InnerText;
 
                         Dictionary<string, string> DayConversion = new Dictionary<string, string>() { { "M", "Monday" }, { "T", "Tuesday" }, { "W", "Wednesday" }, { "R", "Thursday" }, { "F", "Friday" } };
                         cDay.AddDayTime(DayConversion[day], time);

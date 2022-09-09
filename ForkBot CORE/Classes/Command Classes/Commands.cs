@@ -2299,24 +2299,6 @@ namespace ForkBot
             await Context.Message.DeleteAsync();
         }
         */
-        [Command("verify"), RequireUserPermission(GuildPermission.ManageRoles), Summary("[MOD] Verifies new users to give them server access.")]
-        public async Task Verify(IGuildUser user)
-        {
-            if (Context.Guild.Id != Constants.Guilds.YORK_UNIVERSITY) return;
-            
-            
-
-            var awaitingUser = Var.awaitingVerifications.Where(x => x.User.Id == Context.User.Id).FirstOrDefault();
-            if (awaitingUser != null)
-            {
-
-                await user.AddRolesAsync(awaitingUser.Roles);
-                await user.AddRoleAsync(user.Guild.GetRole(Constants.Roles.VERIFIED));
-                await ReplyAsync("Successfully verified.");
-            }
-            else await ReplyAsync("User not found.");
-
-        }
         
         [Command("lockdown"), Summary("[MOD] Locks the server")]
         public async Task Lockdown()

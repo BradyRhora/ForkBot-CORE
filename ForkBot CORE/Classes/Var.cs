@@ -77,7 +77,6 @@ namespace ForkBot
 
         public static List<IUser> DebugUsers = new List<IUser>();
 
-        public static List<AwaitingVerification> awaitingVerifications = new List<AwaitingVerification>();
 
         public static DateTime VoidDate = DateTime.Now;
         public static int IDEnd;

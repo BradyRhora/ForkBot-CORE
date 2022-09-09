@@ -213,7 +213,7 @@ namespace ForkBot
                             await context.Channel.SendMessageAsync(":package: `A lootbox appears in your inventory!`");
                             user.GiveItem("package");
                         }
-			user.SetData("LastLootboxAttempt", Var.CurrentDate()); // set last msg time
+			            user.SetData("LastLootboxAttempt", Var.CurrentDate()); // set last msg time
                     }
 
                 }
@@ -278,17 +278,6 @@ namespace ForkBot
                     }
                     await message.ModifyAsync(x => x.Embed = emb.Build());
                     await message.RemoveAllReactionsAsync();
-                }
-
-
-                var awaitingUser = Var.awaitingVerifications.Where(x => x.Message.Id == react.MessageId).FirstOrDefault();
-                if (awaitingUser != null)
-                {
-                    IGuildUser user = awaitingUser.User as IGuildUser;
-                    await user.AddRolesAsync(awaitingUser.Roles);
-                    await user.AddRoleAsync(user.Guild.GetRole(Constants.Roles.VERIFIED));
-
-                    await (client.GetChannel(Constants.Channels.REPORTED) as IMessageChannel).SendMessageAsync("Successfully verified.");
                 }
             }
         }
