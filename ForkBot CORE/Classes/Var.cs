@@ -65,7 +65,7 @@ namespace ForkBot
         public static DateTime startTime;
 
         public static int DebugCode;
-        public static bool DebugMode = true;
+        public static bool DebugMode = false;
 
         public static bool LockDown = false;
         public static bool LockDM = false;
