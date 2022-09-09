@@ -554,7 +554,6 @@ namespace ForkBot
             RemindTime = remindTime;
         }
 
-        //hi bb can u read this i luv u
         public void Save()
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
@@ -602,7 +601,7 @@ namespace ForkBot
                         {
                             var id = reader.GetInt32(0);
                             var text = reader.GetString(2);
-                            var date = reader.GetDateTime(3).AddHours(5);
+                            var date = reader.GetDateTime(3);
                             reminders.Add(new Reminder(id,user,text,date));
                         }
                         return reminders.ToArray();

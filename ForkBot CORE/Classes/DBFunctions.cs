@@ -139,8 +139,11 @@ namespace ForkBot
                 using (var com = new SQLiteCommand(getItemTip,con))
                 {
                     com.Parameters.AddWithValue("@id",itemID);
-                    string value = (string)com.ExecuteScalar();
-                    return value;
+                    var obj = com.ExecuteScalar();
+                    if (obj.GetType() != typeof(DBNull))
+                        return (string)obj;
+                    else
+                        return null;
                 }
             }
         }
