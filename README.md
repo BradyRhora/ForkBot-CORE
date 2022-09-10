@@ -4,14 +4,13 @@ An amazing bot developed for the York University Discord server!
 - Moderation
   - Purge messages
   - Kick/Ban users
-  - Saves deleted messages
+  - Save deleted messages
 - Fun Commands
-  - Many items with their own features
+  - Many items with their own features and abilities that can be bought, used, traded, sold, or combined!
   - Games to earn coins and buy items
   - ;present
 - Useful school commands!
-  - Look up professors and courses
-  - Define words
+  - Look up professors and York courses
   
 ***And more!***
 
