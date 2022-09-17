@@ -214,14 +214,20 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = $"SELECT Warned FROM FREE_MARKET WHERE ID = {ID}";
+                var stm = $"SELECT Warned FROM FREE_MARKET WHERE ID = @id";
                 using (var com = new SQLiteCommand(stm, con))
+                {
+                    com.Parameters.AddWithValue("@id", ID);
                     warned = (bool)com.ExecuteScalar();
+                }
                 if (!warned)
                 {
-                    var stm2 = $"UPDATE FREE_MARKET SET Warned = 1 WHERE ID = {ID}";
+                    var stm2 = $"UPDATE FREE_MARKET SET Warned = 1 WHERE ID = @id";
                     using (var com = new SQLiteCommand(stm2, con))
+                    {
+                        com.Parameters.AddWithValue("@id", ID);
                         com.ExecuteNonQuery();
+                    }
                 }
             }
             return warned;
