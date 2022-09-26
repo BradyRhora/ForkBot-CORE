@@ -164,7 +164,8 @@ namespace Stevebot
                 }
 
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-                var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
+                Console.WriteLine(fullMsg);
+		var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
                 messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT, response.ToString()));
                 System.Threading.Thread.Sleep(response.ToString().Length * 75);
                 return await ReplaceNameWithPingAsync(response.ToString());
