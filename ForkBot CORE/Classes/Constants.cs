@@ -47,10 +47,11 @@ namespace ForkBot
         public class Channels
         {
             public static ulong GENERAL_TRUSTED = 561299616746700860;
-            public static ulong GENERAL_SLOW = 265998661606047744;
+            public static ulong GENERAL = 265998661606047744;
             public static ulong ENTERTAINMENT = 266001204499316736;
             public static ulong ANNOUNCEMENTS = 265999135503679488;
             public static ulong COMMANDS = 271843457121779712;
+            public static ulong DEV = 758139597019414611;
             public static ulong DELETED_MESSAGES = 306236074655612930;
             public static ulong ASS_DELETED_MESSAGES = 493873769627254786;
             public static ulong REPORTED = 479383993360449544;
@@ -85,6 +86,9 @@ namespace ForkBot
             public static Emoji HAMMER = new Emoji("🔨");
             public static Emoji DIE = new Emoji("🎲");
             public static Emoji QUESTION = new Emoji("❓");
+            public static Emoji EAR = new Emoji("👂");
+            public static Emoji WAVE = new Emoji("👋");
+
             public static Emote BRADY = Emote.Parse("<:Smuggers:657954937820676116>");
             public static Emote BLANK = Emote.Parse("<:blank:648780847763423232>");
 

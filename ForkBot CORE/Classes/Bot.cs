@@ -19,7 +19,7 @@ namespace ForkBot
     {
         static void Main(string[] args) => new Bot().Run().GetAwaiter().GetResult();
 
-        Random rdm = new();
+        public static Random rdm = new();
 
         public static DiscordSocketClient client;
         public static CommandService commands;
@@ -218,9 +218,48 @@ namespace ForkBot
 
                 }
             }
-            else return;
+            else if (Stevebot.Chat.Chats.Select(x => x.channel_id == message.Channel.Id).Count() != 0)
+            {
+                Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).First();
+
+                bool exited = false;
+                if (chat.users.Where(x => x.Id == message.Author.Id).Count() == 0)
+                    chat.Join(message.Author);
+
+                if (chat.users.Where(x => x.Id == message.Author.Id).First().Left == false)
+                {
+                    var response = await chat.GetNextMessageAsync(message);
+                    await message.Channel.SendMessageAsync(response);
+
+                    string[] partingTerms = { "goodbye", "seeya", "cya" };
+                    if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
+                        if (chat.Leave(message.Author))
+                            await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                }
+            }
+            else if (lastChatCheck < DateTime.Now - new TimeSpan(0, 10, 0))
+            {
+                ulong[] allowedChannels = {Constants.Channels.GENERAL,Constants.Channels.COMMANDS,Constants.Channels.DEV };
+                if (allowedChannels.Contains(message.Channel.Id))
+                {
+                    lastChatCheck = DateTime.Now;
+                    int chance = rdm.Next(1000);
+                    Console.WriteLine(chance);
+                    if (chance <= LISTEN_CHANCE * 10)
+                    {
+                        var gUser = (message.Channel as SocketGuildChannel).GetUser(client.CurrentUser.Id);
+                        await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName + Constants.Emotes.EAR.Name);
+                        Console.WriteLine("I want to join the chat..");
+                        Stevebot.Chat chat = new Stevebot.Chat(message.Author.Id, message.Channel.Id, true);
+                    }
+                }
+            }
 
         }
+        const int LISTEN_CHANCE = 5; //%
+        public static DateTime lastChatCheck = new DateTime(0);
+
+
         public async Task HandleReact(Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction react)
         {
             if (cache.Value == null) return;

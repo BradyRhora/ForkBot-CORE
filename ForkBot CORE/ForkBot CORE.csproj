@@ -57,6 +57,7 @@
 
   <ItemGroup>
     <None Include="bin\Debug\net6.0\Constants\bottoken" />
+    <None Include="bin\Debug\net6.0\Constants\openaitoken" />
     <None Include="bin\Debug\net6.0\Files\ForkDB CORE.db" />
     <None Include="bin\Debug\net6.0\Files\ForkDB.db" />
     <None Include="bin\Debug\net6.0\Files\YorkDB.db" />
@@ -73,6 +74,7 @@
     <PackageReference Include="Discord.Net.WebSocket" Version="3.7.2" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
+    <PackageReference Include="OpenAI" Version="1.2.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.116" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
     <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.116" />

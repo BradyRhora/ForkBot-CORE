@@ -2137,6 +2137,31 @@ namespace ForkBot
             }
         }
 
+        [Command("talk"), Summary("Chat time with ForkBot.")]
+        public async Task Talk([Remainder] string input = "")
+        {
+            if (Stevebot.Chat.Chats.Where(x => x.users.Where(y => y.Id == Context.User.Id).Count() == 0).Count() > 0) await Context.Channel.SendMessageAsync("We're already chatting somewhere else.");
+            else
+            {
+                await Context.Message.AddReactionAsync(Emoji.Parse("💬"));
+                Stevebot.Chat newChat = null;
+                if (input == "" || input == " ")
+                {
+                    var firstMsg = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync("Say the first line in a conversation:\n", max_tokens: 128, temperature: 0.8);
+
+                    var trimmed = firstMsg.ToString().Trim('"', ' ', '"', '\n');
+                    await Context.Channel.SendMessageAsync(trimmed);
+                    newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id, trimmed);
+                }
+                else
+                {
+                    newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id);
+                    await Context.Channel.SendMessageAsync(await newChat.GetNextMessageAsync(Context.Message));
+                }
+                await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
+            }
+        }
+
         /*
         [Command("forkparty"), Summary("[FUN] Begin a game of ForkParty:tm: with up to 4 players!"), Alias(new string[] { "fp" })]
         public async Task ForkParty([Remainder] string command = "")
