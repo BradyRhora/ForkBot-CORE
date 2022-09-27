@@ -2162,6 +2162,13 @@ namespace ForkBot
             }
         }
 
+        [Command("gpt")]
+        public async Task GPT([Remainder] string input)
+        {
+            var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.85);
+            await ReplyAsync(resp.ToString());
+        }
+
         /*
         [Command("forkparty"), Summary("[FUN] Begin a game of ForkParty:tm: with up to 4 players!"), Alias(new string[] { "fp" })]
         public async Task ForkParty([Remainder] string command = "")
