@@ -225,18 +225,21 @@ namespace ForkBot
                 if (chat != null)
                 {
                     bool exited = false;
-                    if (chat.users.Where(x => x.Id == message.Author.Id).Count() == 0)
-                        chat.Join(message.Author);
+                    
+                    chat.Join(message.Author);
 
                     if (chat.users.Where(x => x.Id == message.Author.Id).First().Left == false)
                     {
                         var response = await chat.GetNextMessageAsync(message);
-                        await message.Channel.SendMessageAsync(response);
+                        if (response != "")
+                        {
+                            await message.Channel.SendMessageAsync(response);
 
-                        string[] partingTerms = { "goodbye", "seeya", "cya" };
-                        if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
-                            if (chat.Leave(message.Author))
-                                await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                            string[] partingTerms = { "bye", "seeya", "cya" };
+                            if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
+                                if (chat.Leave(message.Author))
+                                    await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                        }
                     }
                 }
             }

@@ -93,6 +93,7 @@ namespace Stevebot
                 Console.WriteLine($"[DEBUG] {user.Username} has entered the chat.");
                 messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
             }
+            else Console.WriteLine($"[DEBUG] {user.Username} already left this chat.");
         }
 
         // returns true if there are no users remaining
