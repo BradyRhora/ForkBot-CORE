@@ -38,6 +38,7 @@ namespace ForkBot
                 Console.WriteLine("Command Service Initialized.");
                 await InstallCommands();
                 Console.WriteLine("Commands Installed, logging in.");
+                if (!File.Exists("FORKBOT_DIRECTORY")) File.Create("FORKBOT_DIRECTORY");
                 if (!Directory.Exists("Constants"))
                 {
                     Directory.CreateDirectory("Constants");

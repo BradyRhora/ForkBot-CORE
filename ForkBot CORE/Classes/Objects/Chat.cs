@@ -11,7 +11,7 @@ namespace Stevebot
     public class Chat
     {
         static Engine td2 = new("text-davinci-002");
-        public static OpenAIAPI OpenAI = new OpenAI_API.OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken")), engine: td2);
+        public static OpenAIAPI OpenAI = new OpenAI_API.OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken").Trim('\n')), engine: td2);
         public class ChatMessage
         {
             public ulong Sender { get; }
