@@ -174,7 +174,7 @@ namespace ForkBot
                     {
                         newUsers.Add(message.Author.Id);
                         await message.Author.SendMessageAsync("Hi there! Welcome to Discord. In order to avoid bot abuse, your account must be older than a few days to use the bot.\n" +
-                            "If you don't understand, just message <@108312797162541056> about it.\nThanks!");
+                            $"If you don't understand, just message <@{Constants.Users.BRADY}> about it.\nThanks!");
                     }
                     return;
                 }
@@ -219,7 +219,7 @@ namespace ForkBot
 
                 }
             }
-            else if (Stevebot.Chat.Chats.Select(x => x.channel_id == message.Channel.Id).Count() != 0)
+            else if (Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).Count() != 0)
             {
                 Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).FirstOrDefault();
                 if (chat != null)
