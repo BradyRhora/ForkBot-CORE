@@ -87,9 +87,12 @@ namespace Stevebot
 
         public void Join(IUser user)
         {
-            users.Add(new ChatUser(user.Id));
-
-            messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
+            if (users.Where(x => x.Id == user.Id).Count() == 0)
+            {
+                users.Add(new ChatUser(user.Id));
+                Console.WriteLine($"[DEBUG] {user.Username} has entered the chat.");
+                messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
+            }
         }
 
         // returns true if there are no users remaining
@@ -98,9 +101,10 @@ namespace Stevebot
             bool found = false;
             users.Where(x => x.Id == user.Id).First().Left = true;
 
+            Console.WriteLine($"[DEBUG] {user.Username} has left the chat. {users.Where(x=>x.Left == false).Count()}/{users.Count()}");
             messageHistory.Add(new ChatMessage(0, $"{user.Username} has left the chat."));
                         
-            if (users.Where(x => x.Left = false).Count() == 0)
+            if (users.Where(x => x.Left == false).Count() == 0)
             {
                 Chats.Remove(this);
                 return true;
@@ -168,7 +172,7 @@ namespace Stevebot
 		        //Console.Write(fullMsg);
                 var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
                 messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT, response.ToString()));
-                System.Threading.Thread.Sleep(response.ToString().Length * 75);
+                //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot to avoid command lag
                 return await ReplaceNameWithPingAsync(response.ToString());
             }
         }

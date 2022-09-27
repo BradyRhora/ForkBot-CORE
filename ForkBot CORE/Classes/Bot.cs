@@ -238,19 +238,20 @@ namespace ForkBot
                             await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
                 }
             }
-            else if (lastChatCheck < DateTime.Now - new TimeSpan(0, 10, 0))
+            else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0)))
             {
+                Console.WriteLine("[DEBUG] Trying to listen");
                 ulong[] allowedChannels = {Constants.Channels.GENERAL,Constants.Channels.COMMANDS,Constants.Channels.DEV };
                 if (allowedChannels.Contains(message.Channel.Id))
                 {
                     lastChatCheck = DateTime.Now;
                     int chance = rdm.Next(1000);
-                    Console.WriteLine(chance);
+                    Console.WriteLine("[DEBUG] Chance: " + chance);
                     if (chance <= LISTEN_CHANCE * 10)
                     {
                         var gUser = (message.Channel as SocketGuildChannel).GetUser(client.CurrentUser.Id);
                         await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName + Constants.Emotes.EAR.Name);
-                        Console.WriteLine("I want to join the chat..");
+                        Console.WriteLine("[DEBUG] I want to join the chat..");
                         Stevebot.Chat chat = new Stevebot.Chat(message.Author.Id, message.Channel.Id, true);
                     }
                 }
