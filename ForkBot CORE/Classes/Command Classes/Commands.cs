@@ -2165,6 +2165,7 @@ namespace ForkBot
         [Command("gpt")]
         public async Task GPT([Remainder] string input)
         {
+            if (Context.User.Id != Constants.Users.BRADY) return;
             var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.85);
             await ReplyAsync(resp.ToString());
         }

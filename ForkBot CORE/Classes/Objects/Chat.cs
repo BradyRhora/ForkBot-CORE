@@ -142,8 +142,8 @@ namespace Stevebot
                 string fullMsg;
                 if (just_listening) fullMsg = prompts[1];
                 else fullMsg = prompts[0];
-                //string dnl = "\n\n"; // double newline
-                string dnl = "  ";
+                string dnl = "\n\n"; // double newline
+                //string dnl = "  ";
                 fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await ForkBot.Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + dnl;
 
                 int start = messageHistory.Count() - (MEMORY_LENGTH - 1);
@@ -165,8 +165,7 @@ namespace Stevebot
                 }
 
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-                //fullMsg = fullMsg.Replace("\n", "[NEWLINE]");
-		        Console.Write(fullMsg);
+		        //Console.Write(fullMsg);
                 var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
                 messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT, response.ToString()));
                 System.Threading.Thread.Sleep(response.ToString().Length * 75);
