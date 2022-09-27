@@ -243,7 +243,7 @@ namespace ForkBot
                     }
                 }
             }
-            else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0)))
+            else if (false && lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp disabled
             {
                 Console.WriteLine("[DEBUG] Trying to listen");
                 ulong[] allowedChannels = {Constants.Channels.GENERAL,Constants.Channels.COMMANDS,Constants.Channels.DEV };
