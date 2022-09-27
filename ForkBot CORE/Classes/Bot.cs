@@ -221,21 +221,23 @@ namespace ForkBot
             }
             else if (Stevebot.Chat.Chats.Select(x => x.channel_id == message.Channel.Id).Count() != 0)
             {
-                Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).First();
-
-                bool exited = false;
-                if (chat.users.Where(x => x.Id == message.Author.Id).Count() == 0)
-                    chat.Join(message.Author);
-
-                if (chat.users.Where(x => x.Id == message.Author.Id).First().Left == false)
+                Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).FirstOrDefault();
+                if (chat != null)
                 {
-                    var response = await chat.GetNextMessageAsync(message);
-                    await message.Channel.SendMessageAsync(response);
+                    bool exited = false;
+                    if (chat.users.Where(x => x.Id == message.Author.Id).Count() == 0)
+                        chat.Join(message.Author);
 
-                    string[] partingTerms = { "goodbye", "seeya", "cya" };
-                    if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
-                        if (chat.Leave(message.Author))
-                            await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                    if (chat.users.Where(x => x.Id == message.Author.Id).First().Left == false)
+                    {
+                        var response = await chat.GetNextMessageAsync(message);
+                        await message.Channel.SendMessageAsync(response);
+
+                        string[] partingTerms = { "goodbye", "seeya", "cya" };
+                        if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
+                            if (chat.Leave(message.Author))
+                                await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                    }
                 }
             }
             else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0)))
