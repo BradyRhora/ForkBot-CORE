@@ -85,6 +85,8 @@ namespace Stevebot
             Chats.Add(this);
         }
 
+        public ChatUser GetUser(ulong id) { return users.Where(x => x.Id == id).FirstOrDefault(); }
+
         public void Join(IUser user)
         {
             if (users.Where(x => x.Id == user.Id).Count() == 0)
@@ -93,7 +95,7 @@ namespace Stevebot
                 Console.WriteLine($"[DEBUG] {user.Username} has entered the chat.");
                 messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
             }
-            else Console.WriteLine($"[DEBUG] {user.Username} already left this chat.");
+            
         }
 
         // returns true if there are no users remaining
@@ -113,10 +115,18 @@ namespace Stevebot
             return false;
         }
 
+        public void Update()
+        {
+            foreach(var user in users)
+            {
+                if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) user.Left = true;
+            }
+        }
+
 
         public async Task<string> GetNextMessageAsync(IMessage message)
         {
-
+            GetUser(message.Author.Id).LastMsg = DateTime.Now;
             messageHistory.Add(new ChatMessage(message.Author.Id,message.Content.Replace(";talk","").Trim(' ')));
 
             bool botMentioned = message.Content.ToLower().Contains("forkbot") || message.MentionedUserIds.Contains(ForkBot.Constants.Users.FORKBOT);
@@ -125,9 +135,16 @@ namespace Stevebot
             if (!botMentioned && !timePassed)
                 return "";
 
-            int max = (users.Where(x => !x.Left).Count() - 1) * 7;
+            int activeUsers = users.Where(x => !x.Left).Count();
+            int ignoreChance = (activeUsers - 1) * 7;
+            bool ignore = ForkBot.Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
+
+            if (ignore)
+                return "";
+
+            int max = (activeUsers - 1) * 7;
             secondDelay = ForkBot.Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
-            Console.WriteLine($"[DEBUG] second delay from 0 to {max}");
+            Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
             lastTimeSent = DateTime.Now;
             
             

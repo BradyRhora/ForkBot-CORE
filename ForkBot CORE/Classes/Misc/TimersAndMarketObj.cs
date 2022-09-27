@@ -155,6 +155,11 @@ namespace ForkBot
                     catch (Exception) { } //in case "cannot send message to this user"
                 }
             }
+
+            foreach(var chat in Stevebot.Chat.Chats)
+            {
+                chat.Update();
+            }
         }
     }
 

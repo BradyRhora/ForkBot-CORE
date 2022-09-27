@@ -224,12 +224,12 @@ namespace ForkBot
                 Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).FirstOrDefault();
                 if (chat != null)
                 {
-                    bool exited = false;
-                    
                     chat.Join(message.Author);
+                    var u = chat.GetUser(message.Author.Id);
 
-                    if (chat.users.Where(x => x.Id == message.Author.Id).First().Left == false)
+                    if (u != null && (u.Left == false || message.Content.ToLower().Contains("fork")))
                     {
+                        if (u.Left) u.Left = false;
                         var response = await chat.GetNextMessageAsync(message);
                         if (response != "")
                         {
