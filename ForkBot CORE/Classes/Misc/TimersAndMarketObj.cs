@@ -158,7 +158,7 @@ namespace ForkBot
 
             foreach(var chat in Stevebot.Chat.Chats)
             {
-                chat.Update();
+                await chat.Update();
             }
         }
     }

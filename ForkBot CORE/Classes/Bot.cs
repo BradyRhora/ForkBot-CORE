@@ -236,7 +236,7 @@ namespace ForkBot
                             await message.Channel.SendMessageAsync(response);
 
                             string[] partingTerms = { "bye", "seeya", "cya" };
-                            if (partingTerms.Where(x => message.Content.Contains(x)).Count() > 0)
+                            if (partingTerms.Where(x => message.Content.ToLower().Contains(x)).Count() > 0)
                                 if (chat.Leave(message.Author))
                                     await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
                         }

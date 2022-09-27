@@ -115,11 +115,11 @@ namespace Stevebot
             return false;
         }
 
-        public void Update()
+        public async Task Update()
         {
             foreach(var user in users)
             {
-                if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) user.Left = true;
+                if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(user.Id));
             }
         }
 
