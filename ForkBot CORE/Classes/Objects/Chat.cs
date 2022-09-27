@@ -142,8 +142,9 @@ namespace Stevebot
                 string fullMsg;
                 if (just_listening) fullMsg = prompts[1];
                 else fullMsg = prompts[0];
-
-                fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await ForkBot.Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + "\n\n";
+                //string dnl = "\n\n"; // double newline
+                string dnl = "  ";
+                fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await ForkBot.Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + dnl;
 
                 int start = messageHistory.Count() - (MEMORY_LENGTH - 1);
                 
@@ -158,13 +159,13 @@ namespace Stevebot
                             var user = await ForkBot.Bot.client.GetUserAsync(messageHistory[i].Sender);
                             fullMsg += $"{user.Username}: \"";
                         }
-                        fullMsg += messageHistory[i].Message + "\"\n\n";
+                        fullMsg += messageHistory[i].Message + "\"" + dnl;
                     }
-                    else fullMsg += messageHistory[i].Message + "\n\n";
+                    else fullMsg += messageHistory[i].Message + dnl;
                 }
 
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-                fullMsg = fullMsg.Replace("\n", "[NEWLINE]");
+                //fullMsg = fullMsg.Replace("\n", "[NEWLINE]");
 		        Console.Write(fullMsg);
                 var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
                 messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT, response.ToString()));
