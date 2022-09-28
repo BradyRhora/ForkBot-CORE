@@ -2140,7 +2140,12 @@ namespace ForkBot
         [Command("talk"), Summary("Chat time with ForkBot.")]
         public async Task Talk([Remainder] string input = "")
         {
-            if (Stevebot.Chat.Chats.Where(x => x.users.Where(y => y.Id == Context.User.Id).Count() == 0).Count() > 0) await Context.Channel.SendMessageAsync("We're already chatting somewhere else.");
+
+            if (Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).Count() > 0)
+            {
+                if (input.ToLower() == "end") Stevebot.Chat.Chats.Remove(Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).First());
+                else await Context.Channel.SendMessageAsync("We're already chatting here.");
+            }
             else
             {
                 await Context.Message.AddReactionAsync(Emoji.Parse("💬"));
@@ -2167,7 +2172,7 @@ namespace ForkBot
         {
             //if (Context.User.Id != Constants.Users.BRADY) return;
             var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: 256);
-            await ReplyAsync(resp.ToString());
+            await Context.Message.ReplyAsync(resp.ToString());
         }
 
         /*
