@@ -2172,7 +2172,17 @@ namespace ForkBot
         {
             //if (Context.User.Id != Constants.Users.BRADY) return;
             var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: 256);
-            await Context.Message.ReplyAsync(resp.ToString());
+            string response = resp.ToString().Replace("@everyone", $"[{Context.User.Username} smells like stale ass]");
+            response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
+            {
+                ulong id = 0;
+                if (ulong.TryParse(x.Groups[2].Value, out id))
+                {
+                    return Context.Guild.GetUserAsync(id).Result.Username; // i know this should be awaited dont tell anyone
+                }
+                else return "";
+            });
+            await Context.Message.ReplyAsync(response);
         }
 
         /*

@@ -109,6 +109,7 @@ namespace ForkBot
         {
             return message.Channel is IPrivateChannel;
         }
+
     }
 
 
