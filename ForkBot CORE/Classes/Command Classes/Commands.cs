@@ -2182,6 +2182,17 @@ namespace ForkBot
                 }
                 else return "";
             });
+
+            response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+            {
+                ulong id = 0;
+                if (ulong.TryParse(x.Groups[2].Value, out id))
+                {
+                    return Context.Guild.GetRole(id).Name; 
+                }
+                else return "";
+            });
+
             await Context.Message.ReplyAsync(response);
         }
 
