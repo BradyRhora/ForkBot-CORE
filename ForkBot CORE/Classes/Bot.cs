@@ -12,6 +12,7 @@ using System.Net;
 using System.IO;
 using HtmlAgilityPack;
 using System.Data.SQLite;
+using System.Text.RegularExpressions;
 
 namespace ForkBot
 {
@@ -233,6 +234,28 @@ namespace ForkBot
                         var response = await chat.GetNextMessageAsync(message);
                         if (response != "")
                         {
+                            response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
+                            {
+                                ulong id = 0;
+                                if (ulong.TryParse(x.Groups[2].Value, out id))
+                                {
+                                    return (message.Channel as SocketGuildChannel).Guild.GetUser(id).Username; 
+                                }
+                                else return "";
+                            });
+
+                            response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+                            {
+                                ulong id = 0;
+                                if (ulong.TryParse(x.Groups[2].Value, out id))
+                                {
+                                    return (message.Channel as SocketGuildChannel).Guild.GetRole(id).Name;
+                                }
+                                else return "";
+                            });
+
+                            response = response.Replace("@", "");
+
                             await message.Channel.SendMessageAsync(response);
 
                             string[] partingTerms = { "bye", "seeya", "cya" };
@@ -242,7 +265,7 @@ namespace ForkBot
                         }
                     }
                 }
-            }
+            }/*
             else if (false && lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp disabled
             {
                 Console.WriteLine("[DEBUG] Trying to listen");
@@ -260,7 +283,7 @@ namespace ForkBot
                         Stevebot.Chat chat = new Stevebot.Chat(message.Author.Id, message.Channel.Id, true);
                     }
                 }
-            }
+            }*/
 
         }
         const int LISTEN_CHANCE = 5; //%

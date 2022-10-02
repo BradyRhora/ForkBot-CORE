@@ -2193,6 +2193,8 @@ namespace ForkBot
                 else return "";
             });
 
+            response = response.Replace("@", "");
+
             await Context.Message.ReplyAsync(response);
         }
 
