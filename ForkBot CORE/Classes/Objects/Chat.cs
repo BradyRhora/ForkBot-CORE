@@ -117,9 +117,9 @@ namespace Stevebot
 
         public async Task Update()
         {
-            foreach(var user in users)
+            for (int i = users.Count() - 1; i >= 0; i--)
             {
-                if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(user.Id));
+                if (DateTime.Now - users[i].LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(users[i].Id));
             }
         }
 
