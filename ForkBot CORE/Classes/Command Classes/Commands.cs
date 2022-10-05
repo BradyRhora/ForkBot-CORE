@@ -2170,7 +2170,7 @@ namespace ForkBot
         [Command("gpt")]
         public async Task GPT([Remainder] string input)
         {
-            //if (Context.User.Id != Constants.Users.BRADY) return;
+            await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
             var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: 256);
             string response = resp.ToString().Replace("@everyone", $"[{Context.User.Username} smells like stale ass]");
             response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
@@ -2196,6 +2196,7 @@ namespace ForkBot
             response = response.Replace("@", "");
 
             await Context.Message.ReplyAsync(response);
+            await Context.Message.RemoveReactionAsync(Constants.Emotes.SPEECH_BUBBLE,Constants.Users.FORKBOT);
         }
 
         /*
@@ -2381,7 +2382,19 @@ namespace ForkBot
 
         [Command("fban"), RequireUserPermission(GuildPermission.KickMembers), Summary("[MOD] Pretend to ban someone hahahahaha..")]
         public async Task FBan(IUser user) => await FBan(user.Username);
-        
+
+        /* archived
+        [Command("unbanall"), RequireUserPermission(GuildPermission.BanMembers), Summary("[MOD] Unban everyone.")]
+        public async Task UnbanAll()
+        {
+            var bans = await Context.Guild.GetBansAsync().FirstAsync();
+            foreach(var ban in bans)
+            {
+                var u = ban.User;
+                await Context.Guild.RemoveBanAsync(u);
+            }
+        }
+        */
 
         #endregion
 
