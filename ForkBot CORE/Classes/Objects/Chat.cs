@@ -119,7 +119,7 @@ namespace Stevebot
         {
             for (int i = users.Count() - 1; i >= 0; i--)
             {
-                if (DateTime.Now - users[i].LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(users[i].Id));
+                if (!users[i].Left && DateTime.Now - users[i].LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(users[i].Id));
             }
         }
 

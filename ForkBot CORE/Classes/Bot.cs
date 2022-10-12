@@ -89,7 +89,7 @@ namespace ForkBot
         }
 
        
-    List<ulong> newUsers = new();
+        List<ulong> newUsers = new();
 
         public async Task HandleMessage(SocketMessage messageParam)
         {

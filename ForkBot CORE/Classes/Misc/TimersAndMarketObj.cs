@@ -145,20 +145,23 @@ namespace ForkBot
                 var newBid = new Bid(itemID, amount);
 
                 var notifyUserIds = DBFunctions.GetUserIDsWhere("Notify_Bid", "1");
-                foreach (ulong id in notifyUserIds)
+                if (!Var.DebugMode)
                 {
-                    try
+                    foreach (ulong id in notifyUserIds)
                     {
-                        var u = await Bot.client.GetUserAsync(id);
-                        await u.SendMessageAsync("", embed: new InfoEmbed("Bi-Weekly Bid Alert", $"The bi-weekly bid is on! This time: {amount} {item}(s)! Get it with the ID: {newBid.ID}.\n*You are receiving this message because you have opted in to new bid notifications.*").Build());
+                        try
+                        {
+                            var u = await Bot.client.GetUserAsync(id);
+                            await u.SendMessageAsync("", embed: new InfoEmbed("Bi-Weekly Bid Alert", $"The bi-weekly bid is on! This time: {amount} {item}(s)! Get it with the ID: {newBid.ID}.\n*You are receiving this message because you have opted in to new bid notifications.*").Build());
+                        }
+                        catch (Exception e) { Console.WriteLine($"[ERROR] Could not DM user with ID {id}.\n\t" + e.StackTrace); } //in case "cannot send message to this user"
                     }
-                    catch (Exception) { } //in case "cannot send message to this user"
                 }
             }
 
-            foreach(var chat in Stevebot.Chat.Chats)
+            for (int i = Stevebot.Chat.Chats.Count() - 1; i >= 0; i--)
             {
-                await chat.Update();
+                await Stevebot.Chat.Chats[i].Update();
             }
         }
     }
@@ -362,7 +365,7 @@ namespace ForkBot
         public int Item_ID { get; }
         public int Amount { get; }
         public DateTime EndDate { get; }
-        public IUser CurrentBidder { get; private set; }
+        public IUser? CurrentBidder { get; private set; } = null;
         public int CurrentBid { get; private set; }
 
         public Bid(int itemID, int amount)
@@ -375,14 +378,13 @@ namespace ForkBot
             Save();
         }
 
-        public Bid(string id, int itemID, int amount, int currentBid, IUser bidder, DateTime endDate)
+        public Bid(string id, int itemID, int amount, int currentBid, DateTime endDate)
         {
             ID = id;
             Item_ID = itemID;
             Amount = amount;
             CurrentBid = currentBid;
             EndDate = endDate;
-            CurrentBidder = bidder;
         }
 
         public void Save()
@@ -422,13 +424,13 @@ namespace ForkBot
                 {
                     id += key[rdm.Next(key.Length)];
                 }
-            } while (GetBidAsync(id) != null);
+            } while (GetBid(id) != null);
 
             return id;
         }
 
 
-        public static async Task<Bid?> GetBidAsync(string ID)
+        public static Bid GetBid(string ID)
         {
             ID = ID.ToUpper();
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
@@ -448,11 +450,8 @@ namespace ForkBot
                         var currentBid = reader.GetInt32(4);
                         var bidderID = reader.GetValue(5);
                         
-                        IUser? currentBidder = null;
-                        if (bidderID.GetType() != typeof(DBNull)) 
-                            currentBidder = await Bot.client.GetUserAsync((ulong)(long)bidderID);
 
-                        return new Bid(ID, itemID, amount, currentBid, currentBidder, endDate);
+                        return new Bid(ID, itemID, amount, currentBid, endDate);
                     }
                 }
             }
@@ -481,7 +480,7 @@ namespace ForkBot
                             if (bidderID.GetType() != typeof(DBNull))
                                 bidder = await Bot.client.GetUserAsync((ulong)(long)bidderID);
 
-                            posts.Add(new Bid(bidID, itemID, amount, currentBid, bidder, endDate));
+                            posts.Add(new Bid(bidID, itemID, amount, currentBid, endDate));
                         }
                         return posts.ToArray();
                     }

@@ -1296,11 +1296,11 @@ namespace ForkBot
                         emb.Fields.Add(new JEmbedField(x =>
                         {
                             x.Header = $"{DBFunctions.GetItemEmote(item)} ({itemCount}) {item} - id: {id}";
-                            var text = $"<:blank:528431788616318977> :moneybag: Current bid: **{currentBidAmount}** coins{bidderMsg}\n" +
-                                       $"<:blank:528431788616318977> Minimum Next Bid: **{Math.Ceiling(currentBidAmount + currentBidAmount * 0.15)}** coins.\n";
+                            var text = $"{Constants.Emotes.BLANK} :moneybag: Current bid: **{currentBidAmount}** coins{bidderMsg}\n" +
+                                       $"{Constants.Emotes.BLANK} Minimum Next Bid: **{Math.Ceiling(currentBidAmount + currentBidAmount * 0.15)}** coins.\n";
 
-                            if (endTime.Hours < 1) text += $"<:blank:528431788616318977> Ending in: **{endTime.Minutes}** minutes and **{endTime.Seconds}** seconds.";
-                            else text += $"<:blank:528431788616318977> Ending in: **{endTime.Hours}** hours and **{endTime.Minutes}** minutes.";
+                            if (endTime.Hours < 1) text += $"{Constants.Emotes.BLANK} Ending in: **{endTime.Minutes}** minutes and **{endTime.Seconds}** seconds.";
+                            else text += $"{Constants.Emotes.BLANK} Ending in: **{endTime.Hours}** hours and **{endTime.Minutes}** minutes.";
                             x.Text = text;
 
                         }));
@@ -1326,7 +1326,7 @@ namespace ForkBot
                 default:
                     string bidID = commands[0];
                     int bidAmount = Convert.ToInt32(commands[1]);
-                    var BID = await ForkBot.Bid.GetBidAsync(bidID);
+                    var BID = ForkBot.Bid.GetBid(bidID);
                     if (BID == null)
                     {
                         await ReplyAsync("Bid ID not found. Make sure you've typed it correctly.");
