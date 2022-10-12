@@ -473,7 +473,7 @@ namespace ForkBot
                             var bidID = reader.GetString(0);
                             var itemID = reader.GetInt32(1);
                             var amount = reader.GetInt32(2);
-                            var endDate = reader.GetDateTime(3).AddHours(5);
+                            var endDate = reader.GetDateTime(3);
                             var currentBid = reader.GetInt32(4);
                             var bidderID = reader.GetValue(5);
                             IUser bidder = null;
