@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using OpenAI_API;
+using ForkBot;
+
 namespace Stevebot
 {
 
     public class Chat
     {
-        static Engine td2 = new("text-davinci-002");
-        public static OpenAIAPI OpenAI = new OpenAI_API.OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken").Trim('\n')), engine: td2);
+        #region subclasses
         public class ChatMessage
         {
             public ulong Sender { get; }
@@ -44,24 +45,32 @@ namespace Stevebot
                 LastMsg = DateTime.Now;
             }
         }
+        #endregion
 
+        // Publics
+        public static Engine td2 = new Engine("text-davinci-002");
+        public static OpenAIAPI OpenAI = new OpenAIAPI(new APIAuthentication(File.ReadAllText("openaitoken")), engine: td2);
 
         public static List<Chat> Chats = new List<Chat>();
-
-        public List<ChatUser> users{ get; } = new List<ChatUser>();
+        public List<ChatUser> users { get; } = new List<ChatUser>();
         public ulong channel_id { get; }
         public List<ChatMessage> messageHistory { get; set; }
 
+        // Privates
         bool just_listening = false;
         int messagesUntilJoin = 0;
-
         DateTime lastTimeSent = DateTime.MinValue;
         int secondDelay = 0;
+
+        // Constants
         const int MEMORY_LENGTH = 15;
+        ulong BOT_ID = Constants.Users.FORKBOT;
+        public const string MIN_BOT_NAME = "steve";
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human, [USER]. The current date is [DATE].",
-                                        "This is a chat log between some users in a university chat room for York University, in Toronto Canada. Occasionally, an Artificial Intelligence known as [BOT] chimes in with his knowledge banks or just to have fun. The current date is [DATE]."
+                                        "This is a chat log between some users in Toronto, Canada. Occasionally, an Artificial Intelligence known as [BOT] chimes in with his knowledge banks or just to have fun. The current date is [DATE].",
+                                        "This is a chat log between some users in Toronto, Canada. The current date is [DATE]." // in case we want f to act less robotly
                                    };
 
         public Chat(ulong user, ulong channel, string botFirstMsg)
@@ -69,7 +78,7 @@ namespace Stevebot
             users.Add(new ChatUser(user));
             channel_id = channel;
             messageHistory = new List<ChatMessage>();
-            messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT,botFirstMsg));
+            messageHistory.Add(new ChatMessage(BOT_ID, botFirstMsg));
             Chats.Add(this);
         }
 
@@ -78,9 +87,10 @@ namespace Stevebot
             users.Add(new ChatUser(user));
             channel_id = channel;
             messageHistory = new List<ChatMessage>();
-            if (listening) {
+            if (listening)
+            {
                 just_listening = true;
-                messagesUntilJoin = ForkBot.Bot.rdm.Next(3, MEMORY_LENGTH+1);
+                messagesUntilJoin = Bot.rdm.Next(3, MEMORY_LENGTH + 1);
             }
             Chats.Add(this);
         }
@@ -95,31 +105,30 @@ namespace Stevebot
                 Console.WriteLine($"[DEBUG] {user.Username} has entered the chat.");
                 messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
             }
-            
+
         }
 
-        // returns true if there are no users remaining
-        public bool Leave(IUser user)
+
+        public void Leave(IUser user)
         {
             bool found = false;
             users.Where(x => x.Id == user.Id).First().Left = true;
 
-            Console.WriteLine($"[DEBUG] {user.Username} has left the chat. {users.Where(x=>x.Left == false).Count()}/{users.Count()}");
+            Console.WriteLine($"[DEBUG] {user.Username} has left the chat. {users.Where(x => x.Left == false).Count()}/{users.Count()}");
             messageHistory.Add(new ChatMessage(0, $"{user.Username} has left the chat."));
-                        
+
             if (users.Where(x => x.Left == false).Count() == 0)
             {
+                (Bot.client.GetChannel(channel_id) as ITextChannel).SendMessageAsync(Constants.Emotes.WAVE.ToString());
                 Chats.Remove(this);
-                return true;
             }
-            return false;
         }
 
         public async Task Update()
         {
-            for (int i = users.Count() - 1; i >= 0; i--)
+            foreach (var user in users)
             {
-                if (!users[i].Left && DateTime.Now - users[i].LastMsg > TimeSpan.FromMinutes(5)) Leave(await ForkBot.Bot.client.GetUserAsync(users[i].Id));
+                if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) Leave(await Bot.client.GetUserAsync(user.Id));
             }
         }
 
@@ -127,9 +136,9 @@ namespace Stevebot
         public async Task<string> GetNextMessageAsync(IMessage message)
         {
             GetUser(message.Author.Id).LastMsg = DateTime.Now;
-            messageHistory.Add(new ChatMessage(message.Author.Id,message.Content.Replace(";talk","").Trim(' ')));
+            messageHistory.Add(new ChatMessage(message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
-            bool botMentioned = message.Content.ToLower().Contains("forkbot") || message.MentionedUserIds.Contains(ForkBot.Constants.Users.FORKBOT);
+            bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
             bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
 
             if (!botMentioned && !timePassed)
@@ -137,48 +146,52 @@ namespace Stevebot
 
             int activeUsers = users.Where(x => !x.Left).Count();
             int ignoreChance = (activeUsers - 1) * 7;
-            bool ignore = ForkBot.Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
+            bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
             if (ignore)
                 return "";
 
             int max = (activeUsers - 1) * 7;
-            secondDelay = ForkBot.Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
+            secondDelay = Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
             Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
             lastTimeSent = DateTime.Now;
-            
-            
-            string botName = ForkBot.Bot.client.CurrentUser.Username;
+
+
+            string botName = Bot.client.CurrentUser.Username;
             if (just_listening)
             {
                 if (--messagesUntilJoin > 0) return "";
-                else if (messagesUntilJoin == 0) {
-                    var bbGen = await ForkBot.Bot.client.GetChannelAsync(ForkBot.Constants.Channels.GENERAL) as IGuildChannel;
-                    var gUser = await bbGen.GetUserAsync(ForkBot.Bot.client.CurrentUser.Id);
-                    await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName.Replace(ForkBot.Constants.Emotes.EAR.Name,""));
+                else if (messagesUntilJoin == 0)
+                {
+                    var bbGen = await Bot.client.GetChannelAsync(Constants.Channels.GENERAL) as IGuildChannel;
+                    var gUser = await bbGen.GetUserAsync(Bot.client.CurrentUser.Id);
+                    await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName.Replace(Constants.Emotes.EAR.Name, ""));
                 }
             }
 
             using (message.Channel.EnterTypingState())
             {
                 string fullMsg;
-                if (just_listening) fullMsg = prompts[1];
+                if (just_listening) fullMsg = prompts[2];
                 else fullMsg = prompts[0];
                 string dnl = "\n\n"; // double newline
-                //string dnl = "  ";
-                fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await ForkBot.Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + dnl;
+
+                var memory = DBFunctions.GetProperty("chat_memory").ToString();
+
+                fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + dnl;
+                fullMsg += "\n" + memory;
 
                 int start = messageHistory.Count() - (MEMORY_LENGTH - 1);
-                
+
                 for (int i = start >= 0 ? start : 0; i < messageHistory.Count(); i++)
                 {
                     fullMsg += $"[{messageHistory[i].Time.ToShortTimeString()}] ";
                     if (messageHistory[i].Sender != 0)
                     {
-                        if (messageHistory[i].Sender == ForkBot.Constants.Users.FORKBOT) fullMsg += botName + ": \"";
+                        if (messageHistory[i].Sender == BOT_ID) fullMsg += botName + ": \"";
                         else
                         {
-                            var user = await ForkBot.Bot.client.GetUserAsync(messageHistory[i].Sender);
+                            var user = await Bot.client.GetUserAsync(messageHistory[i].Sender);
                             fullMsg += $"{user.Username}: \"";
                         }
                         fullMsg += messageHistory[i].Message + "\"" + dnl;
@@ -187,24 +200,31 @@ namespace Stevebot
                 }
 
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-		        //Console.Write(fullMsg);
                 var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
-                messageHistory.Add(new ChatMessage(ForkBot.Constants.Users.FORKBOT, response.ToString()));
-                //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot to avoid command lag
+                messageHistory.Add(new ChatMessage(BOT_ID, response.ToString()));
+                System.Threading.Thread.Sleep(response.ToString().Length * 75);
                 return await ReplaceNameWithPingAsync(response.ToString());
             }
         }
 
         async Task<string> ReplaceNameWithPingAsync(string msg)
         {
-            foreach(var u in users)
+            foreach (var u in users)
             {
-                var user = await ForkBot.Bot.client.GetUserAsync(u.Id);
+                var user = await Bot.client.GetUserAsync(u.Id);
                 if (msg.Contains(user.Username))
                     msg = msg.Replace(user.Username, $"<@{user.Id}>");
             }
 
             return msg;
+        }
+
+        public static async void ChatTimerCallBack(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            for (int i = Chat.Chats.Count() - 1; i >= 0; i--)
+            {
+                await Chat.Chats[i].Update();
+            }
         }
     }
 }

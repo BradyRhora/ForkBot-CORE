@@ -108,6 +108,7 @@ namespace ForkBot
             public static string DB_CONNECTION_STRING = @"data source=Files/ForkDB CORE.db";
             public static string YORK_DB_CONNECTION_STRING = @"data source=Files/YorkDB.db";
             public static double MARKET_CANCELLATION_FEE = .15;
+            public static char COMMAND_PREFIX = ';';
         }
     }
 }

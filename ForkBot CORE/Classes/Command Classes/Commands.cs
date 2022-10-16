@@ -2140,8 +2140,45 @@ namespace ForkBot
         [Command("talk"), Summary("Chat time with ForkBot.")]
         public async Task Talk([Remainder] string input = "")
         {
+            if (input.ToLower().StartsWith("remember") && Context.User.Id == Constants.Users.BRADY)
+            {
 
-            if (Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).Count() > 0)
+
+                Dictionary<string, string> replacements = new Dictionary<string, string>
+                {
+                    { "remember","" },
+                    { "you're", "Stevey is" },
+                    { "yours", "Steveys" },
+                    { "your", "Steveys" },
+                    { "you", "Stevey" },
+                    { "i", Context.User.Username },
+                    { "me", Context.User.Username },
+                    { "my", Context.User.Username + 's' },
+                    { "mine", Context.User.Username + 's'},
+                    { "were", "was" },
+                    { "we're", $"Stevey and {Context.User.Username} are" },
+                    { "we've", $"Stevey and {Context.User.Username} have" },
+                    { "we", $"Stevey and {Context.User.Username}" }
+
+                };
+
+                input = input.ToLower();
+
+                foreach (var replace in replacements)
+                {
+                    input = Regex.Replace(input, $"([^a-z]|^)({replace.Key})([^a-z]|$)", $"$1{replace.Value}$3");
+                }
+
+                input = input.Trim(' ', '.', '?', '!', ',');
+
+                var memory = DBFunctions.GetProperty("chat_memory").ToString();
+
+                DBFunctions.SetProperty("chat_memory",memory + input + ". ");
+
+                await ReplyAsync("Okay, I'll remember that.");
+
+            }
+            else if (Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).Count() > 0)
             {
                 if (input.ToLower() == "end") Stevebot.Chat.Chats.Remove(Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).First());
                 else await Context.Channel.SendMessageAsync("We're already chatting here.");
@@ -2152,7 +2189,7 @@ namespace ForkBot
                 Stevebot.Chat newChat = null;
                 if (input == "" || input == " ")
                 {
-                    var firstMsg = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync("Say the first line in a conversation:\n", max_tokens: 128, temperature: 0.8);
+                    var firstMsg = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync("Say a greeting for a conversation:\n", max_tokens: 128, temperature: 0.8);
 
                     var trimmed = firstMsg.ToString().Trim('"', ' ', '"', '\n');
                     await Context.Channel.SendMessageAsync(trimmed);
@@ -2166,6 +2203,7 @@ namespace ForkBot
                 await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
             }
         }
+
 
         [Command("gpt")]
         public async Task GPT([Remainder] string input)

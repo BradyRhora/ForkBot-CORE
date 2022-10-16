@@ -260,8 +260,7 @@ namespace ForkBot
 
                             string[] partingTerms = { "bye", "seeya", "cya" };
                             if (partingTerms.Where(x => message.Content.ToLower().Contains(x)).Count() > 0)
-                                if (chat.Leave(message.Author))
-                                    await message.Channel.SendMessageAsync(Constants.Emotes.WAVE.Name);
+                                chat.Leave(message.Author);
                         }
                     }
                 }
@@ -288,7 +287,6 @@ namespace ForkBot
         }
         const int LISTEN_CHANCE = 5; //%
         public static DateTime lastChatCheck = new DateTime(0);
-
 
         public async Task HandleReact(Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction react)
         {
