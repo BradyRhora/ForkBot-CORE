@@ -65,7 +65,7 @@ namespace Stevebot
         // Constants
         const int MEMORY_LENGTH = 15;
         ulong BOT_ID = Constants.Users.FORKBOT;
-        public const string MIN_BOT_NAME = "steve";
+        public const string MIN_BOT_NAME = "fork";
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human, [USER]. The current date is [DATE].",
