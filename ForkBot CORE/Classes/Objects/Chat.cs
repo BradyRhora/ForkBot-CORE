@@ -49,7 +49,7 @@ namespace Stevebot
 
         // Publics
         public static Engine td2 = new Engine("text-davinci-002");
-        public static OpenAIAPI OpenAI = new OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken")), engine: td2);
+        public static OpenAIAPI OpenAI = new OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken").Trim('\n')), engine: td2);
 
         public static List<Chat> Chats = new List<Chat>();
         public List<ChatUser> users { get; } = new List<ChatUser>();
