@@ -1258,7 +1258,7 @@ namespace ForkBot
                 return;
             }
 
-            var bids = await ForkBot.Bid.GetAllBidsAsync();
+            var bids = ForkBot.Bid.GetAllBids();
             if (commands.Length == 0) commands = new string[] { "" };
 
             var notifyUserIDs = DBFunctions.GetUserIDsWhere("Notify_Bid", "1");
@@ -1287,7 +1287,7 @@ namespace ForkBot
                         var endTime = endDate - Var.CurrentDate();
 
 
-                        if (bidder != null)
+                        if (bidder != 0)
                         {
                             var u = User.Get(bid.CurrentBidder);
                             bidderMsg += $" by {await u.GetName(Context.Guild)}";

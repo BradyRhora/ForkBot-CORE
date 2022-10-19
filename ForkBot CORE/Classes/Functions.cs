@@ -32,16 +32,6 @@ namespace ForkBot
             else return Constants.Colours.DEFAULT_COLOUR;
         }
 
-        
-
-        //returns a users nickname if they have one, otherwise returns their username.
-        public static string GetName(IGuildUser user)
-        {
-            if (user.Nickname == null)
-                return user.Username;
-            return user.Nickname;
-        }
-
         public static char[] vowels = {'a','e','i','o','u'};
         public static string GetPrefix(string word)
         {

@@ -940,7 +940,7 @@ namespace ForkBot
                 {
                     await ReplyAsync(":spy: Oh fu-! :boom::boom::boom:\nYour spy accidentally activated the bomb and died!");
                 }
-                else await ReplyAsync($":spy: Watch out.. There's a bomb hidden here.. Looks like {Functions.GetName((IGuildUser)Var.presentRigger)} planted it.");
+                else await ReplyAsync($":spy: Watch out.. There's a bomb hidden here.. Looks like {((IGuildUser)Var.presentRigger).DisplayName} planted it.");
             }
             else await ReplyAsync(":spy: Nope, no bombs here.");
         }

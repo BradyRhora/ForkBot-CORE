@@ -109,7 +109,7 @@ namespace ForkBot
                     new Bid(bid.Item_ID, bid.Amount);
             }
 
-            var bids = await Bid.GetAllBidsAsync();
+            var bids = Bid.GetAllBids();
 
             for (int i = 0; i < bids.Length; i++)
             {
@@ -410,11 +410,8 @@ namespace ForkBot
                     com.Parameters.AddWithValue("@amount", Amount);
                     com.Parameters.AddWithValue("@current_bid", CurrentBid);
                     com.Parameters.AddWithValue("@date", EndDate);
-                    if (CurrentBidder != null)
-                        com.Parameters.AddWithValue("@bidder", CurrentBidder);
-                    else
-                        com.Parameters.AddWithValue("@bidder", null);
-
+                    com.Parameters.AddWithValue("@bidder", CurrentBidder);
+                    
                     com.ExecuteNonQuery();
                 }
             }
@@ -459,15 +456,14 @@ namespace ForkBot
                         var endDate = reader.GetDateTime(3);
                         var currentBid = reader.GetInt32(4);
                         var bidderID = reader.GetInt64(5);
-                        
 
-                        return new Bid(ID, itemID, amount, currentBid, endDate, (ulong)bidderID);
+                        return new Bid(ID, itemID, amount, currentBid, endDate, Convert.ToUInt64(bidderID));
                     }
                 }
             }
         }
 
-        public static async Task<Bid[]> GetAllBidsAsync()
+        public static Bid[] GetAllBids()
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
@@ -486,11 +482,8 @@ namespace ForkBot
                             var endDate = reader.GetDateTime(3);
                             var currentBid = reader.GetInt32(4);
                             var bidderID = reader.GetValue(5);
-                            IUser bidder = null;
-                            if (bidderID.GetType() != typeof(DBNull))
-                                bidder = await Bot.client.GetUserAsync((ulong)(long)bidderID);
 
-                            posts.Add(new Bid(bidID, itemID, amount, currentBid, endDate));
+                            posts.Add(new Bid(bidID, itemID, amount, currentBid, endDate, Convert.ToUInt64(bidderID)));
                         }
                         return posts.ToArray();
                     }

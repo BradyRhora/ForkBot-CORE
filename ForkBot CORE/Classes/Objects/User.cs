@@ -39,7 +39,7 @@ namespace ForkBot
                 if (guild == null) return (await Bot.client.GetUserAsync(ID)).Username;
                 var gUser = await guild.GetUserAsync(ID);
                 if (gUser == null) throw new Exception("User not in guild");
-                return Functions.GetName(gUser);
+                return gUser.DisplayName;
             }
             catch (Exception)
             {
