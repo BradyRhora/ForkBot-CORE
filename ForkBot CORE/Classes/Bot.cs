@@ -96,6 +96,7 @@ namespace ForkBot
             SocketUserMessage message = messageParam as SocketUserMessage;
 
             if (message == null) return;
+            if (message.Author.IsBot) return;
             else if (message.Author.Id == client.CurrentUser.Id) return; //doesn't allow the bot to respond to itself
             else if (!Var.DebugMode && message.Channel.Id == Constants.Channels.DEBUG) return; //hides debug channel messages if not in debug mode
             else if (Var.DebugMode && message.Author.Id != Constants.Users.BRADY && Var.DebugUsers.Where(x => x.Id == message.Author.Id).Count() <= 0) return; //only allows brady or allowed users to use commands if in debug mode
