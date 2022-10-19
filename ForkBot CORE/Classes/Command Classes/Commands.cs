@@ -2227,7 +2227,7 @@ namespace ForkBot
 
             if (input.ToLower() == "usage")
             {
-                await ReplyAsync($"💵 You have used: {usedWords * 1.4} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
+                await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
                 return;
             }
 
