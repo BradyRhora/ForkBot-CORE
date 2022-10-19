@@ -1341,14 +1341,14 @@ namespace ForkBot
                     if (bidAmount > currentBid)
                     {
                         var u = User.Get(Context.User);
-                        if (BID.CurrentBidder == null || u.ID != BID.CurrentBidder.Id)
+                        if (BID.CurrentBidder == 0 || u.ID != BID.CurrentBidder)
                         {
                             if (u.GetCoins() >= bidAmount)
                             {
                                 if (bidAmount >= Math.Ceiling(currentBid + (currentBid * 0.15)))
                                 {
                                     await u.GiveCoinsAsync(-bidAmount);
-                                    if (BID.CurrentBidder != null)
+                                    if (BID.CurrentBidder != 0)
                                     {
                                         var oldUser = User.Get(BID.CurrentBidder);
                                         await oldUser.GiveCoinsAsync(currentBid);

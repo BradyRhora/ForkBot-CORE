@@ -121,9 +121,9 @@ namespace ForkBot
                     var amount = bids[i].Amount;
                     var bidder = bids[i].CurrentBidder;
                     var currentBid = bids[i].CurrentBid;
-                    if (bidder != null)
+                    if (bidder != 0)
                     {
-                        await bidder.SendMessageAsync($"Congratulations! You've won the bid for {DBFunctions.GetItemEmote(itemID)} {amount} {DBFunctions.GetItemName(itemID)}(s).");
+                        await (await Bot.client.GetUserAsync(bidder)).SendMessageAsync($"Congratulations! You've won the bid for {DBFunctions.GetItemEmote(itemID)} {amount} {DBFunctions.GetItemName(itemID)}(s).");
                         var user = User.Get(bidder);
                         DBFunctions.AddToProperty("Slot_Jackpot", currentBid);
                         for (int j = 0; j < amount; j++) user.GiveItem(itemID);
@@ -365,7 +365,7 @@ namespace ForkBot
         public int Item_ID { get; }
         public int Amount { get; }
         public DateTime EndDate { get; }
-        public IUser? CurrentBidder { get; private set; } = null;
+        public ulong CurrentBidder { get; private set; } = 0;
         public int CurrentBid { get; private set; }
 
         public Bid(int itemID, int amount)
@@ -387,6 +387,16 @@ namespace ForkBot
             EndDate = endDate;
         }
 
+        public Bid(string id, int itemID, int amount, int currentBid, DateTime endDate, ulong bidder)
+        {
+            ID = id;
+            Item_ID = itemID;
+            Amount = amount;
+            CurrentBid = currentBid;
+            EndDate = endDate;
+            CurrentBidder = bidder;
+        }
+
         public void Save()
         {
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
@@ -401,7 +411,7 @@ namespace ForkBot
                     com.Parameters.AddWithValue("@current_bid", CurrentBid);
                     com.Parameters.AddWithValue("@date", EndDate);
                     if (CurrentBidder != null)
-                        com.Parameters.AddWithValue("@bidder", CurrentBidder.Id);
+                        com.Parameters.AddWithValue("@bidder", CurrentBidder);
                     else
                         com.Parameters.AddWithValue("@bidder", null);
 
@@ -446,12 +456,12 @@ namespace ForkBot
                         reader.Read();
                         var itemID = reader.GetInt32(1);
                         var amount = reader.GetInt32(2);
-                        var endDate = reader.GetDateTime(3).AddHours(5);
+                        var endDate = reader.GetDateTime(3);
                         var currentBid = reader.GetInt32(4);
-                        var bidderID = reader.GetValue(5);
+                        var bidderID = reader.GetInt64(5);
                         
 
-                        return new Bid(ID, itemID, amount, currentBid, endDate);
+                        return new Bid(ID, itemID, amount, currentBid, endDate, (ulong)bidderID);
                     }
                 }
             }
@@ -520,7 +530,7 @@ namespace ForkBot
             }
 
             CurrentBid = newBidAmount;
-            CurrentBidder = newUser;
+            CurrentBidder = newUser.Id;
         }
         public void AddTime(TimeSpan time)
         {
