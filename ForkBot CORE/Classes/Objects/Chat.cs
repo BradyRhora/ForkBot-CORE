@@ -6,6 +6,7 @@ using Discord;
 using Discord.WebSocket;
 using OpenAI_API;
 using ForkBot;
+using System.Text.RegularExpressions;
 
 namespace Stevebot
 {
@@ -44,6 +45,13 @@ namespace Stevebot
                 Id = id;
                 LastMsg = DateTime.Now;
             }
+
+            public int GetTokenCount()
+            {
+                var user = User.Get(Id);
+                int usedWords = user.GetData<int>("GPTWordsUsed");
+                return (int)(usedWords * 1.4);
+            }
         }
         #endregion
 
@@ -66,6 +74,8 @@ namespace Stevebot
         const int MEMORY_LENGTH = 15;
         ulong BOT_ID = Constants.Users.FORKBOT;
         public const string MIN_BOT_NAME = "fork";
+        const float MONEY_AVAILABLE = 5;
+        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 20f) / 0.02f) * 1000f);
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human, [USER]. The current date is [DATE].",
@@ -135,7 +145,15 @@ namespace Stevebot
 
         public async Task<string> GetNextMessageAsync(IMessage message)
         {
-            GetUser(message.Author.Id).LastMsg = DateTime.Now;
+            var chatUser = GetUser(message.Author.Id);
+            var user = new User(message.Author.Id);
+
+            if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
+                return "";
+            else
+                user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
+
+            chatUser.LastMsg = DateTime.Now;
             messageHistory.Add(new ChatMessage(message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
             bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
@@ -148,10 +166,10 @@ namespace Stevebot
             int ignoreChance = (activeUsers - 1) * 7;
             bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
-            if (ignore)
+            if (!botMentioned && ignore)
                 return "";
 
-            int max = (activeUsers - 1) * 7;
+            int max = (activeUsers - 1) * 3;
             secondDelay = Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
             Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
             lastTimeSent = DateTime.Now;
@@ -163,8 +181,8 @@ namespace Stevebot
                 if (--messagesUntilJoin > 0) return "";
                 else if (messagesUntilJoin == 0)
                 {
-                    var bbGen = await Bot.client.GetChannelAsync(Constants.Channels.GENERAL) as IGuildChannel;
-                    var gUser = await bbGen.GetUserAsync(Bot.client.CurrentUser.Id);
+                    var Gen = await Bot.client.GetChannelAsync(Constants.Channels.GENERAL) as IGuildChannel;
+                    var gUser = await Gen.GetUserAsync(Bot.client.CurrentUser.Id);
                     await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName.Replace(Constants.Emotes.EAR.Name, ""));
                 }
             }
@@ -191,8 +209,8 @@ namespace Stevebot
                         if (messageHistory[i].Sender == BOT_ID) fullMsg += botName + ": \"";
                         else
                         {
-                            var user = await Bot.client.GetUserAsync(messageHistory[i].Sender);
-                            fullMsg += $"{user.Username}: \"";
+                            var u = await Bot.client.GetUserAsync(messageHistory[i].Sender);
+                            fullMsg += $"{u.Username}: \"";
                         }
                         fullMsg += messageHistory[i].Message + "\"" + dnl;
                     }
@@ -202,7 +220,7 @@ namespace Stevebot
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
                 var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
                 messageHistory.Add(new ChatMessage(BOT_ID, response.ToString()));
-                System.Threading.Thread.Sleep(response.ToString().Length * 75);
+                //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
                 return await ReplaceNameWithPingAsync(response.ToString());
             }
         }

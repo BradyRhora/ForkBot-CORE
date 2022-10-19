@@ -2162,6 +2162,20 @@ namespace ForkBot
 
                 };
 
+                int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
+
+                var user = User.Get(Context.User.Id);
+                int usedWords = user.GetData<int>("GPTWordsUsed");
+
+                int userTokenCount = (int)(usedWords+wordCount * 1.4);
+
+                if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
+                {
+                    await ReplyAsync($"Sorry, you've used up your monthly tokens of {Stevebot.Chat.MAX_USER_TOKENS}. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
+                    return;
+                }
+
+
                 input = input.ToLower();
 
                 foreach (var replace in replacements)
@@ -2209,32 +2223,58 @@ namespace ForkBot
         public async Task GPT([Remainder] string input)
         {
             await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
-            var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: 256);
-            string response = resp.ToString().Replace("@everyone", $"[{Context.User.Username} smells like stale ass]");
-            response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
+
+            
+
+            int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
+
+            var user = User.Get(Context.User.Id);
+            int usedWords = user.GetData<int>("GPTWordsUsed");
+
+            int userTokenCount = (int)(( + wordCount) * 1.4);
+
+            if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
             {
-                ulong id = 0;
-                if (ulong.TryParse(x.Groups[2].Value, out id))
-                {
-                    return Context.Guild.GetUserAsync(id).Result.Username; // i know this should be awaited dont tell anyone
-                }
-                else return "";
-            });
+                await ReplyAsync($"Sorry, you've used up your monthly tokens of {Stevebot.Chat.MAX_USER_TOKENS}. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
+                return;
+            }
 
-            response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+            try
             {
-                ulong id = 0;
-                if (ulong.TryParse(x.Groups[2].Value, out id))
+                var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount,256));
+                wordCount += Regex.Matches(resp.ToString(), "\\w+|[,.!?]").Count();
+                user.AddData("GPTWordsUsed", wordCount);
+
+                string response = resp.ToString().Replace("@everyone", $"[{Context.User.Username} smells like stale ass]");
+                response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
                 {
-                    return Context.Guild.GetRole(id).Name; 
-                }
-                else return "";
-            });
+                    ulong id = 0;
+                    if (ulong.TryParse(x.Groups[2].Value, out id))
+                    {
+                        return Context.Guild.GetUserAsync(id).Result.Username; // i know this should be awaited dont tell anyone
+                    }
+                    else return "";
+                });
 
-            response = response.Replace("@", "");
+                response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+                {
+                    ulong id = 0;
+                    if (ulong.TryParse(x.Groups[2].Value, out id))
+                    {
+                        return Context.Guild.GetRole(id).Name;
+                    }
+                    else return "";
+                });
 
-            await Context.Message.ReplyAsync(response);
-            await Context.Message.RemoveReactionAsync(Constants.Emotes.SPEECH_BUBBLE,Constants.Users.FORKBOT);
+                response = response.Replace("@", "");
+
+                await Context.Message.ReplyAsync(response);
+                await Context.Message.RemoveReactionAsync(Constants.Emotes.SPEECH_BUBBLE, Constants.Users.FORKBOT);
+            }
+            catch (HttpRequestException)
+            {
+                await ReplyAsync("Sorry! Seems we're out of credits. If you'd like to personally donate for more, you can use this link: https://www.paypal.me/Brady0423");
+            }
         }
 
         /*
