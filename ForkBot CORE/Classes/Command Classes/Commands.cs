@@ -2222,16 +2222,24 @@ namespace ForkBot
         [Command("gpt")]
         public async Task GPT([Remainder] string input)
         {
+            var user = User.Get(Context.User.Id);
+            int usedWords = user.GetData<int>("GPTWordsUsed");
+
+            if (input.ToLower() == "usage")
+            {
+                await ReplyAsync($"💵 You have used: {usedWords * 1.4} / {Stevebot.Chat.MAX_USER_TOKENS}");
+                return;
+            }
+
+
             await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
 
             
 
             int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
 
-            var user = User.Get(Context.User.Id);
-            int usedWords = user.GetData<int>("GPTWordsUsed");
 
-            int userTokenCount = (int)(( + wordCount) * 1.4);
+            int userTokenCount = (int)((usedWords + wordCount) * 1.4);
 
             if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
             {
