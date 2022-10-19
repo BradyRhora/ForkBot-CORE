@@ -75,7 +75,7 @@ namespace Stevebot
         ulong BOT_ID = Constants.Users.FORKBOT;
         public const string MIN_BOT_NAME = "fork";
         const float MONEY_AVAILABLE = 5;
-        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 20f) / 0.02f) * 1000f);
+        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 10f) / 0.02f) * 1000f);
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human, [USER]. The current date is [DATE].",
