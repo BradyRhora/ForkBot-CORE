@@ -939,6 +939,7 @@ namespace ForkBot
                 if (rdm.Next(100) + 1 < 10)
                 {
                     await ReplyAsync(":spy: Oh fu-! :boom::boom::boom:\nYour spy accidentally activated the bomb and died!");
+                    new User(Context.User.Id).RemoveItem("spy");
                     Var.presentRigged = false;
                 }
                 else await ReplyAsync($":spy: Watch out.. There's a bomb hidden here.. Looks like {((IGuildUser)Var.presentRigger).DisplayName} planted it.");
