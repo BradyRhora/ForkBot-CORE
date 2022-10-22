@@ -860,7 +860,7 @@ namespace ForkBot
             if (Check(Context, "candy")) return;
             if (rdm.Next(100) < 3) 
 	    {
-		await ReplyAsync("YEEOWCH! You bite straight into a razor! Why would someone put that there?!\n**Happiness-100**");
+		await ReplyAsync(":anger: YEEOWCH! You bite straight into a razor! Why would someone put that there?!\n**Happiness-100**");
 		await User.Get(Context.User).AddStatAsync("happiness",-100);
 	    }
 	    else 
@@ -939,6 +939,7 @@ namespace ForkBot
                 if (rdm.Next(100) + 1 < 10)
                 {
                     await ReplyAsync(":spy: Oh fu-! :boom::boom::boom:\nYour spy accidentally activated the bomb and died!");
+                    Var.presentRigged = false;
                 }
                 else await ReplyAsync($":spy: Watch out.. There's a bomb hidden here.. Looks like {((IGuildUser)Var.presentRigger).DisplayName} planted it.");
             }

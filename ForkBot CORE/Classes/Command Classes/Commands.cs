@@ -2231,21 +2231,16 @@ namespace ForkBot
                 return;
             }
 
-
-            await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
-
-            
-
             int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
-
-
             int userTokenCount = (int)((usedWords + wordCount) * 1.4);
 
             if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
             {
-                await ReplyAsync($"Sorry, you've used up your monthly tokens of {Stevebot.Chat.MAX_USER_TOKENS}. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
+                await ReplyAsync($"Sorry, you've used up your monthly limit of {Stevebot.Chat.MAX_USER_TOKENS} tokens. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
                 return;
             }
+
+            await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
 
             try
             {
