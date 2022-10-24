@@ -925,9 +925,9 @@ namespace ForkBot
             if (Check(Context, "hole")) return;
             try { await Context.Message.DeleteAsync(); } catch { }
             User.Get(Context.User).SetData("has_bm", "true");
-            await (Bot.client.GetChannel(Constants.Channels.ELITE) as IMessageChannel).SendMessageAsync($":spy: @everyone, {Context.User.Mention} has entered the Black Market.");
+            await (Bot.client.GetUser(Constants.Users.BRADY)).SendMessageAsync($":spy: {Context.User.Mention} has entered the Black Market.");
             await Context.User.SendMessageAsync(":spy: Psst... hey.... you've been granted access to the black market. **Don't** tell anyone about this... Or you'll regret it.\nUse `;bm` to access and buy from it just like the shop.\nKeep it in private messages..");
-            DBFunctions.AddNews("🕵️", $"Welcome, {Context.User.Username}.");
+            DBFunctions.AddNews("🕵", $"Welcome, {Context.User.Username}.");
         }
 
         [Command("spy")]

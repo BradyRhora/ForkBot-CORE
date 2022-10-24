@@ -2108,34 +2108,34 @@ namespace ForkBot
             if (tipNumber < 0 || tipNumber > tips.Length) await ReplyAsync($"Invalid tip number! Make sure number is above 0 and less than {tips.Length + 1}");
             await ReplyAsync($":robot::speech_balloon: " + tips[tipNumber]);
         }
-
+        /*
         [Command("minesweeper"), Summary("[FUN] Play a game of MineSweeper and earn coins!"), Alias(new string[] { "ms" })]
         public async Task MineSweeper([Remainder]string command = "")
         {
 
             MineSweeper game = Var.MSGames.Where(x => x.player.ID == Context.User.Id).FirstOrDefault();
-            if (command == "" && game == null)
+            if (game == null)
             {
                 game = new MineSweeper(User.Get(Context.User));
                 await ReplyAsync(game.Build());
                 Var.MSGames.Add(game);
-                await ReplyAsync("Use `;ms x,y` (replacing x and y with letter coordinates) to reveal a tile, or `;ms flag x,y` to flag a tile.");
+                await ReplyAsync("Use `;ms x y` (replacing x and y with letter coordinates) to reveal a tile, or `;ms flag x y` to flag a tile.");
             }
             else if (command.ToLower().StartsWith("flag") && game != null)
             {
-                var coords = command.ToLower().Split(' ')[1].Split(',');
+                var coords = command.ToLower().Replace(" ", "").ToCharArray();
                 var success = game.Flag(coords);
                 if (success) await ReplyAsync(game.Build());
                 else await ReplyAsync("Make sure the tile you choose is unrevealed.");
             }
             else
             {
-                var coords = command.ToLower().Split(',');
+                var coords = command.ToLower().Replace(" ", "").ToCharArray();
                 var success = game.Turn(coords);
                 if (success) await ReplyAsync(game.Build());
                 else await ReplyAsync("Make sure the tile you choose is unrevealed.");
             }
-        }
+        }*/
 
         [Command("talk"), Summary("Chat time with ForkBot.")]
         public async Task Talk([Remainder] string input = "")

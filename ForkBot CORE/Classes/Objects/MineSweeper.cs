@@ -12,7 +12,8 @@ namespace ForkBot
         int[,] board; //0 = unchecked, 1 = bomb, 2 = checked, 3 = flagged
         static Random rdm = new Random();
         public User player;
-        Dictionary<string, int> LetterNumMap = new Dictionary<string, int>();
+        Dictionary<char, int> LetterNumMap = new Dictionary<char, int>();
+        private bool firstTurn = true;
         bool lose = false;
         static string alphabet = " abcdefghijklmnopqrstuvwxyz";
 
@@ -24,7 +25,7 @@ namespace ForkBot
             this.bombCount = bombCount;
             board = new int[boardSize, boardSize];
             for (int x = 0; x < boardSize; x++) for (int y = 0; y < boardSize; y++) board[x, y] = 0;
-            for (int i = 0; i < boardSize; i++) LetterNumMap.Add(Convert.ToString(alphabet[i+1]), i);
+            for (int i = 0; i < boardSize; i++) LetterNumMap.Add(Convert.ToChar(alphabet[i+1]), i);
             //populate board
             for (int i = 0; i < bombCount; i++)
             {
@@ -68,7 +69,6 @@ namespace ForkBot
             for (int y = 0; y < boardSize; y++) msg += ":regional_indicator_" + alphabet[y + 1] + ":";
             return msg;
         }
-
         private int CountBombs(int x, int y)
         {
             int bombs = 0;
@@ -88,39 +88,50 @@ namespace ForkBot
             return bombs;
         }
 
-        public bool Flag(string[] coords)
+        public bool Flag(char[] coords)
         {
             var tile = board[LetterNumMap[coords[0]], LetterNumMap[coords[1]]];
             if (tile == 0) { board[LetterNumMap[coords[0]], LetterNumMap[coords[1]]] = 3; return true; }
             return false;
         }
-        
-        public bool Turn(string[] coords)
+
+        public bool Turn(char[] coords)
         {
+
             int x = LetterNumMap[coords[0]];
             int y = LetterNumMap[coords[1]];
-            var tile = board[LetterNumMap[coords[0]], LetterNumMap[coords[1]]];
+            return Turn(x, y);
+        }
+        public bool Turn(int x, int y)
+        {
+            var tile = board[x,y];
+            if (tile == 1) { lose = true; return true; }
+            // TODO: move bomb if first turn
+
             if (tile == 0)
             {
-                board[LetterNumMap[coords[0]], LetterNumMap[coords[1]]] = 2;
+                board[y,x] = 2;
 
-                int[,] c = new int[,] { { x, y - 1 }, { x - 1, y }, { x + 1, y }, { x, y + 1 } };
-
-                for (int i = 0; i < 4; i++)
+                Console.WriteLine(Build());
+                if (CountBombs(x, y) == 0)
                 {
-                    var x2 = c[i, 0];
-                    var y2 = c[i, 1];
+                    int[,] c = new int[,] { { x, y - 1 }, { x - 1, y }, { x + 1, y }, { x, y + 1 } };
 
-                    if (x2 > 0 && x2 < boardSize && y2 > 0 && y2 < boardSize)
+                    for (int i = 0; i < 4; i++)
                     {
-                        if (board[x2, y2] == 0) Turn(new string[] { $"{alphabet[x2]}", $"{alphabet[y2]}" });
+                        var x2 = c[i, 0];
+                        var y2 = c[i, 1];
+
+                        if (x2 > 0 && x2 < boardSize && y2 > 0 && y2 < boardSize)
+                        {
+                            if (board[y2, x2] == 0) Turn(x2, y2);
+                        }
                     }
                 }
-                        
 
                 return true;
             }
-            else if (tile == 1) { lose = true; return true; }
+
             return false;
         }
     }
