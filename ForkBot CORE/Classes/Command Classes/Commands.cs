@@ -2754,8 +2754,7 @@ namespace ForkBot
             if (Context.User.Id != Constants.Users.BRADY) return;
 
 
-            string cs = @"data source=Files\ForkDB.db";
-            var con = new SQLiteConnection(cs);
+            var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING);
             con.Open();
             var cmd = new SQLiteCommand(query, con);
 
