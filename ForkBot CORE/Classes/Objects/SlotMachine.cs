@@ -104,7 +104,6 @@ namespace ForkBot
                 if (SlotCount("gem") == 3)
                 {
                     var jackpot = Convert.ToInt32(DBFunctions.GetProperty("slot_jackpot"));
-                    DBFunctions.SetProperty("slot_jackpot", "0");
 
                     DBFunctions.AddNews($"{gambler.Username.ToUpper()} TAKES THE JACKPOT!", $"{Var.CurrentDateFormatted()} {gambler.Username} scored big time, and got those lucky three gems in a row " +
                         $"from the Slots! They went home with a whopping {jackpot} coins and a big smile! Just don't spend it all in one place!");
