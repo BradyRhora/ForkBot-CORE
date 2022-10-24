@@ -2227,7 +2227,10 @@ namespace ForkBot
 
             if (input.ToLower() == "usage")
             {
-                await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
+                if (user.HasItem("keyboard"))
+                    await ReplyAsync($"All hail thy who possesses the almighty board of keys. Your tongue is free.\n💵 You've used {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.]");
+                else
+                    await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
                 return;
             }
 
