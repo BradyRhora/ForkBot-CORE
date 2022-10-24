@@ -429,9 +429,10 @@ namespace ForkBot
             using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
             {
                 con.Open();
-                var stm = $"select rank from (select user_id, (select count(*) from users b  where a.{col} <= b.{col}) as rank from users a order by rank) where user_id = @id";
+                var stm = $"select rank from (select user_id, (select count(*) from users b  where a.{col} <= b.{col} and b.user_id != @forkid) as rank from users a order by rank) where user_id = @id";
                 using (var cmd = new SQLiteCommand(stm, con))
                 {
+                    cmd.Parameters.AddWithValue("@forkid", Constants.Users.FORKBOT);
                     cmd.Parameters.AddWithValue("@id", user.Id);
                     var rank = cmd.ExecuteScalar();
                     return Convert.ToInt32(rank);
