@@ -771,9 +771,16 @@ namespace ForkBot
                 if (u1.HasItem(item))
                 {
                     u1.RemoveItem(item);
-                    if (item == "heart") u2.GiveItem("gift");
-                    else u2.GiveItem(item);
-                    donations += $"{Functions.GetPrefix(item)} {item}!\n";
+                    if (item == "heart")
+                    {
+                        u2.GiveItem("gift");
+                        donations += "A gift!\n";
+                    }
+                    else
+                    {
+                        u2.GiveItem(item);
+                        donations += $"{Functions.GetPrefix(item)} {item}!\n";
+                    }
                 }
                 else fDonations += $"~~A(n) {item}~~ {Context.User.Mention}, you do not have a(n) {item}.\n";
             }
