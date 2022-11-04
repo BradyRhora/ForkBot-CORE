@@ -171,8 +171,8 @@ namespace ForkBot
         {
             foreach(string item in items1)
             {
-                if (item != "heart") u2.GiveItem(item);
-                else u2.GiveItem("gift");
+                if (item == "heart") u2.GiveItem("gift");
+                else u2.GiveItem(item);
             }
 
             if (coins1 > 0)
@@ -182,8 +182,8 @@ namespace ForkBot
 
             foreach (string item in items2)
             {
-                if (item != "heart") u1.GiveItem(item);
-                else u1.GiveItem("gift");
+                if (item == "heart") u1.GiveItem("gift");
+                else u1.GiveItem(item);
             }
 
             if (coins2 > 0)
