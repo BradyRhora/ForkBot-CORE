@@ -1419,6 +1419,8 @@ namespace ForkBot
         {
             if (Check(Context, "paintbrush", true)) return;
 
+
+            await Context.Message.AddReactionAsync(Constants.Emotes.FRAME);
             var req = new ImageCreateRequest()
             {
                 Prompt = input,
@@ -1435,6 +1437,7 @@ namespace ForkBot
             {
                 await Context.Channel.SendFileAsync(ms, "gen.jpg");
             }
+            await Context.Message.RemoveReactionAsync(Constants.Emotes.FRAME, Constants.Users.FORKBOT);
         }
     }
 }

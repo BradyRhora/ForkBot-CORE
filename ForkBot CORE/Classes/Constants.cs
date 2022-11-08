@@ -89,6 +89,7 @@ namespace ForkBot
             public static Emoji EAR = new Emoji("👂");
             public static Emoji WAVE = new Emoji("👋");
             public static Emoji SPEECH_BUBBLE = new Emoji("💬");
+            public static Emoji FRAME = new Emoji("🖼️");
 
             public static Emote BRADY = Emote.Parse("<:Smuggers:657954937820676116>");
             public static Emote BLANK = Emote.Parse("<:blank:648780847763423232>");
