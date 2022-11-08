@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using OpenAI_API;
+using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.GPT3.ObjectModels;
+using OpenAI.GPT3;
 using ForkBot;
 using System.Text.RegularExpressions;
 
@@ -56,8 +58,10 @@ namespace Stevebot
         #endregion
 
         // Publics
-        public static Engine td2 = new Engine("text-davinci-002");
-        public static OpenAIAPI OpenAI = new OpenAIAPI(new APIAuthentication(File.ReadAllText("Constants/openaitoken").Trim('\n')), engine: td2);
+        public static OpenAI.GPT3.Managers.OpenAIService OpenAI = new OpenAI.GPT3.Managers.OpenAIService(new OpenAiOptions()
+        {
+            ApiKey = File.ReadAllText("Constants/openaitoken").Trim('\n')
+        });
 
         public static List<Chat> Chats = new List<Chat>();
         public List<ChatUser> users { get; } = new List<ChatUser>();
@@ -218,10 +222,22 @@ namespace Stevebot
                 }
 
                 fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-                var response = await OpenAI.Completions.CreateCompletionAsync(fullMsg, temperature: 0.85, max_tokens: 128, stopSequences: "\"");
-                messageHistory.Add(new ChatMessage(BOT_ID, response.ToString()));
+                
+
+                var request = new CompletionCreateRequest()
+                {
+                    Prompt = fullMsg,
+                    MaxTokens = 128,
+                    Temperature = 0.85f,
+                    Stop = "\""
+                };
+
+                var completion = await OpenAI.Completions.CreateCompletion(request, Models.Davinci);
+                string response = completion.Choices.First().Text;
+
+                messageHistory.Add(new ChatMessage(BOT_ID, response));
                 //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
-                return await ReplaceNameWithPingAsync(response.ToString());
+                return await ReplaceNameWithPingAsync(response);
             }
         }
 

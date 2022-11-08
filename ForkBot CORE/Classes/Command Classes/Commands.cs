@@ -16,6 +16,7 @@ using System.Globalization;
 using System.Data.SQLite;
 using System.Data;
 using YorkU;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace ForkBot
 {
@@ -2211,9 +2212,19 @@ namespace ForkBot
                 Stevebot.Chat newChat = null;
                 if (input == "" || input == " ")
                 {
-                    var firstMsg = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync("Say a greeting for a conversation:\n", max_tokens: 128, temperature: 0.8);
+                    var request = new CompletionCreateRequest()
+                    {
+                        Prompt = "Say a greeting for a conversation:\n",
+                        MaxTokens = 128,
+                        Temperature = 0.8f
+                    };
 
-                    var trimmed = firstMsg.ToString().Trim('"', ' ', '"', '\n');
+                    var completion = await Stevebot.Chat.OpenAI.Completions.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.Davinci);
+                    string firstMsg = completion.Choices.First().Text;
+
+
+
+                    var trimmed = firstMsg.Trim('"', ' ', '"', '\n');
                     await Context.Channel.SendMessageAsync(trimmed);
                     newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id, trimmed);
                 }
@@ -2225,7 +2236,6 @@ namespace ForkBot
                 await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
             }
         }
-
 
         [Command("gpt")]
         public async Task GPT([Remainder] string input)
@@ -2255,7 +2265,16 @@ namespace ForkBot
 
             try
             {
-                var resp = await Stevebot.Chat.OpenAI.Completions.CreateCompletionAsync(input, temperature: 0.7, max_tokens: Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount,256));
+                var request = new CompletionCreateRequest()
+                {
+                    Prompt = input,
+                    MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
+                    Temperature = 0.7f
+                };
+
+                var completion = await Stevebot.Chat.OpenAI.Completions.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.Davinci);
+                string resp = completion.Choices.First().Text;
+
                 wordCount += Regex.Matches(resp.ToString(), "\\w+|[,.!?]").Count();
                 user.AddData("GPTWordsUsed", wordCount);
 

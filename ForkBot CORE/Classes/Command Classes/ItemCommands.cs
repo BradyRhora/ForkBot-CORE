@@ -9,6 +9,7 @@ using Discord;
 using Discord.Commands;
 using System.Net;
 using System.Data.SQLite;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace ForkBot
 {
@@ -1401,7 +1402,7 @@ namespace ForkBot
                 Var.maxwellRequests.Add(req);
                 await brady.SendMessageAsync($"{Context.User.Mention} asks their {maxwell} {DBFunctions.GetItemEmote(maxwell)} in {chan} with an ID of {req.ID}...\n```\n{wish}\n```");
             }
-        }*/
+        }
 
         [Command("controller"), Alias("videogame","game", "video_game")]
         public async Task Controller()
@@ -1411,6 +1412,29 @@ namespace ForkBot
             if (!hasNotifs) if (Check(Context, "controller")) return;
             user.SetData("Notify_Game", !hasNotifs);
             await ReplyAsync($"Set free game notifications to {!hasNotifs}.");
+        }*/
+
+        [Command("paintbrush"), Alias("img")]
+        public async Task Image([Remainder] string input)
+        {
+            if (Check(Context, "paintbrush", true)) return;
+
+            var req = new ImageCreateRequest()
+            {
+                Prompt = input,
+                N = 1,
+                Size = "512x512",
+                ResponseFormat = "b64_json",
+                User = Context.User.Id.ToString()
+            };
+
+            var img = await Stevebot.Chat.OpenAI.Image.CreateImage(req);
+            byte[] bytes = Convert.FromBase64String(img.Results.First().B64);
+
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                await Context.Channel.SendFileAsync(ms, "gen.jpg");
+            }
         }
     }
 }
