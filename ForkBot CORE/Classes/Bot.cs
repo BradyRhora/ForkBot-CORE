@@ -133,15 +133,50 @@ namespace ForkBot
                 var presentName = Var.present;
                 var pMessage = DBFunctions.GetItemDescription(presID);
                 var msg = $"{message.Author.Username}! You got...\n{Functions.GetPrefix(presentName)} {Func.ToTitleCase(presentName.Replace('_', ' '))}! {DBFunctions.GetItemEmote(presID)} {pMessage}";
-                user.GiveItem(Var.present);
 
-                if (Var.replaceable)
+                if (!Var.presentRigged || (Var.presentRigged && user.GetData<bool>("active_gnome")))
                 {
-                    msg += $"\nDon't like this gift? Press {Var.presentNum} again to replace it once!";
-                    Var.replacing = true;
-                    Var.presentReplacer = message.Author;
+                    user.GiveItem(Var.present);
+
+                    if (Var.presentRigged)
+                    {
+                        Var.presentRigged = false;
+                        user.SetData("active_gnome", false);
+                        msg += DBFunctions.GetItemEmote("gnome") + $" Whoa! The present was rigged by {Var.presentRigger.Mention} [{Var.presentRigger.Username}]! Your gnome sacrificed himself to save your item!\n{Constants.Values.GNOME_VID}";
+                    }
+
+                    if (Var.replaceable)
+                    {
+                        msg += $"\nDon't like this gift? Press {Var.presentNum} again to replace it once!";
+                        Var.replacing = true;
+                        Var.presentReplacer = message.Author;
+                    }
+                    await message.Channel.SendMessageAsync(msg);
                 }
-                await message.Channel.SendMessageAsync(msg);
+                else
+                {
+                    Var.presentRigged = false;
+
+                    int lossCount = rdm.Next(5) + 3;
+                    if (lossCount > user.GetItemList().Count) lossCount = user.GetItemList().Count;
+                    if (lossCount == 0)
+                    {
+                        await message.Channel.SendMessageAsync($":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} [{Var.presentRigger.Username}] and you lost... Nothing??\n:boom::boom::boom::boom:");
+                    }
+                    else
+                    {
+                        string mesg = $":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} and you lost:\n```";
+                        for (int i = 0; i < lossCount; i++)
+                        {
+                            int itemID = user.GetItemList().ElementAt(rdm.Next(user.GetItemList().Count)).Key;
+                            var item = DBFunctions.GetItemName(itemID);
+                            user.RemoveItem(itemID);
+                            mesg += item + "\n";
+                        }
+                        await message.Channel.SendMessageAsync(mesg + "```\n:boom::boom::boom::boom:");
+                    }
+                }
+                
             }
             else if (Var.replaceable && Var.replacing && message.Content == presentNum && message.Author == Var.presentReplacer)
             {

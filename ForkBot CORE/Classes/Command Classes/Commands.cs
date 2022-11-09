@@ -1755,48 +1755,12 @@ namespace ForkBot
                     else
                         Var.presentClaims.Add(Context.User);
                     Var.presentNum = rdm.Next(10);
-                    if (!Var.presentRigged)
-                    {
-                        await Context.Channel.SendMessageAsync($"A present appears! :gift: Press {Var.presentNum} to open it!");
-                        Var.presentWaiting = true;
-                        Var.replacing = false;
-                        Var.replaceable = true;
-                    }
-                    else
-                    {
-                        Var.presentRigged = false;
-
-                        if (user.GetData<bool>("active_gnome"))
-                        {
-                            user.SetData("active_gnome", false);
-                            await ReplyAsync(DBFunctions.GetItemEmote("gnome") + $" Whoa! The present was rigged by {Var.presentRigger.Mention} [{Var.presentRigger.Username}]! Your gnome sacrificed himself to save your items!\n{Constants.Values.GNOME_VID}");
-                            await Context.Channel.SendMessageAsync($"A present appears! :gift: Press {Var.presentNum} to open it!");
-                            Var.presentWaiting = true;
-                            Var.replacing = false;
-                            Var.replaceable = true;
-                        }
-                        else
-                        {
-                            int lossCount = rdm.Next(5) + 3;
-                            if (lossCount > user.GetItemList().Count) lossCount = user.GetItemList().Count;
-                            if (lossCount == 0)
-                            {
-                                await ReplyAsync($":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} [{Var.presentRigger.Username}] and you lost... Nothing??\n:boom::boom::boom::boom:");
-                            }
-                            else
-                            {
-                                string msg = $":bomb: Oh no! The present was rigged by {Var.presentRigger.Mention} and you lost:\n```";
-                                for (int i = 0; i < lossCount; i++)
-                                {
-                                    int itemID = user.GetItemList().ElementAt(rdm.Next(user.GetItemList().Count)).Key;
-                                    var item = DBFunctions.GetItemName(itemID);
-                                    user.RemoveItem(itemID);
-                                    msg += item + "\n";
-                                }
-                                await ReplyAsync(msg + "```\n:boom::boom::boom::boom:");
-                            }
-                        }
-                    }
+                    
+                    await Context.Channel.SendMessageAsync($"A present appears! :gift: Press {Var.presentNum} to open it!");
+                    Var.presentWaiting = true;
+                    Var.replacing = false;
+                    Var.replaceable = true;
+                    
 
 
                 }
