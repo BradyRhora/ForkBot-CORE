@@ -2120,18 +2120,18 @@ namespace ForkBot
                 Dictionary<string, string> replacements = new Dictionary<string, string>
                 {
                     { "remember","" },
-                    { "you're", "Stevey is" },
-                    { "yours", "Steveys" },
-                    { "your", "Steveys" },
-                    { "you", "Stevey" },
+                    { "you're", "Forkbot is" },
+                    { "yours", "Forkbots" },
+                    { "your", "Forkbots" },
+                    { "you", "Forkbot" },
                     { "i", Context.User.Username },
                     { "me", Context.User.Username },
                     { "my", Context.User.Username + 's' },
                     { "mine", Context.User.Username + 's'},
                     { "were", "was" },
-                    { "we're", $"Stevey and {Context.User.Username} are" },
-                    { "we've", $"Stevey and {Context.User.Username} have" },
-                    { "we", $"Stevey and {Context.User.Username}" }
+                    { "we're", $"Forkbot and {Context.User.Username} are" },
+                    { "we've", $"Forkbot and {Context.User.Username} have" },
+                    { "we", $"Forkbot and {Context.User.Username}" }
 
                 };
 
