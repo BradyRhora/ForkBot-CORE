@@ -2233,7 +2233,8 @@ namespace ForkBot
                 {
                     Prompt = $"Here is a prompt marked with Q and the answer/result to the prompt marked as A.\nQ:{input}\nA:",
                     MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
-                    Temperature = 0.7f
+                    Temperature = 0.7f,
+                    Stop = "Q:"
                 };
 
                 var completion = await Stevebot.Chat.OpenAI.Completions.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.Davinci);
