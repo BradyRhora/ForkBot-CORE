@@ -2231,7 +2231,8 @@ namespace ForkBot
             {
                 var request = new CompletionCreateRequest()
                 {
-                    Prompt = $"Here is a prompt marked with Q and the answer/result to the prompt marked as A.\nQ:{input}\nA:",
+                    //Prompt = $"Here is a prompt marked with Q and the answer/result to the prompt marked as A.\nQ:{input}\nA:",
+                    Prompt = input,
                     MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
                     Temperature = 0.7f,
                     Stop = "Q:,A:,\n"
