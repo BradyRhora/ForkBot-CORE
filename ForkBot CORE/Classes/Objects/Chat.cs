@@ -232,7 +232,7 @@ namespace Stevebot
                     Stop = "\""
                 };
 
-                var completion = await OpenAI.Completions.CreateCompletion(request, Models.Davinci);
+                var completion = await OpenAI.Completions.CreateCompletion(request, Models.TextDavinciV3);
                 string response = completion.Choices.First().Text;
 
                 messageHistory.Add(new ChatMessage(BOT_ID, response));
