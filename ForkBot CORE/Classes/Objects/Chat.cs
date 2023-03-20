@@ -9,6 +9,7 @@ using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3;
 using ForkBot;
 using System.Text.RegularExpressions;
+using System.Data.SQLite;
 
 namespace Stevebot
 {
@@ -16,23 +17,26 @@ namespace Stevebot
     public class Chat
     {
         #region subclasses
-        public class ChatMessage
+        public class Message
         {
+            public string Role { get; }
             public ulong Sender { get; }
-            public string Message { get; }
+            public string Text { get; }
             public DateTime Time { get; }
 
-            public ChatMessage(ulong sender, string message)
+            public Message(string role, ulong sender, string message)
             {
                 Sender = sender;
-                Message = message;
+                Text = message;
                 Time = DateTime.Now;
+                Role = role;
             }
-            public ChatMessage(ulong sender, string message, DateTime time)
+            public Message(string role, ulong sender, string message, DateTime time)
             {
                 Sender = sender;
-                Message = message;
+                Text = message;
                 Time = time;
+                Role = role;
             }
         }
 
@@ -66,7 +70,9 @@ namespace Stevebot
         public static List<Chat> Chats = new List<Chat>();
         public List<ChatUser> users { get; } = new List<ChatUser>();
         public ulong channel_id { get; }
-        public List<ChatMessage> messageHistory { get; set; }
+        public List<Message> messageHistory { get; set; }
+
+        
 
         // Privates
         bool just_listening = false;
@@ -78,21 +84,21 @@ namespace Stevebot
         const int MEMORY_LENGTH = 15;
         ulong BOT_ID = Constants.Users.FORKBOT;
         public const string MIN_BOT_NAME = "fork";
-        const float MONEY_AVAILABLE = 5;
-        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 20f) / 0.02f) * 1000f);
+        public const float MONEY_AVAILABLE = 7.5f;
+        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 20f) / 0.02f) * 250f);
 
         private string[] prompts = {
-                                        "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human, [USER]. The current date is [DATE].",
+                                        "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human. The current date is [DATE].",
                                         "This is a chat log between some users in Toronto, Canada. Occasionally, an Artificial Intelligence known as [BOT] chimes in with his knowledge banks or just to have fun. The current date is [DATE].",
-                                        "This is a chat log between some users in Toronto, Canada. The current date is [DATE]." // in case we want f to act less robotly
+                                        "This is a chat log between some users in Toronto, Canada. The current date is [DATE]." // in case we want to act less robotly
                                    };
 
         public Chat(ulong user, ulong channel, string botFirstMsg)
         {
             users.Add(new ChatUser(user));
             channel_id = channel;
-            messageHistory = new List<ChatMessage>();
-            messageHistory.Add(new ChatMessage(BOT_ID, botFirstMsg));
+            messageHistory = new List<Message>();
+            messageHistory.Add(new Message("assistant", BOT_ID, botFirstMsg));
             Chats.Add(this);
         }
 
@@ -100,7 +106,7 @@ namespace Stevebot
         {
             users.Add(new ChatUser(user));
             channel_id = channel;
-            messageHistory = new List<ChatMessage>();
+            messageHistory = new List<Message>();
             if (listening)
             {
                 just_listening = true;
@@ -109,7 +115,7 @@ namespace Stevebot
             Chats.Add(this);
         }
 
-        public ChatUser GetUser(ulong id) { return users.Where(x => x.Id == id).FirstOrDefault(); }
+        public ChatUser GetUser(ulong id) { return users.FirstOrDefault(x => x.Id == id); }
 
         public void Join(IUser user)
         {
@@ -117,7 +123,7 @@ namespace Stevebot
             {
                 users.Add(new ChatUser(user.Id));
                 Console.WriteLine($"[DEBUG] {user.Username} has entered the chat.");
-                messageHistory.Add(new ChatMessage(0, $"{user.Username} has entered the chat."));
+                messageHistory.Add(new Message("system", 0, $"{user.Username} has entered the chat."));
             }
 
         }
@@ -129,7 +135,7 @@ namespace Stevebot
             users.Where(x => x.Id == user.Id).First().Left = true;
 
             Console.WriteLine($"[DEBUG] {user.Username} has left the chat. {users.Where(x => x.Left == false).Count()}/{users.Count()}");
-            messageHistory.Add(new ChatMessage(0, $"{user.Username} has left the chat."));
+            messageHistory.Add(new Message("system", 0, $"{user.Username} has left the chat."));
 
             if (users.Where(x => x.Left == false).Count() == 0)
             {
@@ -146,6 +152,17 @@ namespace Stevebot
             }
         }
 
+        public async Task<List<ChatMessage>> BuildMessageList()
+        {
+            List<ChatMessage> list = new List<ChatMessage>();
+            foreach (var msg in messageHistory)
+            {
+                string content = $"[{msg.Time.ToShortTimeString()}] {(await Bot.client.GetUserAsync(msg.Sender)).Username}: {msg.Text}";
+                var chatmsg = new ChatMessage(msg.Role, content);
+                list.Add(chatmsg);
+            }
+            return list;
+        }
 
         public async Task<string> GetNextMessageAsync(IMessage message)
         {
@@ -158,7 +175,7 @@ namespace Stevebot
                 user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
 
             chatUser.LastMsg = DateTime.Now;
-            messageHistory.Add(new ChatMessage(message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
+            messageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
             bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
             bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
@@ -193,51 +210,51 @@ namespace Stevebot
 
             using (message.Channel.EnterTypingState())
             {
-                string fullMsg;
-                if (just_listening) fullMsg = prompts[2];
-                else fullMsg = prompts[0];
+                string intro;
+                if (just_listening) intro = prompts[2];
+                else intro = prompts[0];
                 string dnl = "\n\n"; // double newline
 
                 var memory = DBFunctions.GetProperty("chat_memory").ToString();
 
-                fullMsg = fullMsg.Replace("[BOT]", botName).Replace("[USER]", (await Bot.client.GetUserAsync(users[0].Id)).Username).Replace("[DATE]", DateTime.Now.ToString("MMMM d, hh:mmtt")) + dnl;
-                fullMsg += "\n" + memory;
+                var intro_msg = new ChatMessage("system", intro.Replace("[BOT]","ForkBot").Replace("[DATE]",DateTime.Now.ToShortDateString()) + '\n' + memory);
 
-                int start = messageHistory.Count() - (MEMORY_LENGTH - 1);
+                var msgs = await BuildMessageList();
 
-                for (int i = start >= 0 ? start : 0; i < messageHistory.Count(); i++)
+
+
+                msgs.Insert(0, intro_msg);
+
+                var chat_request = new ChatCompletionCreateRequest()
                 {
-                    fullMsg += $"[{messageHistory[i].Time.ToShortTimeString()}] ";
-                    if (messageHistory[i].Sender != 0)
-                    {
-                        if (messageHistory[i].Sender == BOT_ID) fullMsg += botName + ": \"";
-                        else
-                        {
-                            var u = await Bot.client.GetUserAsync(messageHistory[i].Sender);
-                            fullMsg += $"{u.Username}: \"";
-                        }
-                        fullMsg += messageHistory[i].Message + "\"" + dnl;
-                    }
-                    else fullMsg += messageHistory[i].Message + dnl;
-                }
-
-                fullMsg += $"[{DateTime.Now.ToShortTimeString()}] " + botName + ": \"";
-                
-
-                var request = new CompletionCreateRequest()
-                {
-                    Prompt = fullMsg,
-                    MaxTokens = 128,
+                    PresencePenalty = 0.5f,
                     Temperature = 0.85f,
+                    Messages= msgs,
                     Stop = "\""
                 };
 
-                var completion = await OpenAI.Completions.CreateCompletion(request, Models.TextDavinciV3);
-                string response = completion.Choices.First().Text;
 
-                messageHistory.Add(new ChatMessage(BOT_ID, response));
-                //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
-                return await ReplaceNameWithPingAsync(response);
+                //var completion = await OpenAI.Completions.CreateCompletion(request, Models.ChatGpt3_5Turbo);
+                var completion = await OpenAI.ChatCompletion.CreateCompletion(chat_request, Models.ChatGpt3_5Turbo);
+                if (completion.Successful)
+                {
+                    string response = completion.Choices.First().Message.Content;
+
+                    messageHistory.Add(new Message("assistant", BOT_ID, response));
+                    //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
+                    response = Regex.Replace(response, "^\\[([()a-zA-Z0-9: ]+)\\]( [a-zA-Z0-9]+)?:? ?", "");
+                    response = await ReplaceNameWithPingAsync(response);
+                    return response;
+                }
+                else
+                {
+                    Chats.Remove(this);
+
+                    if (completion.Error.Type == "insufficient_quota")
+                        return "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.";
+                    else
+                        return "Sorry! There was an error with OpenAI. If this was unexpected, let Brady#0010 know.";
+                }
             }
         }
 
@@ -258,6 +275,19 @@ namespace Stevebot
             for (int i = Chat.Chats.Count() - 1; i >= 0; i--)
             {
                 await Chat.Chats[i].Update();
+            }
+        }
+
+        public static double GetAllTokensUsed()
+        {
+            using (var con = new SQLiteConnection(Constants.Values.DB_CONNECTION_STRING))
+            {
+                con.Open();
+                var stm = $"SELECT SUM(GPTWordsUsed) FROM USERS;";
+                using (var cmd = new SQLiteCommand(stm, con))
+                {
+                    return Convert.ToInt32(cmd.ExecuteScalar()) * 1.4;
+                }
             }
         }
     }

@@ -2120,6 +2120,7 @@ namespace ForkBot
                 Dictionary<string, string> replacements = new Dictionary<string, string>
                 {
                     { "remember","" },
+                    { "you are", "Forkbot is" },
                     { "you're", "Forkbot is" },
                     { "yours", "Forkbots" },
                     { "your", "Forkbots" },
@@ -2129,7 +2130,9 @@ namespace ForkBot
                     { "my", Context.User.Username + 's' },
                     { "mine", Context.User.Username + 's'},
                     { "were", "was" },
+                    { "we are", $"Forkbot and {Context.User.Username} are" },
                     { "we're", $"Forkbot and {Context.User.Username} are" },
+                    { "we have", $"Forkbot and {Context.User.Username} have" },
                     { "we've", $"Forkbot and {Context.User.Username} have" },
                     { "we", $"Forkbot and {Context.User.Username}" }
 
@@ -2176,21 +2179,29 @@ namespace ForkBot
                 Stevebot.Chat newChat = null;
                 if (input == "" || input == " ")
                 {
-                    var request = new CompletionCreateRequest()
+                    var request = new ChatCompletionCreateRequest()
                     {
-                        Prompt = "Say a greeting for a conversation:\n",
+                        Messages = { new ChatMessage("system", "Say a greeting for a conversation:") },
                         MaxTokens = 128,
                         Temperature = 0.8f
                     };
 
-                    var completion = await Stevebot.Chat.OpenAI.Completions.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.TextDavinciV3);
-                    string firstMsg = completion.Choices.First().Text;
+                    var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo);
+                    if (completion.Successful)
+                    { 
+                        string firstMsg = completion.Choices.First().Message.Content;
 
-
-
-                    var trimmed = firstMsg.Trim('"', ' ', '"', '\n');
-                    await Context.Channel.SendMessageAsync(trimmed);
-                    newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id, trimmed);
+                        var trimmed = firstMsg.Trim('"', ' ', '"', '\n');
+                        await Context.Channel.SendMessageAsync(trimmed);
+                        newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id, trimmed);
+                    }
+                    else
+                    {
+                        if (completion.Error.Type == "insufficient_quota")
+                            await ReplyAsync(embed: new InfoEmbed("Out of Funds", "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating above $5 will also give you an item that bypasses the monthly per-user usage limit.").Build());
+                        else
+                            await ReplyAsync(embed: new InfoEmbed(completion.Error.Type, completion.Error.Message).Build());
+                    }
                 }
                 else
                 {
@@ -2215,31 +2226,107 @@ namespace ForkBot
                     await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
                 return;
             }
+            else if (input.ToLower() == "funds")
+            {
+                const double TOKEN_COST_PER_THOUSAND = 0.03;
+                double usedTokens = Stevebot.Chat.GetAllTokensUsed();
+                double usedFunds = (usedTokens / 1000) * TOKEN_COST_PER_THOUSAND;
+
+                await ReplyAsync($"We have used approximately {usedFunds.ToString("C")}/{Stevebot.Chat.MONEY_AVAILABLE.ToString("C")}\nDonate $5+ at https://www.paypal.me/Brady0423 to help increase our limit!");
+                return;
+            }
 
             int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
             int userTokenCount = (int)((usedWords + wordCount) * 1.4);
 
             if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
             {
-                await ReplyAsync($"Sorry, you've used up your monthly limit of {Stevebot.Chat.MAX_USER_TOKENS} tokens. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
+                await ReplyAsync($"Sorry, you've used up your monthly limit of {Stevebot.Chat.MAX_USER_TOKENS} tokens. Donate $5+ at https://www.paypal.me/Brady0423 and get this limit removed.");
                 return;
             }
 
             await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
 
-            try
+            ChatMessage[] msg = new ChatMessage[] { new ChatMessage("user", input) };
+            var request = new ChatCompletionCreateRequest()
             {
-                var request = new CompletionCreateRequest()
-                {
-                    //Prompt = $"Here is a prompt marked with Q and the answer/result to the prompt marked as A.\nQ:{input}\nA:",
-                    Prompt = input,
-                    MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
-                    Temperature = 0.7f,
-                    Stop = "Q:,A:,\n"
-                };
+                Messages = msg,
+                MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
+                Temperature = 0.7f,
+                
+            };
 
-                var completion = await Stevebot.Chat.OpenAI.Completions.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.TextDavinciV3);
-                string resp = completion.Choices.First().Text;
+            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo);
+            if (completion.Successful)
+            {
+                string resp = completion.Choices.First().Message.Content;
+
+                wordCount += Regex.Matches(resp.ToString(), "\\w+|[,.!?]").Count();
+                user.AddData("GPTWordsUsed", wordCount);
+
+                string response = resp.ToString().Replace("@everyone", $"[{Context.User.Username} smells like stale ass]");
+                response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
+                {
+                    ulong id = 0;
+                    if (ulong.TryParse(x.Groups[2].Value, out id))
+                    {
+                        return Context.Guild.GetUserAsync(id).Result.Username; // i know this should be awaited dont tell anyone
+                    }
+                    else return "";
+                });
+
+                response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+                {
+                    ulong id = 0;
+                    if (ulong.TryParse(x.Groups[2].Value, out id))
+                    {
+                        return Context.Guild.GetRole(id).Name;
+                    }
+                    else return "";
+                });
+
+                response = response.Replace("@", "");
+
+                await Context.Message.ReplyAsync(response);
+                await Context.Message.RemoveReactionAsync(Constants.Emotes.SPEECH_BUBBLE, Constants.Users.FORKBOT);
+            } 
+            else
+            {
+                if (completion.Error.Type == "insufficient_quota")
+                    await ReplyAsync(embed: new InfoEmbed("Out of Funds", "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating above $5 will also give you an item that bypasses the monthly per-user usage limit.").Build());
+                else
+                    await ReplyAsync(embed: new InfoEmbed(completion.Error.Type, completion.Error.Message).Build());
+            }
+        }
+
+
+        [Command("gpt4")]
+        public async Task GPT4([Remainder] string input)
+        {
+            var user = User.Get(Context.User.Id);
+            int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
+
+            if (!user.HasItem("keyboard"))
+            {
+                await ReplyAsync($"Sorry, only donors can use GPT4 for now. Donate $5+ at https://www.paypal.me/Brady0423 and gain access to this command.");
+                return;
+            }
+
+            await Context.Message.AddReactionAsync(Constants.Emotes.SPEECH_BUBBLE);
+
+            ChatMessage[] msg = new ChatMessage[] { new ChatMessage("user", input) };
+            var request = new ChatCompletionCreateRequest()
+            {
+                Messages = msg,
+                MaxTokens = 256,
+                Temperature = 0.7f,
+
+            };
+
+            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.Gpt4);
+            if (completion.Successful)
+            {
+                string resp = completion.Choices.First().Message.Content;
 
                 wordCount += Regex.Matches(resp.ToString(), "\\w+|[,.!?]").Count();
                 user.AddData("GPTWordsUsed", wordCount);
@@ -2270,9 +2357,12 @@ namespace ForkBot
                 await Context.Message.ReplyAsync(response);
                 await Context.Message.RemoveReactionAsync(Constants.Emotes.SPEECH_BUBBLE, Constants.Users.FORKBOT);
             }
-            catch (HttpRequestException)
+            else
             {
-                await ReplyAsync("Sorry! Seems we're out of credits. If you'd like to personally donate for more, you can use this link: https://www.paypal.me/Brady0423");
+                if (completion.Error.Type == "insufficient_quota")
+                    await ReplyAsync(embed: new InfoEmbed("Out of Funds", "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating above $5 will also give you an item that bypasses the monthly per-user usage limit.").Build());
+                else
+                    await ReplyAsync(embed: new InfoEmbed(completion.Error.Type, completion.Error.Message).Build());
             }
         }
 
