@@ -240,9 +240,9 @@ namespace Stevebot
                 {
                     string response = completion.Choices.First().Message.Content;
 
-                    messageHistory.Add(new Message("assistant", BOT_ID, response));
                     //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
                     response = Regex.Replace(response, "^\\[([()a-zA-Z0-9: ]+)\\]( [a-zA-Z0-9]+)?:? ?", "");
+                    messageHistory.Add(new Message("assistant", BOT_ID, response));
                     response = await ReplaceNameWithPingAsync(response);
                     return response;
                 }
