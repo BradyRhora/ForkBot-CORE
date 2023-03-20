@@ -229,8 +229,7 @@ namespace Stevebot
                 {
                     PresencePenalty = 0.5f,
                     Temperature = 0.85f,
-                    Messages= msgs,
-                    Stop = "\""
+                    Messages= msgs
                 };
 
 
@@ -253,7 +252,10 @@ namespace Stevebot
                     if (completion.Error.Type == "insufficient_quota")
                         return "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.";
                     else
+                    {
+                        Console.WriteLine("[ERROR] " + completion.Error.Type + "\n" + completion.Error.Message);
                         return "Sorry! There was an error with OpenAI. If this was unexpected, let Brady#0010 know.";
+                    }
                 }
             }
         }
