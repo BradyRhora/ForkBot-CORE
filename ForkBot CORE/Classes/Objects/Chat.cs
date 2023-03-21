@@ -155,7 +155,7 @@ namespace Stevebot
         public async Task<List<ChatMessage>> BuildMessageList()
         {
             List<ChatMessage> list = new List<ChatMessage>();
-            foreach (var msg in messageHistory)
+            foreach (var msg in messageHistory.GetRange(messageHistory.Count() - (MEMORY_LENGTH + 1), MEMORY_LENGTH))
             {
                 string content = "";
                 if (msg.Sender == 0)
@@ -173,14 +173,18 @@ namespace Stevebot
             var chatUser = GetUser(message.Author.Id);
             var user = new User(message.Author.Id);
 
+            // Ensure user has tokens available
             if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
                 return "";
             else
                 user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
 
+            // Add to history
             chatUser.LastMsg = DateTime.Now;
             messageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
+
+            // Check if bot has been called by name and if respond delay has passed
             bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
             bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
 
@@ -188,13 +192,14 @@ namespace Stevebot
                 return "";
 
             int activeUsers = users.Where(x => !x.Left).Count();
-            int ignoreChance = (activeUsers - 1) * 7;
+            int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log(0.318))) + 100); // 1 user = 0%, 2 = 33%, 3 = 49%, 4 = 60%...
+            Console.WriteLine($"[DEBUG] with {activeUsers} users, ignore chance is {ignoreChance}%");
             bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
             if (!botMentioned && ignore)
                 return "";
 
-            int max = (activeUsers - 1) * 3;
+            int max = (activeUsers - 1) * 4;
             secondDelay = Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
             Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
             lastTimeSent = DateTime.Now;
