@@ -157,7 +157,11 @@ namespace Stevebot
             List<ChatMessage> list = new List<ChatMessage>();
             foreach (var msg in messageHistory)
             {
-                string content = $"[{msg.Time.ToShortTimeString()}] {(await Bot.client.GetUserAsync(msg.Sender)).Username}: {msg.Text}";
+                string content = "";
+                if (msg.Sender == 0)
+                    content = msg.Text;
+                else
+                    content = $"[{msg.Time.ToShortTimeString()}] {(await Bot.client.GetUserAsync(msg.Sender)).Username}: {msg.Text}";
                 var chatmsg = new ChatMessage(msg.Role, content);
                 list.Add(chatmsg);
             }
