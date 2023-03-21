@@ -155,7 +155,8 @@ namespace Stevebot
         public async Task<List<ChatMessage>> BuildMessageList()
         {
             List<ChatMessage> list = new List<ChatMessage>();
-            foreach (var msg in messageHistory.GetRange(messageHistory.Count() - (MEMORY_LENGTH + 1), MEMORY_LENGTH))
+            int useLength = Math.Min(messageHistory.Count(), MEMORY_LENGTH);
+            foreach (var msg in messageHistory.GetRange(messageHistory.Count() - useLength, useLength))
             {
                 string content = "";
                 if (msg.Sender == 0)
@@ -192,7 +193,7 @@ namespace Stevebot
                 return "";
 
             int activeUsers = users.Where(x => !x.Left).Count();
-            int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log(0.318))) + 100); // 1 user = 0%, 2 = 33%, 3 = 49%, 4 = 60%...
+            int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log10(0.318)))+100); // 1 user = 0%, 2 = 33%, 3 = 49%, 4 = 60%...
             Console.WriteLine($"[DEBUG] with {activeUsers} users, ignore chance is {ignoreChance}%");
             bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
