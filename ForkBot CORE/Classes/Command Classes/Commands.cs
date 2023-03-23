@@ -2185,9 +2185,10 @@ namespace ForkBot
                 Stevebot.Chat newChat = null;
                 if (input == "" || input == " ")
                 {
+                    var msgs = new ChatMessage[] { new ChatMessage("system", "Say a greeting for a conversation:") };
                     var request = new ChatCompletionCreateRequest()
                     {
-                        Messages = { new ChatMessage("system", "Say a greeting for a conversation:") },
+                        Messages = msgs,
                         MaxTokens = 128,
                         Temperature = 0.8f
                     };

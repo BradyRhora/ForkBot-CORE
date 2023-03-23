@@ -90,7 +90,7 @@ namespace Stevebot
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human. The current date is [DATE].",
                                         "This is a chat log between some users in Toronto, Canada. Occasionally, an Artificial Intelligence known as [BOT] chimes in with his knowledge banks or just to have fun. The current date is [DATE].",
-                                        "This is a chat log between some users in Toronto, Canada. The current date is [DATE]." // in case we want to act less robotly
+                                        "This is a chat log between some users in Toronto, Canada. The current date is [DATE]. Messages shouldn't be too lengthy unless necessary." // in case we want to act less robotly
                                    };
 
         public Chat(ulong user, ulong channel, string botFirstMsg)
@@ -146,6 +146,13 @@ namespace Stevebot
 
         public async Task Update()
         {
+            var lastMsg = messageHistory.Last();
+            if (lastMsg.Sender != Constants.Users.FORKBOT && DateTime.Now - lastMsg.Time > TimeSpan.FromMinutes(2))
+            {
+                var msg = await GetNextMessageAsync();
+                await (Bot.client.GetChannel(channel_id) as ITextChannel).SendMessageAsync(msg);
+            }
+
             foreach (var user in users)
             {
                 if (DateTime.Now - user.LastMsg > TimeSpan.FromMinutes(5)) Leave(await Bot.client.GetUserAsync(user.Id));
@@ -169,42 +176,47 @@ namespace Stevebot
             return list;
         }
 
-        public async Task<string> GetNextMessageAsync(IMessage message)
+        public async Task<string> GetNextMessageAsync(IMessage? message = null)
         {
-            var chatUser = GetUser(message.Author.Id);
-            var user = new User(message.Author.Id);
+            if (message != null)
+            {
+                var chatUser = GetUser(message.Author.Id);
+                var user = new User(message.Author.Id);
 
-            // Ensure user has tokens available
-            if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
-                return "";
-            else
-                user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
+                // Ensure user has tokens available
+                if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
+                    return "";
+                else
+                    user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
 
-            // Add to history
-            chatUser.LastMsg = DateTime.Now;
-            messageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
+                // Add to history
+                chatUser.LastMsg = DateTime.Now;
+                messageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
 
-            // Check if bot has been called by name and if respond delay has passed
-            bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
-            bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
+                // Check if bot has been called by name and if respond delay has passed
+                bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
+                bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
 
-            if (!botMentioned && !timePassed)
-                return "";
+                if (!botMentioned && !timePassed)
+                    return "";
 
-            int activeUsers = users.Where(x => !x.Left).Count();
-            int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log10(0.318)))+100); // 1 user = 0%, 2 = 33%, 3 = 49%, 4 = 60%...
-            Console.WriteLine($"[DEBUG] with {activeUsers} users, ignore chance is {ignoreChance}%");
-            bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
+                int activeUsers = users.Where(x => !x.Left).Count();
+                double sensitivity = .404;
+                int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log10(sensitivity))) + 100);
+                Console.WriteLine($"[DEBUG] with {activeUsers} users, ignore chance is {ignoreChance}%");
+                bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
-            if (!botMentioned && ignore)
-                return "";
+                if (!botMentioned && ignore)
+                    return "";
 
-            int max = (activeUsers - 1) * 4;
-            secondDelay = Bot.rdm.Next(0, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
-            Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
+                int max = ((activeUsers) * 4) + 4;
+                secondDelay = Bot.rdm.Next(4, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
+                Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
+
+            }
+
             lastTimeSent = DateTime.Now;
-
 
             string botName = Bot.client.CurrentUser.Username;
             if (just_listening)
@@ -218,17 +230,16 @@ namespace Stevebot
                 }
             }
 
-            using (message.Channel.EnterTypingState())
+            var channel = (ITextChannel)(await Bot.client.GetChannelAsync(channel_id));
+
+            using (channel.EnterTypingState())
             {
                 string intro;
                 if (just_listening) intro = prompts[2];
-                else intro = prompts[0];
-                string dnl = "\n\n"; // double newline
+                else intro = prompts[2]; // ik this doesnt make a diff rn
 
                 var memory = DBFunctions.GetProperty("chat_memory").ToString();
-
                 var intro_msg = new ChatMessage("system", intro.Replace("[BOT]","ForkBot").Replace("[DATE]",DateTime.Now.ToShortDateString()) + '\n' + memory);
-
                 var msgs = await BuildMessageList();
 
 
