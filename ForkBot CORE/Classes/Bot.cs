@@ -256,9 +256,9 @@ namespace ForkBot
 
                 }
             }
-            else if (Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).Count() != 0)
+            else if (Stevebot.Chat.Chats.Where(x => x.ChannelID == message.Channel.Id).Count() != 0)
             {
-                Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.channel_id == message.Channel.Id).FirstOrDefault();
+                Stevebot.Chat chat = Stevebot.Chat.Chats.Where(x => x.ChannelID == message.Channel.Id).FirstOrDefault();
                 if (chat != null)
                 {
                     chat.Join(message.Author);
