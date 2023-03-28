@@ -81,7 +81,7 @@ namespace Stevebot
         int secondDelay = 0;
 
         // Constants
-        const int MEMORY_LENGTH = 15;
+        const int MEMORY_LENGTH = 25;
         ulong BOT_ID = Constants.Users.FORKBOT;
         public const string MIN_BOT_NAME = "fork";
         public const float MONEY_AVAILABLE = 37.5f;
