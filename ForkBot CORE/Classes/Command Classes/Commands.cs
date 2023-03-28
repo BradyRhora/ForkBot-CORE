@@ -2115,7 +2115,7 @@ namespace ForkBot
         [Command("talk"), Summary("Chat time with ForkBot.")]
         public async Task Talk([Remainder] string input = "")
         {
-            if (Context.Guild.Id != Constants.Guilds.YORK_UNIVERSITY && Context.User.Id != Constants.Users.BRADY)
+            if ((Context.Guild.Id != Constants.Guilds.YORK_UNIVERSITY && Context.Guild.Id != Constants.Guilds.BRADY_BUNCH ) && Context.User.Id != Constants.Users.BRADY)
             {
                 await ReplyAsync(embed: new InfoEmbed("Sorry...", "This command is currently only available in the York University server.").Build());
                 return;

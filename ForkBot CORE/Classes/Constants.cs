@@ -13,6 +13,7 @@ namespace ForkBot
             public static ulong P10_ENTERPRISES = 436016366672150531;
             public static ulong FORKU = 342836847187329024;
             public static ulong BASSIC = 492147609532891136;
+	    public static ulong BRADY_BUNCH = 195670713183633408;
         }
 
         public class Users
