@@ -2176,9 +2176,9 @@ namespace ForkBot
                 await ReplyAsync("Okay, I'll remember that.");
 
             }
-            else if (Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).Count() > 0)
+            else if (Stevebot.Chat.Chats.Where(x => x.ChannelID == Context.Channel.Id).Count() > 0)
             {
-                if (input.ToLower() == "end") Stevebot.Chat.Chats.Remove(Stevebot.Chat.Chats.Where(x => x.channel_id == Context.Channel.Id).First());
+                if (input.ToLower() == "end") Stevebot.Chat.Chats.Remove(Stevebot.Chat.Chats.Where(x => x.ChannelID == Context.Channel.Id).First());
                 else await Context.Channel.SendMessageAsync("We're already chatting here.");
             }
             else
@@ -2220,6 +2220,34 @@ namespace ForkBot
                 await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
             }
         }
+
+        [Command("discuss"), Summary("Same as ;talk but ForkBot tries to stay on [topic].")]
+        public async Task Discuss([Remainder] string topic = "")
+        {
+            if (Context.Guild.Id != Constants.Guilds.YORK_UNIVERSITY && Context.User.Id != Constants.Users.BRADY)
+            {
+                await ReplyAsync(embed: new InfoEmbed("Sorry...", "This command is currently only available in the York University server.").Build());
+                return;
+            }
+
+            if (Stevebot.Chat.Chats.Where(x => x.ChannelID == Context.Channel.Id).Count() > 0)
+            {
+                if (topic.ToLower() == "end") Stevebot.Chat.Chats.Remove(Stevebot.Chat.Chats.Where(x => x.ChannelID == Context.Channel.Id).First());
+                else await Context.Channel.SendMessageAsync("We're already chatting here.");
+            }
+            else
+            {
+                Stevebot.Chat? newChat = null;
+                if (!string.IsNullOrWhiteSpace(topic))
+                {
+                    await Context.Message.AddReactionAsync(Emoji.Parse("💬"));
+                    newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id);
+                    await Context.Channel.SendMessageAsync(await newChat.GetNextMessageAsync(Context.Message));
+                    await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
+                }
+            }
+        }
+
 
         [Command("gpt")]
         public async Task GPT([Remainder] string input)
