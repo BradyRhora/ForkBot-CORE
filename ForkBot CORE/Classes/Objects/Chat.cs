@@ -270,15 +270,26 @@ namespace Stevebot
                     {
                         string prompt = edit_response.ToLower().Replace("[image]", "");
                         var img = await OpenAI.CreateImage(new ImageCreateRequest(prompt));
-                        MessageHistory.Add(new Message("assistant", BOT_ID, $"Bot displays image from prompt: {prompt}]"));
-                        return img.Results.First().Url;
+                        MessageHistory.Add(new Message("assistant", BOT_ID, response));
+                        if (img.Successful)
+                            return img.Results.First().Url;
+                        else
+                        {
+                            msgs.Add(new ChatMessage("system", "The image failed to generate due to:\n" + img.Error));
+                            var new_response = await OpenAI.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                            {
+                                PresencePenalty = 0.5f,
+                                Temperature = 0.85f,
+                                Messages = msgs
+                            });
+                            edit_response = Regex.Replace(new_response.Choices.First().Message.Content, "^\\[([()a-zA-Z0-9: ]+)\\]( [a-zA-Z0-9]+)?:? ?", "");
+                        }
                     }
-                    else
-                    {
-                        MessageHistory.Add(new Message("assistant", BOT_ID, edit_response));
-                        edit_response = await ReplaceNameWithPingAsync(edit_response);
-                        return response;
-                    }
+
+                    MessageHistory.Add(new Message("assistant", BOT_ID, edit_response));
+                    edit_response = await ReplaceNameWithPingAsync(edit_response);
+                    return response;
+                    
                 }
                 else
                 {
