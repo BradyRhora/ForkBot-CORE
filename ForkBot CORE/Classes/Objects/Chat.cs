@@ -146,6 +146,8 @@ namespace Stevebot
 
         public async Task Update()
         {
+            if (MessageHistory.Count() == 0) return;
+
             var lastMsg = MessageHistory.Last();
             if (lastMsg.Sender != Constants.Users.FORKBOT && DateTime.Now - lastMsg.Time > TimeSpan.FromMinutes(2))
             {
