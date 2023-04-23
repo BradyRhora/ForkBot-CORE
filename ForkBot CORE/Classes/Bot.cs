@@ -224,6 +224,7 @@ namespace ForkBot
                     if (result.Error != CommandError.UnknownCommand)
                     {
                         Console.WriteLine(result.ErrorReason);
+                        Console.WriteLine(result.Error.ToString());
                         var emb = new InfoEmbed("ERROR:", result.ErrorReason).Build();
                         await message.Channel.SendMessageAsync("", embed: emb);
                     }
@@ -264,13 +265,14 @@ namespace ForkBot
                     chat.Join(message.Author);
                     var u = chat.GetUser(message.Author.Id);
 
-                    if (u != null && (u.Left == false || message.Content.ToLower().Contains("fork")))
+                    if (u != null && (u.Left == false || message.Content.ToLower().Contains(Stevebot.Chat.MIN_BOT_NAME)))
                     {
                         if (u.Left) u.Left = false;
                         var response = await chat.GetNextMessageAsync(message);
-                        if (response != "")
+                        string resp_text = response.Text;
+                        if (resp_text != "")
                         {
-                            response = Regex.Replace(response, "(<@([0-9]*)>)", x =>
+                            resp_text = Regex.Replace(resp_text, "(<@([0-9]*)>)", x =>
                             {
                                 ulong id = 0;
                                 if (ulong.TryParse(x.Groups[2].Value, out id))
@@ -280,7 +282,7 @@ namespace ForkBot
                                 else return "";
                             });
 
-                            response = Regex.Replace(response, "(<@&([0-9]*)>)", x =>
+                            resp_text = Regex.Replace(resp_text, "(<@&([0-9]*)>)", x =>
                             {
                                 ulong id = 0;
                                 if (ulong.TryParse(x.Groups[2].Value, out id))
@@ -290,9 +292,16 @@ namespace ForkBot
                                 else return "";
                             });
 
-                            response = response.Replace("@", "");
+                            resp_text = resp_text.Replace("@", "");
 
-                            await message.Channel.SendMessageAsync(response);
+                            if (response.HasImage) {
+                                
+                                var attch = new FileAttachment(new MemoryStream(response.Img), "image.png");
+                                await message.Channel.SendFileAsync(attch, resp_text);
+                            }
+                            else
+                                await message.Channel.SendMessageAsync(resp_text);
+
 
                             string[] partingTerms = { "bye", "seeya", "cya" };
                             if (partingTerms.Where(x => message.Content.ToLower().Contains(x)).Count() > 0)

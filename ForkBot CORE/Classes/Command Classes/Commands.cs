@@ -2217,7 +2217,7 @@ namespace ForkBot
                 else
                 {
                     newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id);
-                    await Context.Channel.SendMessageAsync(await newChat.GetNextMessageAsync(Context.Message));
+                    await Context.Channel.SendMessageAsync((await newChat.GetNextMessageAsync(Context.Message)).Text);
                 }
                 await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
             }
@@ -2244,7 +2244,7 @@ namespace ForkBot
                 {
                     await Context.Message.AddReactionAsync(Emoji.Parse("💬"));
                     newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id);
-                    await Context.Channel.SendMessageAsync(await newChat.GetNextMessageAsync(Context.Message));
+                    await Context.Channel.SendMessageAsync((await newChat.GetNextMessageAsync(Context.Message)).Text);
                     await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
                 }
             }

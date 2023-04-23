@@ -10,6 +10,8 @@ using OpenAI.GPT3;
 using ForkBot;
 using System.Text.RegularExpressions;
 using System.Data.SQLite;
+using static Stevebot.Chat;
+using System.Net;
 
 namespace Stevebot
 {
@@ -57,6 +59,30 @@ namespace Stevebot
                 var user = User.Get(Id);
                 int usedWords = user.GetData<int>("GPTWordsUsed");
                 return (int)(usedWords * 1.4);
+            }
+
+            public bool UseTokensIfAvailable(int tokenCount)
+            {
+                if (GetTokenCount() + tokenCount > MAX_USER_TOKENS)
+                    return false;
+
+                var user = new User(Id);
+                user.AddData("GPTWordsUsed", tokenCount);
+                return true;
+            }
+        }
+
+        public class BotResponse
+        {
+            public string Text { get; }
+            public byte[] Img { get; }
+            public bool HasImage { get; }
+
+            public BotResponse(string text, byte[] img = null)
+            {
+                Text = text;
+                Img = img;
+                HasImage = img != null;
             }
         }
         #endregion
@@ -152,7 +178,7 @@ namespace Stevebot
             if (lastMsg.Sender != Constants.Users.FORKBOT && DateTime.Now - lastMsg.Time > TimeSpan.FromMinutes(2))
             {
                 var msg = await GetNextMessageAsync();
-                await (Bot.client.GetChannel(ChannelID) as ITextChannel).SendMessageAsync(msg);
+                await (Bot.client.GetChannel(ChannelID) as ITextChannel).SendMessageAsync(msg.Text);
             }
 
             foreach (var user in Users)
@@ -179,15 +205,31 @@ namespace Stevebot
             return list;
         }
 
+        int GetTokenWorth(string msg)
+        {
+            return Regex.Matches(msg, "\\w+|[,.!?]").Count() * 2;
+        }
+
+        void AddToHistory(ChatUser user, IMessage msg)
+        {
+            user.LastMsg = DateTime.Now;
+            MessageHistory.Add(new Message("user", msg.Author.Id, msg.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
+        }
+
+
+
         //TODO: Break this up into smaller functions
-        public async Task<string> GetNextMessageAsync(IMessage? message = null)
+        public async Task<BotResponse> GetNextMessageAsync(IMessage? message = null)
         {
             if (message != null)
             {
                 var chatUser = GetUser(message.Author.Id);
-                var user = new User(message.Author.Id);
 
                 // Ensure user has tokens available
+
+                if (!chatUser.UseTokensIfAvailable(GetTokenWorth(message.Content)))
+                    return new BotResponse("");
+
                 /* FIX THIS
                 if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
                     return ""; // CHECK FOR KEYBOARD
@@ -200,28 +242,29 @@ namespace Stevebot
                 MessageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
 
 
+                AddToHistory(chatUser, message);
+
                 // Check if bot has been called by name and if respond delay has passed
                 bool botMentioned = message.Content.ToLower().Contains(MIN_BOT_NAME) || message.MentionedUserIds.Contains(BOT_ID);
                 bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
 
                 if (!botMentioned && !timePassed)
-                    return "";
+                    return new BotResponse("");
 
                 // Check if bot should ignore user
                 int activeUsers = Users.Where(x => !x.Left).Count();
-                double sensitivity = .404;
+                double sensitivity = .445;
                 int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log10(sensitivity))) + 100);
                 Console.WriteLine($"[DEBUG] with {activeUsers} users, ignore chance is {ignoreChance}%");
                 bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
                 if (!botMentioned && ignore)
-                    return "";
+                    return new BotResponse("");
 
                 // Calculate delay based on number of users
                 int max = ((activeUsers) * 4) + 4;
-                secondDelay = Bot.rdm.Next(4, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
+                secondDelay = Bot.rdm.Next(4, max);
                 Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
-
             }
 
             lastTimeSent = DateTime.Now;
@@ -230,7 +273,7 @@ namespace Stevebot
             string botName = Bot.client.CurrentUser.Username;
             if (just_listening)
             {
-                if (--messagesUntilJoin > 0) return "";
+                if (--messagesUntilJoin > 0) return new BotResponse("");
                 else if (messagesUntilJoin == 0)
                 {
                     var Gen = await Bot.client.GetChannelAsync(Constants.Channels.GENERAL) as IGuildChannel;
@@ -253,13 +296,11 @@ namespace Stevebot
                 var intro_msg = new ChatMessage("system", intro.Replace("[BOT]","ForkBot").Replace("[DATE]",DateTime.Now.ToShortDateString()) + '\n' + memory);
                 var msgs = await BuildMessageList();
 
-
-
                 msgs.Insert(0, intro_msg);
 
                 var chat_request = new ChatCompletionCreateRequest()
                 {
-                    PresencePenalty = 0.5f,
+                    PresencePenalty = 0.25f,
                     Temperature = 0.85f,
                     Messages= msgs
                 };
@@ -275,13 +316,27 @@ namespace Stevebot
                     //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
                     string edit_response = Regex.Replace(response, "^([a-zA-Z0-9 ]*): ?", "");
 
-                    if (edit_response.ToLower().StartsWith("[image]") || response.ToLower().StartsWith("[image]"))
+                    if (edit_response.ToLower().Contains("[image]") || response.ToLower().Contains("[image]"))
                     {
-                        string prompt = edit_response.ToLower().Replace("[image]", "");
+                        var key_loc = edit_response.ToLower().IndexOf("[image]");
+                        key_loc = (key_loc == -1) ? 0 : (key_loc) + "[image]".Length;
+
+
+                        string msg = edit_response.Substring(0, key_loc - "[image]".Length);
+                        string prompt = edit_response.Substring(key_loc);
+                        Console.WriteLine("[DEBUG/msg] " + msg);
+                        Console.WriteLine("[DEBUG/prompt] " + prompt);
                         var img = await OpenAI.CreateImage(new ImageCreateRequest(prompt));
                         MessageHistory.Add(new Message("assistant", BOT_ID, response));
+
                         if (img.Successful)
-                            return img.Results.First().Url;
+                        {
+                            //Download image from URL
+                            var webClient = new WebClient();
+                            var data = webClient.DownloadData(img.Results.First().Url);
+
+                            return new BotResponse(msg, data);
+                        }
                         else
                         {
                             msgs.Add(new ChatMessage("system", "The image failed to generate due to:\n" + img.Error));
@@ -297,7 +352,7 @@ namespace Stevebot
 
                     MessageHistory.Add(new Message("assistant", BOT_ID, edit_response));
                     edit_response = await ReplaceNameWithPingAsync(edit_response);
-                    return edit_response;
+                    return new BotResponse(edit_response);
                     
                 }
                 else
@@ -305,11 +360,11 @@ namespace Stevebot
                     Chats.Remove(this);
 
                     if (completion.Error.Type == "insufficient_quota")
-                        return "Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.";
+                        return new BotResponse("Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
                     else
                     {
                         Console.WriteLine("[ERROR] " + completion.Error.Type + "\n" + completion.Error.Message);
-                        return "Sorry! There was an error with OpenAI. If this was unexpected, let Brady#0010 know.";
+                        return new BotResponse("Sorry! There was an error with OpenAI. If this was unexpected, let Brady#0010 know.");
                     }
                 }
             }
