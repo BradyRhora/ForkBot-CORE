@@ -1,0 +1,6 @@
+#!/bin/bash
+git pull
+cd ~/forkbot-core/ForkBot\ CORE/
+sudo ./build
+cd ~/ForkBot
+dotnet ForkBot\ CORE.dll
