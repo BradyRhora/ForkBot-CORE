@@ -221,13 +221,28 @@ namespace Stevebot
         //TODO: Break this up into smaller functions
         public async Task<BotResponse> GetNextMessageAsync(IMessage? message = null)
         {
+            Console.WriteLine("[DEBUG] generating response");
             if (message != null)
             {
                 var chatUser = GetUser(message.Author.Id);
 
+                Console.WriteLine("[DEBUG] test test");
                 // Ensure user has tokens available
+
                 if (!chatUser.UseTokensIfAvailable(GetTokenWorth(message.Content)))
                     return new BotResponse("");
+
+                /* FIX THIS
+                if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
+                    return ""; // CHECK FOR KEYBOARD
+                else
+                    user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
+                */
+                
+                // Add to history
+                chatUser.LastMsg = DateTime.Now;
+                MessageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
+
 
                 AddToHistory(chatUser, message);
 
@@ -296,7 +311,7 @@ namespace Stevebot
                 if (completion.Successful)
                 {
                     string response = completion.Choices.First().Message.Content;
-                    Console.WriteLine(response);
+                    Console.WriteLine("[DEBUG] Response: " + response);
 
                     //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
                     string edit_response = Regex.Replace(response, "^([a-zA-Z0-9 ]*): ?", "");
