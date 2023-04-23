@@ -2296,7 +2296,7 @@ namespace ForkBot
             var request = new ChatCompletionCreateRequest()
             {
                 Messages = msg,
-                MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256),
+                MaxTokens = Math.Min(Stevebot.Chat.MAX_USER_TOKENS - userTokenCount, 256), //bugs if negative value... fix
                 Temperature = 0.7f,
                 
             };
