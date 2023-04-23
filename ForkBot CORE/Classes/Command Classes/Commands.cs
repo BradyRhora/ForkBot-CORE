@@ -17,6 +17,8 @@ using System.Data.SQLite;
 using System.Data;
 using YorkU;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace ForkBot
 {

@@ -109,6 +109,7 @@ namespace ForkBot
             public static string GNOME_VID = "https://tenor.com/view/gnome-your-chums-gnomed-gnome-gnoblin-gnelf-gif-12675740";
             public static string DB_CONNECTION_STRING = @"data source=Files/ForkDB CORE.db";
             public static string YORK_DB_CONNECTION_STRING = @"data source=Files/YorkDB.db";
+            public static string BRADYMS_DB_CONNECTION_STRING = @"Server=bjsa.space;Database=cosmic;User Id=cosmic;Password=";
             public static double MARKET_CANCELLATION_FEE = .15;
             public static char COMMAND_PREFIX = ';';
         }

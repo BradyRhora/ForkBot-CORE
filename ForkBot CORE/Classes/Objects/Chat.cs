@@ -182,13 +182,11 @@ namespace Stevebot
         //TODO: Break this up into smaller functions
         public async Task<string> GetNextMessageAsync(IMessage? message = null)
         {
-            Console.WriteLine("[DEBUG] generating response");
             if (message != null)
             {
                 var chatUser = GetUser(message.Author.Id);
                 var user = new User(message.Author.Id);
 
-                Console.WriteLine("[DEBUG] test test");
                 // Ensure user has tokens available
                 /* FIX THIS
                 if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
@@ -209,6 +207,7 @@ namespace Stevebot
                 if (!botMentioned && !timePassed)
                     return "";
 
+                // Check if bot should ignore user
                 int activeUsers = Users.Where(x => !x.Left).Count();
                 double sensitivity = .404;
                 int ignoreChance = (int)((100 / ((activeUsers + 1) * Math.Log10(sensitivity))) + 100);
@@ -218,6 +217,7 @@ namespace Stevebot
                 if (!botMentioned && ignore)
                     return "";
 
+                // Calculate delay based on number of users
                 int max = ((activeUsers) * 4) + 4;
                 secondDelay = Bot.rdm.Next(4, max); // random amount of seconds from 0 to (7 * (#ofusers - 1))
                 Console.WriteLine($"[DEBUG] second delay from 0 to {max} is {secondDelay}");
@@ -226,6 +226,7 @@ namespace Stevebot
 
             lastTimeSent = DateTime.Now;
 
+            // Check if bot should join chat or continue just listening
             string botName = Bot.client.CurrentUser.Username;
             if (just_listening)
             {
@@ -290,7 +291,7 @@ namespace Stevebot
                                 Temperature = 0.85f,
                                 Messages = msgs
                             });
-                            edit_response = Regex.Replace(new_response.Choices.First().Message.Content, "^\\[([()a-zA-Z0-9: ]+)\\]( [a-zA-Z0-9]+)?:? ?", "");
+                            edit_response = Regex.Replace(new_response.Choices.First().Message.Content, "^([a-zA-Z0-9 ]*): ?", "");
                         }
                     }
 
