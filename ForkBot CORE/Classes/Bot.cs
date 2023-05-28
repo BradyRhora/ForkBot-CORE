@@ -56,7 +56,7 @@ namespace ForkBot
                 await client.StartAsync();
                 Var.DebugCode = rdm.Next(999, 9999) + 1;
                 Var.IDEnd = rdm.Next(10);
-                Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}]");
+                Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}] [DebugMode: {Var.DebugMode}");
                 Var.startTime = Var.CurrentDate();
 
                 int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
