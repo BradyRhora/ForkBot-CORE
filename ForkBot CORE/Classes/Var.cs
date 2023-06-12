@@ -66,7 +66,7 @@ namespace ForkBot
 
         public static int DebugCode;
 
-        public static bool DebugMode = false;
+        public static bool DebugMode = true;
         
 
         public static bool LockDown = false;

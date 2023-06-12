@@ -2217,7 +2217,17 @@ namespace ForkBot
                 else
                 {
                     newChat = new Stevebot.Chat(Context.User.Id, Context.Channel.Id);
-                    await Context.Channel.SendMessageAsync((await newChat.GetNextMessageAsync(Context.Message)).Text);
+                    var firstMsg = await newChat.GetNextMessageAsync(Context.Message);
+
+                    if (firstMsg.HasImage)
+                    {
+                        var attch = new FileAttachment(new MemoryStream(firstMsg.Img), "image.png");
+                        await Context.Channel.SendFileAsync(attch, firstMsg.Text.Length == 0 ? null : firstMsg.Text);
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync(firstMsg.Text);
+                    }
                 }
                 await Context.Message.RemoveReactionAsync(Emoji.Parse("💬"), Bot.client.CurrentUser);
             }

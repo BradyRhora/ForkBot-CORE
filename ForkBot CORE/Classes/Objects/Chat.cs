@@ -325,18 +325,27 @@ namespace Stevebot
                         Console.WriteLine("[DEBUG] key found at: " + key_loc);
                         string msg = edit_response.Substring(0, key_loc - "[image]".Length).Trim();
                         string prompt = edit_response.Substring(key_loc).Trim();
+
+                        if (prompt == "")
+                        {
+                            prompt = msg;
+                            msg = "";
+                        }
+
                         Console.WriteLine("[DEBUG/msg] " + msg);
                         Console.WriteLine("[DEBUG/prompt] " + prompt);
+
+
                         var img = await OpenAI.CreateImage(new ImageCreateRequest(prompt));
                         MessageHistory.Add(new Message("assistant", BOT_ID, response));
 
                         if (img.Successful)
                         {
-                            Console.WriteLine("[DEBUG] Image generated, attempting to send");
+                            Console.Write("[DEBUG] Image generated, attempting to download...");
                             //Download image from URL
                             var webClient = new WebClient();
                             var data = webClient.DownloadData(img.Results.First().Url);
-
+                            Console.WriteLine(" And send...");
                             return new BotResponse(msg, data);
                         }
                         else
@@ -364,6 +373,8 @@ namespace Stevebot
 
                     if (completion.Error.Type == "insufficient_quota")
                         return new BotResponse("Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
+                    else if (completion.Error.Type == "server_error")
+                        return new BotResponse("lol sry openAI is overloaded with requests lmao\nlemme try again");
                     else
                     {
                         Console.WriteLine("[ERROR] " + completion.Error.Type + "\n" + completion.Error.Message);

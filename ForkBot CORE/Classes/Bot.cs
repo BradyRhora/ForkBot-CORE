@@ -297,7 +297,7 @@ namespace ForkBot
                             if (response.HasImage) {
                                 
                                 var attch = new FileAttachment(new MemoryStream(response.Img), "image.png");
-                                await message.Channel.SendFileAsync(attch, resp_text);
+                                await message.Channel.SendFileAsync(attch, resp_text.Length == 0 ? null : resp_text);
                             }
                             else
                                 await message.Channel.SendMessageAsync(resp_text);
@@ -309,28 +309,28 @@ namespace ForkBot
                         }
                     }
                 }
-            }/*
-            else if (false && lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp disabled
+            }
+            else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp enabled
             {
                 Console.WriteLine("[DEBUG] Trying to listen");
-                ulong[] allowedChannels = {Constants.Channels.GENERAL,Constants.Channels.COMMANDS,Constants.Channels.DEV };
+                ulong[] allowedChannels = {/*Constants.Channels.GENERAL,*/Constants.Channels.COMMANDS/*,Constants.Channels.DEV*/ };
                 if (allowedChannels.Contains(message.Channel.Id))
                 {
                     lastChatCheck = DateTime.Now;
                     int chance = rdm.Next(1000);
-                    Console.WriteLine("[DEBUG] Chance: " + chance);
+                    Console.WriteLine("\t[DEBUG] Chance: " + chance);
                     if (chance <= LISTEN_CHANCE * 10)
                     {
                         var gUser = (message.Channel as SocketGuildChannel).GetUser(client.CurrentUser.Id);
                         await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName + Constants.Emotes.EAR.Name);
-                        Console.WriteLine("[DEBUG] I want to join the chat..");
-                        Stevebot.Chat chat = new Stevebot.Chat(message.Author.Id, message.Channel.Id, true);
+                        Console.WriteLine("\t[DEBUG] I want to join the chat..");
+                        Stevebot.Chat chat = new Stevebot.Chat(message.Author.Id, message.Channel.Id, listening: true);
                     }
                 }
-            }*/
+            }
 
         }
-        const int LISTEN_CHANCE = 5; //%
+        const int LISTEN_CHANCE = 5; // %
         public static DateTime lastChatCheck = new DateTime(0);
 
         public async Task HandleReact(Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction react)
