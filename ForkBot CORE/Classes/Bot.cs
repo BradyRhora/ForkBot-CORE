@@ -270,15 +270,13 @@ namespace ForkBot
                         if (u.Left) u.Left = false;
                         var response = await chat.GetNextMessageAsync(message);
                         string resp_text = response.Text;
-                        if (resp_text != "")
+                        if (resp_text != "" || response.HasImage)
                         {
                             resp_text = Regex.Replace(resp_text, "(<@([0-9]*)>)", x =>
                             {
                                 ulong id = 0;
                                 if (ulong.TryParse(x.Groups[2].Value, out id))
-                                {
                                     return (message.Channel as SocketGuildChannel).Guild.GetUser(id).Username; 
-                                }
                                 else return "";
                             });
 
@@ -286,9 +284,7 @@ namespace ForkBot
                             {
                                 ulong id = 0;
                                 if (ulong.TryParse(x.Groups[2].Value, out id))
-                                {
                                     return (message.Channel as SocketGuildChannel).Guild.GetRole(id).Name;
-                                }
                                 else return "";
                             });
 
