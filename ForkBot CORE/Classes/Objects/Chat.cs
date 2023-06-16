@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels;
+using OpenAI;
 using ForkBot;
 using System.Text.RegularExpressions;
 using System.Data.SQLite;
-using static Stevebot.Chat;
 using System.Net;
 
 namespace Stevebot
@@ -88,7 +87,7 @@ namespace Stevebot
         #endregion
 
         // Publics
-        public static OpenAI.GPT3.Managers.OpenAIService OpenAI = new OpenAI.GPT3.Managers.OpenAIService(new OpenAiOptions()
+        public static OpenAI.Managers.OpenAIService OpenAI = new OpenAI.Managers.OpenAIService(new OpenAiOptions()
         {
             ApiKey = File.ReadAllText("Constants/openaitoken").Trim('\n')
         });

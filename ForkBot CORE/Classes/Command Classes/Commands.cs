@@ -16,7 +16,7 @@ using System.Globalization;
 using System.Data.SQLite;
 using System.Data;
 using YorkU;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -525,7 +525,7 @@ namespace ForkBot
             await ReplyAsync("", embed:emb.Build());
         }
 
-        /*
+        /* old moderation stuff
         [Command("verify"), Summary("Gain access to YorkU channels!")]
         public async Task Verify([Remainder] string param)
         {
@@ -2197,7 +2197,7 @@ namespace ForkBot
                         Temperature = 0.8f
                     };
 
-                    var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo);
+                    var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.ObjectModels.Models.ChatGpt3_5Turbo);
                     if (completion.Successful)
                     { 
                         string firstMsg = completion.Choices.First().Message.Content;
@@ -2311,7 +2311,7 @@ namespace ForkBot
                 
             };
 
-            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo);
+            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.ObjectModels.Models.ChatGpt3_5Turbo);
             if (completion.Successful)
             {
                 string resp = completion.Choices.First().Message.Content;
@@ -2378,7 +2378,7 @@ namespace ForkBot
 
             };
 
-            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.GPT3.ObjectModels.Models.Gpt4);
+            var completion = await Stevebot.Chat.OpenAI.ChatCompletion.CreateCompletion(request, OpenAI.ObjectModels.Models.Gpt_4);
             if (completion.Successful)
             {
                 string resp = completion.Choices.First().Message.Content;
