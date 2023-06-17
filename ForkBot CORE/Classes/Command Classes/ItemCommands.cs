@@ -9,7 +9,7 @@ using Discord;
 using Discord.Commands;
 using System.Net;
 using System.Data.SQLite;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace ForkBot
 {
