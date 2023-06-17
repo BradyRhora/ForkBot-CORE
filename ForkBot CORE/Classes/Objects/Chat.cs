@@ -272,7 +272,8 @@ namespace Stevebot
             string botName = Bot.client.CurrentUser.Username;
             if (just_listening)
             {
-                if (--messagesUntilJoin > 0) return new BotResponse("");
+                Console.WriteLine($"[DEBUG] listening for {--messagesUntilJoin} more messages");
+                if (messagesUntilJoin > 0) return new BotResponse("");
                 else if (messagesUntilJoin == 0)
                 {
                     var Gen = await Bot.client.GetChannelAsync(Constants.Channels.GENERAL) as IGuildChannel;
