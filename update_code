@@ -4,3 +4,4 @@ cd ~/forkbot-core/ForkBot\ CORE/
 sudo service forkbot stop
 sudo ./build
 sudo service forkbot start
+echo ForkBot up and running!
