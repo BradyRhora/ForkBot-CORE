@@ -76,6 +76,7 @@ namespace ForkBot
                 Console.Read();
             }
         }
+
         public async Task LogAsync(LogMessage msg)
         {
             Console.WriteLine($"[General/{msg.Severity}] {msg}");
@@ -85,10 +86,17 @@ namespace ForkBot
         {
             client.MessageReceived += HandleMessage;
             client.ReactionAdded += HandleReact;
+            client.Ready += Ready;
             await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services: null);
         }
+        private async Task Ready()
+        {
+            var cmds = await client.GetChannelAsync(Constants.Channels.COMMANDS) as IGuildChannel;
+            var gUser = await cmds.GetUserAsync(client.CurrentUser.Id);
+            await gUser.ModifyAsync(x => x.Nickname = gUser.DisplayName.Replace(Constants.Emotes.EAR.Name, ""));
+        }
 
-       
+
         List<ulong> newUsers = new();
 
         public async Task HandleMessage(SocketMessage messageParam)
