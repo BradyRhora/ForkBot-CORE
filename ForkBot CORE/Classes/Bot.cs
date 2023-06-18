@@ -306,7 +306,7 @@ namespace ForkBot
                     }
                 }
             }
-            else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp enabled
+            else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp enabled ( ͡° ͜ʖ ͡°)
             {
                 ulong[] allowedChannels = {/*Constants.Channels.GENERAL,*/Constants.Channels.COMMANDS/*,Constants.Channels.DEV*/ };
                 if (allowedChannels.Contains(message.Channel.Id))
