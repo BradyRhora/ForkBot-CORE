@@ -1,6 +1,6 @@
 #!/bin/bash
 git pull
 cd ~/forkbot-core/ForkBot\ CORE/
+sudo service forkbot stop
 sudo ./build
-cd ~/ForkBot
-dotnet ForkBot\ CORE.dll
+sudo service forkbot start
