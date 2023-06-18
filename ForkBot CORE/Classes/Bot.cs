@@ -56,7 +56,7 @@ namespace ForkBot
                 await client.StartAsync();
                 Var.DebugCode = rdm.Next(999, 9999) + 1;
                 Var.IDEnd = rdm.Next(10);
-                Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}] [DebugMode: {Var.DebugMode}");
+                Console.WriteLine($"ForkBot CORE successfully intialized with debug code [{Var.DebugCode}] [DebugMode: {Var.DebugMode}]");
                 Var.startTime = Var.CurrentDate();
 
                 int strikeCount = (Var.CurrentDate() - Constants.Dates.REBIRTH).Days;
@@ -308,13 +308,12 @@ namespace ForkBot
             }
             else if (lastChatCheck < (DateTime.Now - new TimeSpan(0, 5, 0))) // temp enabled
             {
-                Console.WriteLine("[DEBUG] Trying to listen");
                 ulong[] allowedChannels = {/*Constants.Channels.GENERAL,*/Constants.Channels.COMMANDS/*,Constants.Channels.DEV*/ };
                 if (allowedChannels.Contains(message.Channel.Id))
                 {
                     lastChatCheck = DateTime.Now;
                     int chance = rdm.Next(1000);
-                    Console.WriteLine("\t[DEBUG] Chance: " + chance);
+                    Console.WriteLine($"[DEBUG] Trying to listen... chance: Roll D1000: [{chance}] < {LISTEN_CHANCE * 10}?");
                     if (chance <= LISTEN_CHANCE * 10)
                     {
                         var gUser = (message.Channel as SocketGuildChannel).GetUser(client.CurrentUser.Id);
