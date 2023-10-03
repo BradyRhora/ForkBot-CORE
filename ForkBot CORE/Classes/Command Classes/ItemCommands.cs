@@ -157,14 +157,17 @@ namespace ForkBot
         {
             if (Check(Context, "purse")) return;
 
-            int r = rdm.Next(50) + 1;
-            int amount;
-            if (r < 20) amount = rdm.Next(50) + 1;
-            else amount = rdm.Next(50, 200) + 1;
+            int roll = rdm.Next(50) + 1;
+            int coin_gain;
+            if (roll < 20) coin_gain = rdm.Next(50) + 1;
+            else coin_gain = rdm.Next(50, 200) + 1;
 
-            await Context.Channel.SendMessageAsync($":purse: There's money inside! You also look great!\n**+{amount} coins Fashion+5**");
+            //if (Context.User.Id == Constants.Users.HIGHWAY404)
+            //    coin_gain = -100;
+
+            await Context.Channel.SendMessageAsync($":purse: There's money inside! You also look great!\n**+{coin_gain} coins\n+5 Fashion**");
             var u = User.Get(Context.User);
-            await u.GiveCoinsAsync(amount);
+            await u.GiveCoinsAsync(coin_gain);
             await u.AddStatAsync("fashion", 5);
         }
 

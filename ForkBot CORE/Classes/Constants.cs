@@ -25,6 +25,7 @@ namespace ForkBot
             public static ulong SLEEP = 534564220704915456;
             public static ulong EZRA = 481633326831108096;
             public static ulong FORKBOT = 377913570912108544;
+            public static ulong HIGHWAY404 = 126136860618522624;
         }
 
         public class Roles

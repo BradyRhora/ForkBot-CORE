@@ -2076,7 +2076,7 @@ namespace ForkBot
                 "Get coins for items you don't need or want by selling them with `;sell`! Item can't be sold? Just `;trash` it!",
                 "Give other users coins with the `;donate` command!",
                 "Legend says of a secret shop that only the most elite may enter! I think the **man** knows...",
-                "Did you know that you can sell ALL of your items using ;sell all? Be careful! You will lose EVERYTHING!",
+                "Did you know that you can sell ALL of your items using ;sell all? Be careful! You will lose *everything*!",
                 "Check professor ratings using the ;prof command!"
                 };
             if (tipNumber == -1) tipNumber = rdm.Next(tips.Length);

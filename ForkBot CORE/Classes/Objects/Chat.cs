@@ -69,6 +69,11 @@ namespace Stevebot
                 user.AddData("GPTWordsUsed", tokenCount);
                 return true;
             }
+
+            public User GetUser()
+            {
+                return User.Get(Id);
+            }
         }
 
         public class BotResponse
@@ -223,18 +228,18 @@ namespace Stevebot
             if (message != null)
             {
                 var chatUser = GetUser(message.Author.Id);
+                var user = chatUser.GetUser();
 
                 // Ensure user has tokens available
 
                 if (!chatUser.UseTokensIfAvailable(GetTokenWorth(message.Content)))
                     return new BotResponse("");
 
-                /* FIX THIS
-                if (chatUser.GetTokenCount() > MAX_USER_TOKENS)
-                    return ""; // CHECK FOR KEYBOARD
+                if (chatUser.GetTokenCount() > MAX_USER_TOKENS && !user.HasItem("keyboard"))
+                    return new BotResponse("");
                 else
                     user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
-                */
+                
                 
                 // Add to history
                 chatUser.LastMsg = DateTime.Now;
