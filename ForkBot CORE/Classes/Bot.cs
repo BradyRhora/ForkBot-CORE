@@ -299,7 +299,7 @@ namespace ForkBot
                             resp_text = resp_text.Replace("@", "");
 
                             if (response.HasImage) {
-                                
+                               	Console.WriteLine("[DEBUG] Reply HAS image. Attempting to attach and send."); 
                                 var attch = new FileAttachment(new MemoryStream(response.Img), "image.png");
                                 await message.Channel.SendFileAsync(attch, resp_text.Length == 0 ? null : resp_text);
                             }
@@ -310,7 +310,9 @@ namespace ForkBot
                             string[] partingTerms = { "bye", "seeya", "cya" };
                             if (partingTerms.Where(x => message.Content.ToLower().Contains(x)).Count() > 0)
                                 chat.Leave(message.Author);
-                        }
+                        } else {
+			    Console.WriteLine("Response has no content! Nothing to send.");
+			}
                     }
                 }
             }

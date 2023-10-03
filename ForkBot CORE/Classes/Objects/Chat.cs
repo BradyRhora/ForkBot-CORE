@@ -346,7 +346,7 @@ namespace Stevebot
 
                         if (img.Successful)
                         {
-                            Console.Write("[DEBUG] Image generated, attempting to download...");
+                            Console.Write($"[DEBUG] Image generated with url: [{img.Results.First().Url}], attempting to download...");
                             //Download image from URL
                             var webClient = new WebClient();
                             var data = webClient.DownloadData(img.Results.First().Url);
