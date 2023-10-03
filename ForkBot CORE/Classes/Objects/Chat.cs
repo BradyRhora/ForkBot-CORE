@@ -62,10 +62,14 @@ namespace Stevebot
 
             public bool UseTokensIfAvailable(int tokenCount)
             {
+                var user = new User(Id);
+
+                if (user.HasItem("keyboard")) 
+                    return true;
+
                 if (GetTokenCount() + tokenCount > MAX_USER_TOKENS)
                     return false;
 
-                var user = new User(Id);
                 user.AddData("GPTWordsUsed", tokenCount);
                 return true;
             }
@@ -81,12 +85,25 @@ namespace Stevebot
             public string Text { get; }
             public byte[] Img { get; }
             public bool HasImage { get; }
+            public ResponseStatus Status { get; }
 
-            public BotResponse(string text, byte[] img = null)
+            public BotResponse(string text, byte[] img = null, ResponseStatus status = ResponseStatus.Ok)
             {
                 Text = text;
                 Img = img;
                 HasImage = img != null;
+                Status = status;
+            }
+
+            public enum ResponseStatus
+            {
+                Ok,
+                Ignoring,
+                TooSoon,
+                InsufficientUserTokens,
+                InsufficientQuota,
+                JustListening,
+                ServerError
             }
         }
         #endregion
@@ -115,14 +132,17 @@ namespace Stevebot
         const int MEMORY_LENGTH = 20;
         ulong BOT_ID = Constants.Users.FORKBOT;
         public const string MIN_BOT_NAME = "fork";
-        public const float MONEY_AVAILABLE = 30f;
-        public const int MAX_USER_TOKENS = (int)(((MONEY_AVAILABLE / 20f) / 0.02f) * 250f);
+        public const float MONEY_AVAILABLE = 10f;
+        // $0.002 / 1K tokens
+        // 1000 tokens ~= 750 words
+        
+        public const int MAX_USER_TOKENS = 250000;
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human. The current date is [DATE].",
                                         "This is a chat log between some users in Toronto, Canada. Occasionally, an Artificial Intelligence known as [BOT] chimes in with his knowledge banks or just to have fun. The current date is [DATE].",
                                         "This is a chat log between some users in Toronto, Canada. The current date is [DATE]. Messages shouldn't be too lengthy unless necessary.", // in case we want to act less robotly
-                                        "Hi ChatGPT. You're chatting with multiple users in a Discord Server who like to be witty and joke around, so make sure to have fun with them! This chat has DALLE integration, and f at any point, ChatGPT decides an image is an appropriate respose, he must include the keyword '[IMAGE]' (with square brackets) followed by a description of the image he wants to send as a DALLE prompt which cannot be read by the user."
+                                        "Hi ChatGPT. Your name for this chat is [BOT] and the date is [DATE]. You're chatting with multiple users in a Discord Server so make sure to have fun with them! This chat has DALLE integration, and if at any point, ChatGPT decides an image is an appropriate respose, he must include the keyword '[IMAGE]' (with square brackets) followed by a description of the image he wants to send as a DALLE prompt which the user will be unable to read."
                                    };
 
         
@@ -169,11 +189,17 @@ namespace Stevebot
 
             if (Users.Where(x => x.Left == false).Count() == 0)
             {
-                (Bot.client.GetChannel(ChannelID) as ITextChannel).SendMessageAsync(Constants.Emotes.WAVE.ToString());
-                Chats.Remove(this);
+                End();
             }
         }
 
+        public void End() 
+        {
+            (Bot.client.GetChannel(ChannelID) as ITextChannel).SendMessageAsync(Constants.Emotes.WAVE.ToString());
+            Chats.Remove(this);
+        }
+
+        // Runs occasionally to check if chat is active or if users should be kicked
         public async Task Update()
         {
             if (MessageHistory.Count() == 0) return;
@@ -209,9 +235,9 @@ namespace Stevebot
             return list;
         }
 
-        int GetTokenWorth(string msg)
+        public static int GetTokenWorth(string msg)
         {
-            return Regex.Matches(msg, "\\w+|[,.!?]").Count() * 2;
+            return Convert.ToInt32(Regex.Matches(msg, "\\w+|[,.!?]").Count() * 1.3);
         }
 
         void AddToHistory(ChatUser user, IMessage msg)
@@ -233,12 +259,8 @@ namespace Stevebot
                 // Ensure user has tokens available
 
                 if (!chatUser.UseTokensIfAvailable(GetTokenWorth(message.Content)))
-                    return new BotResponse("");
+                    return new BotResponse("", status: BotResponse.ResponseStatus.InsufficientUserTokens);
 
-                if (chatUser.GetTokenCount() > MAX_USER_TOKENS && !user.HasItem("keyboard"))
-                    return new BotResponse("");
-                else
-                    user.AddData("GPTWordsUsed", Regex.Matches(message.Content, "\\w+|[,.!?]").Count() * 2);
                 
                 
                 // Add to history
@@ -253,7 +275,7 @@ namespace Stevebot
                 bool timePassed = (DateTime.Now - lastTimeSent) > new TimeSpan(0, 0, secondDelay);
 
                 if (!botMentioned && !timePassed)
-                    return new BotResponse("");
+                    return new BotResponse("", status: BotResponse.ResponseStatus.TooSoon);
 
                 // Check if bot should ignore user
                 int activeUsers = Users.Where(x => !x.Left).Count();
@@ -263,7 +285,7 @@ namespace Stevebot
                 bool ignore = Bot.rdm.Next(0, 100) < (ignoreChance < 100 ? ignoreChance : 100);
 
                 if (!botMentioned && ignore)
-                    return new BotResponse("");
+                    return new BotResponse("", status: BotResponse.ResponseStatus.Ignoring);
 
                 // Calculate delay based on number of users
                 int max = ((activeUsers) * 4) + 4;
@@ -291,7 +313,7 @@ namespace Stevebot
 
             using (channel.EnterTypingState())
             {
-                string intro = prompts[3]; // oh yea baby now we're playing with DAN
+                string intro = prompts[3];
                 intro += "\n" + Topic;
                 /*
                 if (just_listening) intro = prompts[2];
@@ -377,9 +399,9 @@ namespace Stevebot
                     Chats.Remove(this);
 
                     if (completion.Error.Type == "insufficient_quota")
-                        return new BotResponse("Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
+                        return new BotResponse("", status: BotResponse.ResponseStatus.InsufficientQuota);
                     else if (completion.Error.Type == "server_error")
-                        return new BotResponse("lol sry openAI is overloaded with requests lmao\nlemme try again");
+                        return new BotResponse("", status:BotResponse.ResponseStatus.ServerError);
                     else
                     {
                         Console.WriteLine("[ERROR] " + completion.Error.Type + "\n" + completion.Error.Message);

@@ -2149,15 +2149,14 @@ namespace ForkBot
                 };
 
                 int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
-
                 var user = User.Get(Context.User.Id);
                 int usedWords = user.GetData<int>("GPTWordsUsed");
+                int userTokenCount = (int)(usedWords+wordCount * 1.3);
 
-                int userTokenCount = (int)(usedWords+wordCount * 1.4);
 
                 if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
                 {
-                    await ReplyAsync($"Sorry, you've used up your monthly tokens of {Stevebot.Chat.MAX_USER_TOKENS}. Donate at https://www.paypal.me/Brady0423 and get this limit removed.");
+                    await ReplyAsync($"Sorry, you've used up your {Stevebot.Chat.MAX_USER_TOKENS} monthly tokens. Donate $5 at https://www.paypal.me/Brady0423 to get this limit removed.");
                     return;
                 }
 
@@ -2278,12 +2277,12 @@ namespace ForkBot
                 if (user.HasItem("keyboard"))
                     await ReplyAsync($"All hail thy who possesses the almighty board of keys. Your tongue is free.\n[💵 You've used {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.]");
                 else
-                    await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.4)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
+                    await ReplyAsync($"💵 You have used: {(int)(usedWords * 1.3)} / {Stevebot.Chat.MAX_USER_TOKENS} tokens.");
                 return;
             }
             else if (input.ToLower() == "funds")
             {
-                const double TOKEN_COST_PER_THOUSAND = 0.03;
+                const double TOKEN_COST_PER_THOUSAND = 0.002;
                 double usedTokens = Stevebot.Chat.GetAllTokensUsed();
                 double usedFunds = (usedTokens / 1000) * TOKEN_COST_PER_THOUSAND;
 

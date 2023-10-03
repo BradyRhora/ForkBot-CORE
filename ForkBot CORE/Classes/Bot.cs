@@ -277,8 +277,9 @@ namespace ForkBot
                     {
                         if (u.Left) u.Left = false;
                         var response = await chat.GetNextMessageAsync(message);
+
                         string resp_text = response.Text;
-                        if (resp_text != "" || response.HasImage)
+                        if (response.Status == Stevebot.Chat.BotResponse.ResponseStatus.Ok)
                         {
                             resp_text = Regex.Replace(resp_text, "(<@([0-9]*)>)", x =>
                             {
@@ -296,7 +297,8 @@ namespace ForkBot
                                 else return "";
                             });
 
-                            resp_text = resp_text.Replace("@", "");
+                            // remove the possibility of mentioning users completely
+                            //resp_text = resp_text.Replace("@", "");
 
                             if (response.HasImage) {
                                	Console.WriteLine("[DEBUG] Reply HAS image. Attempting to attach and send."); 
@@ -311,8 +313,24 @@ namespace ForkBot
                             if (partingTerms.Where(x => message.Content.ToLower().Contains(x)).Count() > 0)
                                 chat.Leave(message.Author);
                         } else {
-			    Console.WriteLine("Response has no content! Nothing to send.");
-			}
+                            
+                            switch(response.Status)
+                            {
+                                case Stevebot.Chat.BotResponse.ResponseStatus.InsufficientQuota:
+                                    await message.Channel.SendMessageAsync("\"Sorry!\\nWe've used up all of our OpenAI API Funds.\\n\\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
+                                    chat.End();
+                                    break;
+                                case Stevebot.Chat.BotResponse.ResponseStatus.ServerError:
+                                    await message.Channel.SendMessageAsync("lol sry openAI is overloaded with requests lmao\ntry again");
+                                    break;
+                                case Stevebot.Chat.BotResponse.ResponseStatus.InsufficientUserTokens:
+                                    await message.Channel.SendMessageAsync("");
+                                    break;
+                                default:
+                                    //Console.WriteLine("[DEBUG] Response has no content! Nothing to send.");
+                                    break;
+                            }
+			            }
                     }
                 }
             }
