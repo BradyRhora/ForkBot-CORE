@@ -1,3 +1,16 @@
 #!/bin/bash
-cd "/home/brady0423/forkbot-core/ForkBot CORE/bin/Debug/net6.0/linux-x64"
-dotnet ForkBot\ CORE.dll
+
+# Set the path to the dotnet program
+dotnet_path="/home/brady0423/forkbot-core/ForkBot CORE/bin/Debug/net6.0/linux-x64"
+
+# Check if the dotnet program is already running
+process_count=$(pgrep -c -f "dotnet ForkBot CORE.dll")
+
+if [ $process_count -eq 0 ]
+then
+  # If the program is not running, change to the dotnet program directory and run the program
+  cd "$dotnet_path"
+  dotnet ForkBot\ CORE.dll
+else
+  echo "[ERROR] ForkBot is already running."
+fi
