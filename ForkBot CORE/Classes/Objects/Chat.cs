@@ -11,6 +11,7 @@ using ForkBot;
 using System.Text.RegularExpressions;
 using System.Data.SQLite;
 using System.Net;
+using static Stevebot.Chat;
 
 namespace Stevebot
 {
@@ -58,6 +59,13 @@ namespace Stevebot
                 var user = User.Get(Id);
                 int usedWords = user.GetData<int>("GPTWordsUsed");
                 return (int)(usedWords * 1.4);
+            }
+
+            public void UseTokens(int tokenCount)
+            {
+                var user = User.Get(Id);
+                int usedWords = user.GetData<int>("GPTWordsUsed");
+                user.AddData("GPTWordsUsed", usedWords + (int)(tokenCount / 1.4));
             }
 
             public bool UseTokensIfAvailable(int tokenCount)
@@ -251,9 +259,11 @@ namespace Stevebot
         //TODO: Break this up into smaller functions
         public async Task<BotResponse> GetNextMessageAsync(IMessage? message = null)
         {
+            ChatUser? chatUser = null;
+
             if (message != null)
             {
-                var chatUser = GetUser(message.Author.Id);
+                chatUser = GetUser(message.Author.Id);
                 var user = chatUser.GetUser();
 
                 // Ensure user has tokens available
@@ -261,13 +271,9 @@ namespace Stevebot
                 if (!chatUser.UseTokensIfAvailable(GetTokenWorth(message.Content)))
                     return new BotResponse("", status: BotResponse.ResponseStatus.InsufficientUserTokens);
 
-                
-                
                 // Add to history
                 chatUser.LastMsg = DateTime.Now;
-                MessageHistory.Add(new Message("user", message.Author.Id, message.Content.Replace(Constants.Values.COMMAND_PREFIX + "talk", "").Trim(' ')));
-
-
+               
                 AddToHistory(chatUser, message);
 
                 // Check if bot has been called by name and if respond delay has passed
@@ -338,6 +344,8 @@ namespace Stevebot
                 if (completion.Successful)
                 {
                     string response = completion.Choices.First().Message.Content;
+                    int responseValue = GetTokenWorth(response);
+
                     Console.WriteLine("[DEBUG] Response: " + response);
 
                     //System.Threading.Thread.Sleep(response.ToString().Length * 75); disabled for forkbot
@@ -373,6 +381,11 @@ namespace Stevebot
                             var webClient = new WebClient();
                             var data = webClient.DownloadData(img.Results.First().Url);
                             Console.WriteLine(" And send...");
+
+
+                            // Ensure user has tokens available
+
+                            chatUser.UseTokens(responseValue + 300);
                             return new BotResponse(msg, data);
                         }
                         else
@@ -390,6 +403,7 @@ namespace Stevebot
                     }
 
                     MessageHistory.Add(new Message("assistant", BOT_ID, edit_response));
+                    chatUser.UseTokens(responseValue);
                     edit_response = await ReplaceNameWithPingAsync(edit_response);
                     return new BotResponse(edit_response);
                     
