@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo dotnet build -r linux-x64 --self-contained
+sudo dotnet build -v q -r linux-x64 --self-contained
