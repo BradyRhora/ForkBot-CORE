@@ -317,14 +317,14 @@ namespace ForkBot
                             switch(response.Status)
                             {
                                 case Stevebot.Chat.BotResponse.ResponseStatus.InsufficientQuota:
-                                    await message.Channel.SendMessageAsync("\"Sorry!\\nWe've used up all of our OpenAI API Funds.\\n\\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
+                                    await message.Channel.SendMessageAsync("Sorry!\nWe've used up all of our OpenAI API Funds.\n\nIf you'd like to donate more, you can at https://www.paypal.me/Brady0423. 100% will go to our usage limit.\nDonating $5+ will also give you an item that bypasses the monthly per-user usage limit.");
                                     chat.End();
                                     break;
                                 case Stevebot.Chat.BotResponse.ResponseStatus.ServerError:
                                     await message.Channel.SendMessageAsync("lol sry openAI is overloaded with requests lmao\ntry again");
                                     break;
                                 case Stevebot.Chat.BotResponse.ResponseStatus.InsufficientUserTokens:
-                                    await message.Channel.SendMessageAsync("");
+                                    await message.Channel.SendMessageAsync("Sorry! You've used up all your alloted credits for the month.\nUse `;gpt usage` to see your current token usage.");
                                     break;
                                 default:
                                     //Console.WriteLine("[DEBUG] Response has no content! Nothing to send.");
