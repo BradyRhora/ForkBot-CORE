@@ -144,7 +144,7 @@ namespace Stevebot
         // $0.002 / 1K tokens
         // 1000 tokens ~= 750 words
         
-        public const int MAX_USER_TOKENS = 250000;
+        public const int MAX_USER_TOKENS = 20000;
 
         private string[] prompts = {
                                         "This is a chat log between an all-knowing but kind and humorous Artificial Intelligence, [BOT], and a human. The current date is [DATE].",
