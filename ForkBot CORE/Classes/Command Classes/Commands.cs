@@ -2147,20 +2147,6 @@ namespace ForkBot
                     { "we", $"Forkbot and {Context.User.Username}" }
 
                 };
-
-                int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
-                var user = User.Get(Context.User.Id);
-                int usedWords = user.GetData<int>("GPTWordsUsed");
-                int userTokenCount = (int)(usedWords+wordCount * 1.3);
-
-
-                if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
-                {
-                    await ReplyAsync($"Sorry, you've used up your {Stevebot.Chat.MAX_USER_TOKENS} monthly tokens. Donate $5 at https://www.paypal.me/Brady0423 to get this limit removed.");
-                    return;
-                }
-
-
                 input = input.ToLower();
 
                 foreach (var replace in replacements)
@@ -2184,6 +2170,18 @@ namespace ForkBot
             }
             else
             {
+                int wordCount = Regex.Matches(input, "\\w+|[,.!?]").Count();
+                var user = User.Get(Context.User.Id);
+                int usedWords = user.GetData<int>("GPTWordsUsed");
+                int userTokenCount = (int)(usedWords + wordCount * 1.3);
+
+
+                if (!user.HasItem("keyboard") && userTokenCount > Stevebot.Chat.MAX_USER_TOKENS)
+                {
+                    await ReplyAsync($"Sorry, you've used up your {Stevebot.Chat.MAX_USER_TOKENS} monthly tokens. Donate $5 at https://www.paypal.me/Brady0423 to get this limit removed.");
+                    return;
+                }
+
                 await Context.Message.AddReactionAsync(Emoji.Parse("💬"));
                 Stevebot.Chat newChat = null;
                 if (input == "" || input == " ")
